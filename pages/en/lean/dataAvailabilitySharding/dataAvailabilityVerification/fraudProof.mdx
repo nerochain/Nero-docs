@@ -1,0 +1,7 @@
+# 5.3.3 Fraud Proof
+
+The random sampling method mentioned above ensures that there are sufficient fragments within the network to recover the corresponding blocks, thus ensuring data availability. However, it does not guarantee the validity of all data within these fragments. Therefore, it is necessary to address this issue through fraud proof mechanisms.
+
+Fraud proof can be categorized into proof of invalid transaction and proof of invalid data encoding. For the DA chain, the focus lies on the latter. Fraud proof generation hinges on the ability of the RS code within each row and column of the 2D encoding to accurately reconstruct the original data. Therefore, only one row or column of data is necessary to generate the proof, resulting in a proof size proportional to the size of all data, denoted as n.
+
+In situations where nodes gather sufficient fragments but are unable to decode them correctly, they must broadcast these fragments along with their Merkle proofs. These proofs serve as the fraud proof, allowing other nodes to verify their authenticity. The node that first submits the fraud proof is rewarded accordingly.

@@ -1,0 +1,175 @@
+# Paymaster API
+
+## Gas conversion process
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure2.jpeg" alt="Figure 2" />
+  <p style={{ fontStyle: 'italic' }}>Figure 2: Paymaster API Flow</p>
+</div>
+
+## Paymaster Contract
+
+We use three mappings to store developer data, achieving decentralized management.
+
+mapping(uint256 => address) public projectOwner; 
+
+mapping(uint256 => uint256) public projectNero; 
+
+mapping(uint256 => mapping(address => uint256)) public projectERC20; 
+
+Developers bind their project to a wallet address on the platform and then recharge with NERO. After that, users can call the Paymaster API to pay for gas either for free or using ERC20. Please refer to the usage guidelines of the platform for more details.
+
+
+## Sponsored transaction process
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure3.png" alt="Figure 3" />
+  <p style={{ fontStyle: 'italic' }}>Figure 3: Sponsored Transaction Flow</p>
+</div>
+
+
+
+## RPC Api
+
+### pm_supported_tokens
+Retrieve the list of ERC20 tokens configured for gas payment by the project. With the request parameters in the following order: userop, project_apikey, entrypoint. request:
+```json
+{  
+  "jsonrpc": "2.0",  
+  "id": 1,  
+  "method": "pm_supported_tokens",
+  "params": [
+      {
+          "sender": "0x002f25C57213D8E8d377696e6d8C649ca32381d9",
+          "nonce": "0x5",
+          "initCode": "0x",
+          "callData": "0xb61d27f600000000000000000000000013dcf97b6b94bda883492ab46d556e8919445876000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044095ea7b300000000000000000000000038764200d295b00d0e00a9b98b028dfe107e45b100000000000000000000000000000000000000000052b7d2dcc80cd2e400000000000000000000000000000000000000000000000000000000000000",
+          "callGasLimit": "0x88b8",
+          "verificationGasLimit": "0x33450",
+          "preVerificationGas": "0xc350",
+          "maxFeePerGas": "0x2162553062",
+          "maxPriorityFeePerGas": "0x40dbcf36",
+          "paymasterAndData": "0x",
+          "signature": "0xceda24e15c63ed6368bd3d7a2919cdbc15cc7a0659c8d8e25561510ddfc1960f5bf1c72cb84ae48baf95cb132142ba5ae7ebecb289e4b1e33e8887bd404632c51b"
+      },
+      "9r239fieu3u9fe",
+      "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```
+
+response: The returned price, if it is "system", may vary when requesting pm_sponsor_userop, whereas if it is "custom", it is the price set by the backend. The price is the exchange rate of the ERC20 token against NERO. freeGas: Whether or not to support sponsoring gas fees. Note that, like the token’s price, it may change when requesting pm_sponsor_userop. For example, if it returns true here, but the request for pm_sponsor_userop exceeds the total number of requests due to other requests, the paymaster signature will return an error, and the user will need to choose a different method for paying gas fees.
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      freeGas: true,
+      native: { gas: '0x337dc', price: 1, decimals: 18, symbol: 'NERO' },
+      tokens: [
+        {
+          type: 'system',
+          token: '0xD5a6dcff7AC339A03f6964c315575bF65c3c6cF6',
+          symbol: 'DAI',
+          decimals: 18,
+          price: 2.1
+        },
+        {
+          type: 'custom',
+          token: '0x13DCf97b6B94bDA883492AB46d556E8919445876',
+          symbol: 'TestToken',
+          decimals: 18,
+          price: 0.1
+        }
+      ]
+    }
+}
+```
+
+## pm_sponsor_userop
+
+Get paymaster and signature data With the request parameters in the following order: userop, project_apikey, entrypoint, context(type, erc20)
+
+* type=0 freegas. Developer sponsors gas fees, users do not need to pay ERC20.
+* type=1 prefund erc20. During the verification phase, the system first deducts the full amount of ERC20 from the user, and then returns the excess portion after executing the user operation.
+* type=2 postfund erc20. After the userop is executed, the system deducts the ERC20 from the user in one go. However, it’s possible that the deduction may fail due to the specific nature of the userop code.
+
+```json
+{
+  id: 42,
+  jsonrpc: '2.0',
+  method: 'pm_sponsor_userop',
+  params: [
+    {
+      sender: '0x002f25C57213D8E8d377696e6d8C649ca32381d9',
+      nonce: '0x5',
+      initCode: '0x',
+      callData: '0xb61d27f600000000000000000000000013dcf97b6b94bda883492ab46d556e8919445876000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044095ea7b300000000000000000000000038764200d295b00d0e00a9b98b028dfe107e45b100000000000000000000000000000000000000000052b7d2dcc80cd2e400000000000000000000000000000000000000000000000000000000000000',
+      callGasLimit: '0x88b8',
+      verificationGasLimit: '0x33450',
+      preVerificationGas: '0xc350',
+      maxFeePerGas: '0x2162553062',
+      maxPriorityFeePerGas: '0x40dbcf36',
+      paymasterAndData: '0x',
+      signature: '0xceda24e15c63ed6368bd3d7a2919cdbc15cc7a0659c8d8e25561510ddfc1960f5bf1c72cb84ae48baf95cb132142ba5ae7ebecb289e4b1e33e8887bd404632c51b'
+    },
+    '9r239fieu3u9fe',
+    '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+    {
+      type: '2',
+      token: '0x13DCf97b6B94bDA883492AB46d556E8919445876'
+    }
+  ]
+}
+```
+
+Correct response:
+
+```json
+{  
+  "jsonrpc": "2.0",  
+  "id": 1,  
+  "result": {  
+      "paymasterAndData": "0x1234...5678",  
+      "preVerificationGas": "0x...",  
+      "verificationGasLimit": "0x...",  
+      "callGasLimit": "0x...",  
+  }  
+}
+Error response:
+{  
+  "jsonrpc": "2.0",  
+  "id": 1,  
+  "error": {  
+    "message": "Gas exceeds the limit.", 
+    "code": -32601  
+  }  
+}
+```
+## pm_entrypoints
+
+Get EntryPoint address supported currently request:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_entrypoints",
+  "params": [
+      "entryPoint"
+  ]
+}
+```
+
+response:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```

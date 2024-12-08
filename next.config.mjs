@@ -1,0 +1,24 @@
+import nextra from "nextra";
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
+const withNextra = nextra({
+  theme: "nextra-theme-docs",
+  themeConfig: "./theme.config.tsx",
+  mdxOptions: {
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex]
+  }
+});
+
+export default withNextra(
+    {
+        i18n: {
+          locales: ['en'],
+          defaultLocale: 'en'
+        }
+      }
+);
+
+// If you have other Next.js configurations, you can pass them as the parameter:
+// export default withNextra({ /* other next.js config */ })
