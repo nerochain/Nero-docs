@@ -1,6 +1,7 @@
 # Nero Chain Documentation
 
 This is the official documentation for Nero Chain
+(https://docs.nerochain.io/)
 
 ## Prerequisites
 
