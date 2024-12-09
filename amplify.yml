@@ -1,0 +1,24 @@
+version: 1
+frontend:
+    phases:
+        preBuild:
+            commands:
+                - echo "Setup Node.js 20.11.1"
+                - nvm install 20.11.1
+                - nvm use 20.11.1
+                - node --version
+                - npm --version
+                - corepack enable
+                - yarn set version 3.8.3
+                - 'yarn install'
+        build:
+            commands:
+                - 'yarn build'
+    artifacts:
+        baseDirectory: .next
+        files:
+            - '**/*'
+    cache:
+        paths:
+            - '.next/cache/**/*'
+            - 'node_modules/**/*'
