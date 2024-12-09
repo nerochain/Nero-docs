@@ -15,8 +15,8 @@ jobs:
         id: get-url
         run: |
           BRANCH_NAME=$(echo ${{ github.head_ref }} | sed 's/\//-/g')
-          # Use Amplify's default domain pattern
-          echo "preview_url=https://${BRANCH_NAME}.${GITHUB_REPOSITORY_OWNER}.amplifyapp.com" >> $GITHUB_OUTPUT
+          # Use specific Amplify app ID for preview URL
+          echo "preview_url=https://${BRANCH_NAME}.d18pp8viccmbq.amplifyapp.com" >> $GITHUB_OUTPUT
 
       - name: Wait for deployment
         run: |
@@ -33,4 +33,4 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `## 🚀 Preview Environment Ready!\n\n### Preview URL\n${previewUrl}\n\nPlease review the changes.`
-            }); 
+            });
