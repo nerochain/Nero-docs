@@ -20,8 +20,7 @@ jobs:
 
       - name: Wait for deployment
         run: |
-          # Wait for deployment to complete
-          sleep 60
+          sleep 270
 
       - name: Comment PR
         uses: actions/github-script@v7
