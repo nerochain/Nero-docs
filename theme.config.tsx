@@ -12,6 +12,12 @@ const themeConfig: DocsThemeConfig = {
       />
     </>
   ),
+  head: (
+    <>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>NERO Chain Docs</title>
+    </>
+  ),
   footer: {
     content: (
       <span>
