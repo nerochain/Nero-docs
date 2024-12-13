@@ -2,7 +2,8 @@ export default {
   architecture: "Architecture",
   paymaster: "Paymaster",
   userOpSdkUsage: "UerOp-SDK Usage",
-  aaPlatformUsageGuide: "AA Platform Usage Guide",
+  aaWallet: "AA Wallet Usage",
+  aaPlatformUsageGuide: "AA Platform Usage",
   accessEntryPoint: "Access Entry Point"
   
 }

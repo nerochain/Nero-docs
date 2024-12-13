@@ -1,7 +1,7 @@
 export default {
   index: "Welcome",
   lean: "Lean",
-  aaPlatform: "AA Platform",
+  aa: "NERO AA",
   building: "Building on NERO Chain",
   supports: "Support and Contact"
 }
