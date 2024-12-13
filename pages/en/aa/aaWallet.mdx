@@ -1,0 +1,282 @@
+# AA Wallet Usage
+
+## Overview
+
+AA Wallet is an easy and secure wallet integration solution for Web3 applications. By combining social login and Account Abstraction, it enables the development of more user-friendly decentralized applications (dApps).
+
+### Installation
+
+```
+npm install nero-wallet
+# or
+yarn add nero-wallet
+```
+
+### Basic Setup
+
+```typescript
+// main.tsx
+import { SocialWallet } from "nero-wallet";
+import "nero-wallet/index.css";
+import config from "../nerowallet.config"; //project root directory
+import "@rainbow-me/rainbowkit/styles.css";
+
+function App() {
+  return (
+    <SocialWallet config={config}>
+      <YourApp />
+    </SocialWallet>
+  );
+}
+```
+
+## Core Features
+
+### 1. Wallet Connection
+
+```typescript
+import { useSignature } from "nero-wallet";
+
+function YourComponent() {
+  const { AAaddress, isConnected } = useSignature();
+
+  return (
+    <div>
+      {isConnected ? (
+        <p>Connected: {AAaddress}</p>
+      ) : (
+        <p>Please connect your wallet</p>
+      )}
+    </div>
+  );
+}
+```
+
+### 2. Transaction Execution
+
+```typescript
+import { useSendUserOp } from "nero-wallet";
+
+function TransactionComponent() {
+  const { execute, waitForUserOpResult } = useSendUserOp();
+
+  const handleTransaction = async () => {
+    try {
+      await execute({
+        function: "yourFunction",
+        contractAddress: "CONTRACT_ADDRESS",
+        abi: CONTRACT_ABI,
+        value: "0x0", // No Token transfer by default
+        params: [param1, param2],
+      });
+      const result = await waitForUserOpResult();
+      console.log("Transaction successful:", result);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+}
+```
+
+### 3. Batch Transactions
+
+```typescript
+import { useSignature } from "nero-wallet";
+
+function BatchComponent() {
+  const { executeBatch, waitForUserOpResult } = useSignature();
+
+  const handleBatchTransaction = async () => {
+    const operations = [
+      {
+        function: "function1",
+        contractAddress: "ADDRESS1",
+        abi: ABI1,
+        value: "0x0", // No Token transfer by default
+        params: [param1],
+      },
+      {
+        function: "function2",
+        contractAddress: "ADDRESS2",
+        abi: ABI2,
+        value: "0x0", // No Token transfer by default
+        params: [param2],
+      },
+    ];
+
+    try {
+      await executeBatch(operations);
+      const result = await waitForUserOpResult();
+    } catch (error) {
+      console.error("Batch transaction failed:", error);
+    }
+  };
+}
+```
+
+## AA Wallet Configuration
+
+### Overview
+
+NERO Wallet can be customized through configuration files. By creating a `nerowallet.config.ts` file in the project root, you can reflect your own environment settings.
+
+### Basic Configuration
+
+```typescript
+// nerowallet.config.ts
+import YourLogoIcon from "./path/to/your/logo.svg";
+
+const config = {
+  // Wallet Basic Settings
+  rainbowKitProjectId: "YOUR_PROJECT_ID",
+  walletName: "YOUR_WALLET_NAME",
+  walletLogo: YourLogoIcon,
+  iconBackground: "#ffffff",
+
+  // External Links
+  contactAs: "YOUR_CONTACT_URL",
+  PrivacyPolicy: "YOUR_PRIVACY_POLICY_URL",
+  ServiceTerms: "YOUR_TERMS_URL",
+};
+```
+
+### Chain Configuration
+
+```typescript
+chains: [
+  {
+    chain: {
+      name: "YOUR_NETWORK_NAME",
+      logo: YourChainLogo,
+      networkType: "testnet", // or 'mainnet'
+      rpc: process.env.RPC_URL,
+      chainId: Number(process.env.CHAIN_ID),
+      explorer: process.env.EXPLORER_URL,
+      explorerAPI: process.env.EXPLORER_API,
+      nativeToken: {
+        decimals: 18,
+        name: "TOKEN",
+        symbol: "TOKEN_SYMBOL",
+      },
+    },
+    // Account Abstraction settings
+    aa: {
+      bundler: process.env.BUNDLER_URL,
+      paymaster: process.env.PAYMASTER_URL,
+      paymasterAPIKey: process.env.PAYMASTER_API,
+    },
+    // Contract Addresses
+    aaContracts: {
+      entryPoint: "YOUR_ENTRY_POINT_ADDRESS",
+      accountFactory: "YOUR_FACTORY_ADDRESS",
+      tokenPaymaster: "YOUR_PAYMASTER_ADDRESS",
+    },
+  },
+  {
+    chain: {
+      //setting mainnet config
+    },
+  },
+];
+```
+
+### Web3Auth Configuration
+
+```typescript
+web3auth: {
+  clientId: process.env.WEB3AUTH_ID,
+  network: 'testnet', // or 'mainnet'
+  uiConfig: {
+    appName: 'YOUR_APP_NAME',
+    mode: 'light', // or 'dark'
+    useLogoLoader: true,
+    defaultLanguage: 'en',
+    theme: {
+      primary: '#YOUR_COLOR',
+    },
+    loginMethodsOrder: ['google', 'facebook', 'discord'],
+    uxMode: 'redirect',
+    modalZIndex: '2147483647',
+  },
+  loginConfig: {
+    google: {
+      name: 'google',
+      verifier: 'YOUR_VERIFIER',
+      typeOfLogin: 'google',
+      clientId: process.env.GOOGLE_CLIENT_ID,
+    },
+    facebook: {
+      name: 'facebook',
+      verifier: 'YOUR_VERIFIER',
+      typeOfLogin: 'facebook',
+      clientId: process.env.FACEBOOK_CLIENT_ID,
+    },
+  },
+}
+
+```
+
+### Environment Variables
+
+```
+# Network
+RPC_URL=YOUR_RPC_URL
+CHAIN_ID=YOUR_CHAIN_ID
+EXPLORER_URL=YOUR_EXPLORER_URL
+EXPLORER_API=YOUR_EXPLORER_API_URL
+
+# Account Abstraction
+BUNDLER_URL=YOUR_BUNDLER_URL
+PAYMASTER_URL=YOUR_PAYMASTER_URL
+PAYMASTER_API=YOUR_PAYMASTER_API_KEY
+
+# Authentication
+WEB3AUTH_ID=YOUR_WEB3AUTH_ID
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+FACEBOOK_CLIENT_ID=YOUR_FACEBOOK_CLIENT_ID
+```
+
+### Using the Configuration
+
+```typescript
+import { useConfig } from "nero-wallet";
+
+function YourComponent() {
+  const config = useConfig();
+
+  return (
+    <div>
+      <h1>{config.walletName}</h1>
+      <p>Chain: {config.chainName}</p>
+      <p>Network Type: {config.networkType}</p>
+    </div>
+  );
+}
+```
+
+### Important Notes
+
+1. Required Settings
+
+- RPC URL
+- Chain ID
+- Web3Auth Configuration (when using social login)
+- Bundler/Paymaster Configuration
+
+2. Security
+
+- Always manage API Keys and Client IDs as environment variables
+- Use appropriate network settings in production environment
+
+3. Customization
+
+- UI Theme
+- Login Methods
+- Network Settings
+- These configurations allow you to customize NERO Wallet to meet the requirements of each project.
+
+4. If there is an error in neroconfig.ts, refer to `tsconfig.json`
+
+```typescript
+ "include": ["*.config.ts"]
+```
