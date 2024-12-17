@@ -53,12 +53,87 @@ Activity tab for transaction history
 Users can tap on any token to view its detailed information. The interface is designed to be straightforward and user-friendly, making it easy to access essential wallet functions and monitor token balances at a glance.
 Note: These default tokens are pre-configured for user convenience, and additional tokens can be added using the + Import Token feature.
 
+## Send UserOperation Flow
+
+All Actions Issue UserOperations to Generate Transactions
+
+### UserOperation Verification
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/userOp.png"
+    alt="userOp"
+    style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 16: Send userOperation</p>
+</div>
+
+Before executing any action in the AA Wallet, users can review the UserOperation details. This screen displays the complete operation data, including:
+
+- Function calls
+- Contract addresses
+- ABI information
+
+This verification step ensures transparency and allows users to confirm the details of their transaction before proceeding.
+
+### Operation Details Screen
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/userOp-detail.png"
+    alt="sidebar"
+    style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 17: Send userOperation Detail</p>
+</div>
+
+The detail screen provides a comprehensive view of the operation, including:
+
+- Operation number and type
+- Contract address
+- Function being called
+- Sender address (You) and Receive address
+- Network information
+- Network fee
+
+### Confirmation Process
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/loading.png"
+    alt="sidebar"
+    style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 18: loading</p>
+</div>
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/success.png"
+    alt="sidebar"
+    style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 19: success</p>
+</div>
+
+1. Review all operation details carefully
+2. Click the Confirm button to initiate the UserOperation
+3. Status Updates:
+
+- Loading: Transaction is being processed
+- Success: UserOperation has been successfully issued
+  When you see the success message, it confirms that your UserOperation has been successfully created and sent to the network.
+
 ## Sidebar Functions
 
 <div style={{ height: "2rem" }} />
 <div style={{ textAlign: "center" }}>
   <img src="/assets/aaWallet/sidebar.png" alt="sidebar" />
-  <p style={{ fontStyle: "italic" }}>Figure 16: Sidebar Functions</p>
+  <p style={{ fontStyle: "italic" }}>Figure 20: Sidebar Functions</p>
 </div>
 
 This is the main navigation menu for the AA Wallet application. The menu items allow users to access the core functionality and settings of the digital wallet.
@@ -93,7 +168,7 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
     alt="sponsored"
     style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
   />
-  <p style={{ fontStyle: "italic" }}>Figure 17: Sponsored Gas Not Available</p>
+  <p style={{ fontStyle: "italic" }}>Figure 21: Sponsored Gas Not Available</p>
 </div>
 
 <div style={{ height: "2rem" }} />
@@ -103,7 +178,7 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
     alt="sponsored"
     style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
   />
-  <p style={{ fontStyle: "italic" }}>Figure 18: Sponsored Gas Available</p>
+  <p style={{ fontStyle: "italic" }}>Figure 22: Sponsored Gas Available</p>
 </div>
 
 <div style={{ height: "2rem" }} />
@@ -113,7 +188,7 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
     alt="sponsored"
     style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
   />
-  <p style={{ fontStyle: "italic" }}>Figure 19: Clicked Sponsored Gas</p>
+  <p style={{ fontStyle: "italic" }}>Figure 23: Clicked Sponsored Gas</p>
 </div>
 
 ### Pay with Token
@@ -129,7 +204,7 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
     alt="cyog"
     style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
   />
-  <p style={{ fontStyle: "italic" }}>Figure 20: Pay with Token</p>
+  <p style={{ fontStyle: "italic" }}>Figure 24: Pay with Token</p>
 </div>
 
 <div style={{ height: "2rem" }} />
@@ -139,7 +214,7 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
     alt="cyog"
     style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
   />
-  <p style={{ fontStyle: "italic" }}>Figure 21: Pay with Token(select)</p>
+  <p style={{ fontStyle: "italic" }}>Figure 25: Pay with Token(select)</p>
 </div>
 
 **Note:** Default NEROToken(NativeToken)
@@ -157,7 +232,7 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
       alt="sponsor"
       style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
     />
-    <p style={{ fontStyle: "italic" }}>Figure 22: Sponsor Gas Fee Display</p>
+    <p style={{ fontStyle: "italic" }}>Figure 26: Sponsor Gas Fee Display</p>
   </div>
 
 **Pay with Token**
@@ -172,5 +247,5 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
       alt="erc20"
       style={{ margin: "0 auto", display: "block", maxWidth: "100%" }}
     />
-    <p style={{ fontStyle: "italic" }}>Figure 23: Erc20 Gas Fee Display</p>
+    <p style={{ fontStyle: "italic" }}>Figure 27: Erc20 Gas Fee Display</p>
   </div>
