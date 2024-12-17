@@ -1,6 +1,6 @@
 export default {
   index: "Welcome",
-  lean: "Lean",
+  learn: "Learn",
   aa: "NERO AA",
   building: "Building on NERO Chain",
   supports: "Support and Contact"
