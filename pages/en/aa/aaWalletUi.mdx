@@ -24,7 +24,7 @@
   <p style={{ fontStyle: "italic" }}>Figure 13: Login 2</p>
 </div>
 
-2. On the "Connect a Wallet" screen, you will see a list of installed and recommended wallet options. Scroll down and select the "NERO wallet" option from the Recommended section.
+2. On the “Connect a Wallet” screen, you will see a list of installed and recommended wallet options. Scroll down and select “NERO wallet” from the Recommended section.
 
 <div style={{ height: "2rem" }} />
 <div style={{ textAlign: "center" }}>
@@ -36,10 +36,9 @@
   <p style={{ fontStyle: "italic" }}>Figure 14: Login 3</p>
 </div>
 
-3. After selecting the NERO wallet, you will be prompted to provide some account information to set up the wallet. In the provided field, you can enter your preferred social media account, email address, or phone number that you would like associated with the wallet.
-4. Once you have entered the account information, review it to ensure it is accurate. Then, locate and click the "Continue" button at the bottom of the screen.
-5. Clicking the Continue button will initiate the wallet creation process. The AA Wallet UI will handle the backend setup and linking of your account information to the NERO wallet.
-6. Upon successful wallet creation, you should see the main NERO wallet interface load, indicating that the setup process is complete.
+3. After selecting NERO wallet, you will be prompted to provide some account information to set up the wallet. You can enter your preferred social media account, email address, or phone number that you would like associated with the wallet.
+4. Double-check the information you entered to make sure it's correct, then click the “Continue” button at the bottom of the screen.
+5. When the setup is finished, you should see the main NERO wallet interface load, indicating that the setup process is complete.
 
 **Note:** Even if you login with other wallets like **Bitget Wallet** or **Gate Wallet**, you will still be logged in as an AA Wallet.
 
@@ -55,19 +54,30 @@
   <p style={{ fontStyle: "italic" }}>Figure 15: Home</p>
 </div>
 
-The home screen provides a clean and intuitive interface where users can view their total NERO balance prominently displayed at the top. Below that, users will find two main action buttons: Send for initiating transfers and Receive for displaying the wallet address.
-The screen features three tabs for different functionalities:
-Tokens tab shows a list of default tokens with their respective balances:
+The home screen provides a clean and intuitive interface where users can view their total NERO balance. Below that, users will find two main action buttons: Send for initiating transfers and Receive to get your wallet address for receiving transfers.
+
+There are also three tabs at the bottom for different features.
+
+#### 1. Tokens:
+
+Tokens shows a list of default tokens and their balances including;
 
 - NERO (native token)
 - DAI
 - USDT
 - USDC
 
-NFTs tab for viewing NFT collections
-Activity tab for transaction history
-Users can tap on any token to view its detailed information. The interface is designed to be straightforward and user-friendly, making it easy to access essential wallet functions and monitor token balances at a glance.
-Note: These default tokens are pre-configured for user convenience, and additional tokens can be added using the + Import Token feature.
+#### 2. NFTs:
+
+NFTs displays your NFT collection
+
+#### 3. Activity:
+
+Activity displays your transaction history.
+
+Users can tap on any token to see more details. The interface is designed simple and user-friendly, making it easy to access essential wallet functions and monitor token balances at a glance.
+
+Note: These default tokens are pre-configured for convenience, and additional tokens can be added using the “+ Import Token” feature.
 
 ## Sidebar Functions
 
@@ -81,19 +91,19 @@ Note: These default tokens are pre-configured for user convenience, and addition
   <p style={{ fontStyle: "italic" }}>Figure 20: Sidebar Functions</p>
 </div>
 
-This is the main navigation menu for the AA Wallet application. The menu items allow users to access the core functionality and settings of the digital wallet.
+The sidebar is the main navigation menu for the AA Wallet application. The menu items allow users to access the core functionality and settings of the digital wallet.
 
-- **Logo** - Displays the AA Wallet logo, linking back to the main homepage or dashboard.
-- **Home** - Takes the user to the wallet's main dashboard or home screen.
-- **Send** - Allows users to initiate a transaction and send cryptocurrency from their AA Wallet.
-- **Multi Send** - Enables users to send cryptocurrency to multiple addresses in a single transaction.
-- **Receive** - Provides options for receiving cryptocurrency payments into the AA Wallet.
-- **Settings** - Accesses the wallet's settings and configuration options.
-- **Hide Wallet** - Hides the main wallet interface, potentially for privacy or security reasons.
-- **Hide Sidebar** - Collapses the left-hand navigation menu to provide more screen space.
-- **Disconnect Wallet** - Logs the user out of the AA Wallet application and disconnects their wallet.
+- **Logo** - Takes you to the main homepage or dashboard
+- **Home** - Takes you to the wallet's main dashboard or home screen
+- **Send** - Allows users to start a transaction
+- **Multi Send** - Send assets to multiple addresses in a single transaction
+- **Receive** - Provides QR code and wallet address to receive assets
+- **Settings** - Adjust your wallet preference and configuration options
+- **Hide Wallet** - Hide your main wallet interface for privacy or security
+- **Hide Sidebar** - Minimize the left-hand navigation menu to free more screen space
+- **Disconnect Wallet** - Log out and disconnects their wallet
 
-This comprehensive menu structure gives AA Wallet users easy access to all the key features and controls they would need to manage their digital assets effectively. The clear labeling and organization of the menu items makes the application intuitive and user-friendly.
+This menu allows an easy access to all the key features and controls they would need to manage their digital assets effectively.
 
 ## Send UserOperation Flow
 
@@ -111,7 +121,7 @@ All Actions Issue UserOperations to Generate Transactions
   <p style={{ fontStyle: "italic" }}>Figure 16: Send userOperation</p>
 </div>
 
-Before executing any action in the AA Wallet, users can review the UserOperation details. This screen displays the complete operation data, including:
+Before executing any action in the AA Wallet, review the UserOperation details. This screen displays the complete operation data, including:
 
 - Function calls
 - Contract addresses
@@ -131,7 +141,7 @@ This verification step ensures transparency and allows users to confirm the deta
   <p style={{ fontStyle: "italic" }}>Figure 17: Send userOperation Detail</p>
 </div>
 
-The detail screen provides a comprehensive view of the operation, including:
+The detail provides a view of the operation, including:
 
 - Operation number and type
 - Contract address
@@ -162,24 +172,21 @@ The detail screen provides a comprehensive view of the operation, including:
   <p style={{ fontStyle: "italic" }}>Figure 19: success</p>
 </div>
 
-1. Review all operation details carefully
-2. Click the Confirm button to initiate the UserOperation
-3. Status Updates:
-
-- Loading: Transaction is being processed
-- Success: UserOperation has been successfully issued
-  When you see the success message, it confirms that your UserOperation has been successfully created and sent to the network.
+1. Carefully review all operation detailsClick the “Confirm” button to initiate the UserOperation
+2. Status Updates:
+   - Loading: The transaction is being processed
+   - Success: The UserOperation has been successfully created and sent to the network. When you see the success message, it confirms the transaction is complete
 
 ## Payment Methods
 
-The Select Payment Method screen in the AA Wallet application offers two distinct payment options:
+The “Select Payment Method” screen offers two options:
 
 ### Sponsored Gas
 
 - This payment method allows users to complete transactions without having to pay the gas fees themselves.
-- The gas costs are covered by the project or platform that has integrated the AA Wallet.
-- However, the Sponsored Gas option is only available if the project has specifically enabled and configured this feature on the AA Platform.
-- If the Sponsored Gas option is not enabled by the project, users will not be able to select this payment method.
+- The gas fees are covered by the project or platform that has integrated the AA Wallet.
+- However, Sponsored Gas option is only available if the project has enabled and configured this feature on the AA Platform.
+- If it is not enabled, this option will not be selectable.
 
 <div style={{ height: "2rem" }} />
 <div style={{ textAlign: "center" }}>
@@ -213,9 +220,9 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
 
 ### Pay with Token
 
-- This payment method gives users the ability to pay the gas fees using a specific ERC20 token.
-- The project or platform integrating the AA Wallet has the ability to set which ERC20 token(s) can be used to cover the gas costs.
-- The number of tokens available for use is displayed to the user (in the example, 6 tokens are available).
+- This payment method allows users to pay the gas fees using a specific ERC20 token.
+- The project or platform integrating the AA Wallet can specify which ERC20 token(s) can be used to cover the gas fees.
+- The number of tokens available is displayed to the user (for example, 6 tokens are available).
 
 <div style={{ height: "2rem" }} />
 <div style={{ textAlign: "center" }}>
@@ -237,14 +244,14 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
   <p style={{ fontStyle: "italic" }}>Figure 25: Pay with Token(select)</p>
 </div>
 
-**Note:** Default NEROToken(NativeToken)
+**Note:** The default token is NEROToken(Native Token)
 
 #### Gas fee Display
 
 **Sponsored Gas**
 
-- When the Sponsored Gas option is selected, the gas fee is displayed as 0, indicating that the project is covering the full gas cost for the user.
-- This allows users to complete transactions without having to pay any gas fees themselves.
+- When the Sponsored Gas option is selected, the gas fee is shown as 0, indicating that the project is covering the full gas fee for the user.
+- This allows users to complete transactions without paying any gas fees.
   <div style={{ height: "2rem" }} />
   <div style={{ textAlign: "center" }}>
     <img
@@ -258,8 +265,8 @@ The Select Payment Method screen in the AA Wallet application offers two distinc
 **Pay with Token**
 
 - When the Pay with Token option is selected, the maximum possible gas fee that the user may need to pay is displayed.
-- This provides transparency to the user about the potential gas cost they may incur when using this payment method.
-- The user would need to ensure they have enough of the project-specified ERC20 token to cover this maximum gas fee amount.
+- This provides transparency regarding the potential gas fee users may incur when using this payment method.
+- The user must ensure they have enough of the project-specified ERC20 token to cover this maximum gas fee.
   <div style={{ height: "2rem" }} />
   <div style={{ textAlign: "center" }}>
     <img
