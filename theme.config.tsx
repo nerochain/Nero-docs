@@ -45,7 +45,7 @@ const themeConfig: DocsThemeConfig = {
   },
   i18n: [
     { locale: "en", name: "English" },
-    // { locale: "ja", name: "日本語" },
+    { locale: "ja", name: "日本語" },
   ],
 };
 

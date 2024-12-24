@@ -1,0 +1,18 @@
+# 2.2 Execution layer: Built-in ZK Rollup Execution Engine
+
+The execution layer is key to NERO’s scalability. NERO is optimized by transferring resource-intensive transaction processing from the on-chain environment to off-chain, while retaining on-chain focus on result validation. NERO employs ZK Rollup technology as the primary implementation for its execution engine, dividing the transaction process into two phases. Initially, a multitude of transactions are executed off-chain and subsequently combined. Then, they are collectively submitted to the main chain for validation. The original transaction data is compressed and stored on-chain. This approach minimizes the volume of data transmitted to the main chain, thereby facilitating faster and more cost-effective transactions.
+
+## 2.2.1 Rollup Execution
+
+Rollup technology consists primarily of ZK Rollup and Optimistic Rollup, which are presently the leading Layer 2 scaling solutions. Both ZK Rollup and Optimistic Rollup offer EVM-compatible solutions, making it highly convenient for existing Ethereum DApps to migrate seamlessly. However, Optimistic Rollup relies on an extended waiting period for transaction validation, resulting in prolonged confirmation times for on-chain transactions. In contrast, ZK Rollup's security model, based on zero-knowledge proof cryptography, allows for instant on-chain transaction confirmation once the relevant zero-knowledge proof is verified.
+NERO prioritizes transaction validation and thus chooses ZK Rollup as our execution layer. NERO will offer a ZK-Rollup SDK that incorporates components for zero-knowledge proof generation and verification processes. Additionally, NERO provides pre-configured templates for popular DApps like DEX and lending, simplifying integration for developers.
+
+## 2.2.2 Data Availability Separation
+
+During transaction execution, NERO submits only the outcomes of Rollup transactions to the settlement layer, diverging from the traditional Rollup approach of submitting raw transactions. Before these outcomes can reach the settlement layer, they must first pass through NERO's data availability layer. This layer fulfills economic and data storage needs, conserving valuable storage resources on the settlement layer, as shown in figure 2.
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/learn/figure2.png" alt="代替テキスト" />
+  <p style={{ fontStyle: 'italic' }}>Figure 2: Separation of data availability at the settlement layer</p>
+</div>
