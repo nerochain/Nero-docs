@@ -1,4 +1,4 @@
 export default {
-  network: "Network Information",
-  deploy: "Deploy to NERO on the EVM",
+  network: "ネットワーク情報",
+  deploy: "NERO Chainへのデプロイ",
 }
