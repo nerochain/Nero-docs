@@ -1,26 +1,27 @@
 # Paymaster API
 
-## Gas conversion process
+## ガス代支払いの仕組み
 <div style={{ height: '2rem' }} />
 <div style={{ textAlign: 'center' }}>
   <img src="/assets/aaPlatform/figure2.jpeg" alt="Figure 2" />
   <p style={{ fontStyle: 'italic' }}>Figure 2: Paymaster API Flow</p>
 </div>
 
-## Paymaster Contract
+## Paymasterコントラクト
 
-We use three mappings to store developer data, achieving decentralized management.
+開発者データを保存するために、3つのマッピングを使用し、分散型管理を実現しています。
 
+```solidity
 mapping(uint256 => address) public projectOwner; 
 
 mapping(uint256 => uint256) public projectNero; 
 
 mapping(uint256 => mapping(address => uint256)) public projectERC20; 
+```
 
-Developers bind their project to a wallet address on the platform and then recharge with NERO. After that, users can call the Paymaster API to pay for gas either for free or using ERC20. Please refer to the usage guidelines of the platform for more details.
+開発者はプラットフォーム上でプロジェクトをウォレットアドレスに紐付け、その後NEROをチャージします。ユーザーはPaymaster APIを呼び出し、無料またはERC20を使用してガス代を支払うことができます。詳細については、プラットフォームの使用ガイドラインを参照してください。
 
-
-## Sponsored transaction process
+## スポンサー付きトランザクションのプロセス
 <div style={{ height: '2rem' }} />
 <div style={{ textAlign: 'center' }}>
   <img src="/assets/aaPlatform/figure3.png" alt="Figure 3" />
@@ -29,10 +30,12 @@ Developers bind their project to a wallet address on the platform and then recha
 
 
 
-## RPC Api
+## RPC API
 
 ### pm_supported_tokens
-Retrieve the list of ERC20 tokens configured for gas payment by the project. With the request parameters in the following order: userop, project_apikey, entrypoint. request:
+プロジェクトでガス代支払いに使用可能なERC20トークンのリストを取得します。リクエストパラメータは次の順序で指定します：userop, project_apikey, entrypoint. request
+
+リクエスト：
 ```json
 {  
   "jsonrpc": "2.0",  
@@ -58,7 +61,10 @@ Retrieve the list of ERC20 tokens configured for gas payment by the project. Wit
 }
 ```
 
-response: The returned price, if it is "system", may vary when requesting pm_sponsor_userop, whereas if it is "custom", it is the price set by the backend. The price is the exchange rate of the ERC20 token against NERO. freeGas: Whether or not to support sponsoring gas fees. Note that, like the token’s price, it may change when requesting pm_sponsor_userop. For example, if it returns true here, but the request for pm_sponsor_userop exceeds the total number of requests due to other requests, the paymaster signature will return an error, and the user will need to choose a different method for paying gas fees.
+* typeが "system" の場合、pm_sponsor_userop をリクエストする際に変動する可能性があります。一方、"custom" の場合はバックエンドで設定された価格です。この価格は、ERC20トークンとNEROのレートを表します。  
+* freeGas: ガス代のスポンサーをサポートするかどうかを示します。ただし、トークンの価格と同様に、pm_sponsor_userop をリクエストする際に変更される可能性があります。例えば、ここで true が返された場合でも、他のリクエストによって pm_sponsor_userop のリクエスト数が上限を超えた場合、Paymasterの署名がエラーを返し、ユーザーはガス代を支払う別の方法を選択する必要があります。
+
+レスポンス：
 
 ```json
 {
@@ -89,12 +95,13 @@ response: The returned price, if it is "system", may vary when requesting pm_spo
 
 ## pm_sponsor_userop
 
-Get paymaster and signature data With the request parameters in the following order: userop, project_apikey, entrypoint, context(type, erc20)
+Paymasterと署名データを取得します。リクエストパラメータの順序は次の通りです：userop, project_apikey, entrypoint, context(type, erc20)
 
-* type=0 freegas. Developer sponsors gas fees, users do not need to pay ERC20.
-* type=1 prefund erc20. During the verification phase, the system first deducts the full amount of ERC20 from the user, and then returns the excess portion after executing the user operation.
-* type=2 postfund erc20. After the userop is executed, the system deducts the ERC20 from the user in one go. However, it’s possible that the deduction may fail due to the specific nature of the userop code.
+* type=0 無料ガス。開発者がガス代を負担し、ユーザーはERC20を支払う必要がありません。  
+* type=1 前払いERC20。検証フェーズ中に、システムが最初にユーザーからERC20を全額差し引き、useropの実行後に余剰分を返金します。  
+* type=2 後払いERC20。useropの実行後、システムが一括でユーザーからERC20を差し引きます。ただし、useropコードの特性によっては差し引きが失敗する可能性があります。
 
+リクエスト：
 ```json
 {
   id: 42,
@@ -124,7 +131,7 @@ Get paymaster and signature data With the request parameters in the following or
 }
 ```
 
-Correct response:
+正しいレスポンス：
 
 ```json
 {  
@@ -137,7 +144,9 @@ Correct response:
       "callGasLimit": "0x...",  
   }  
 }
-Error response:
+```
+エラーレスポンス：
+```json
 {  
   "jsonrpc": "2.0",  
   "id": 1,  
@@ -149,7 +158,7 @@ Error response:
 ```
 ## pm_entrypoints
 
-Get EntryPoint address supported currently request:
+現在サポートされているEntryPointアドレスを取得するためのリクエスト：
 
 ```json
 {
@@ -162,7 +171,7 @@ Get EntryPoint address supported currently request:
 }
 ```
 
-response:
+レスポンス：
 
 ```json
 {
