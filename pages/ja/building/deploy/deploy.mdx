@@ -1,0 +1,154 @@
+import { Tabs } from "nextra/components";
+
+# Deploying a Smart Contract
+
+This tutorial explains how to create, compile, deploy, and verify a simple smart contract on the Nero modular chain Testnet using Hardhat.
+
+## Hardhat
+
+- Hardhat is a toolset that allows you to compile, deploy, test, and verify your smart contracts.
+
+## Setting Up Your Workspace
+
+- Node.js(https://nodejs.org)
+
+## Starting a New Project
+
+- To initiate a new project, run the following command:
+
+<Tabs items={["npm", "yarn"]}>
+  <Tabs.Tab>``` npm init ```</Tabs.Tab>
+  <Tabs.Tab>``` yarn init ```</Tabs.Tab>
+</Tabs>
+
+- To install Hardhat in your project, run the following command:
+
+<Tabs items={["npm", "yarn"]}>
+  <Tabs.Tab>``` npm install --save-dev hardhat ```</Tabs.Tab>
+  <Tabs.Tab>``` yarn add --dev hardhat ```</Tabs.Tab>
+</Tabs>
+
+- To create a Hardhat project by running npx hardhat in your project directory.
+- Then, you will be presented with several options for project creation. Select the appropriate options.
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure1.png" alt="Figure 1" />
+  <p style={{ fontStyle: "italic" }}>Figure 1: npx hardhat</p>
+</div>
+
+## Create Smart Contract
+
+You can create your own smart contract or use the **Openzeppelin token smart contract template**(https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol), and place it in the contracts directory of your project.
+
+# Modify Hardhat for NERO
+
+The updates to the `<hardhat-config-file>` and `./ignition/module/<deploy-file>` files should resemble the following example (specific content should be adjusted according to requirements).
+
+You'll need a **variables**(https://hardhat.org/hardhat-runner/docs/guides/configuration-variables#configuration-variables) with the following contents:
+
+```
+NERO_TESTNET_PROVIDER_URL=https://rpc-testnet.nerochain.io
+PRIVATE_KEY=add your own private key
+API_KEY=add your own etherscan api key
+```
+
+You'll need a **hardhat.config.js** and **hardhat.config.ts** with the following contents:
+
+<Tabs items={["hardhat.config.js", "hardhat.config.ts"]}>
+  <Tabs.Tab>
+  ```javascript 
+    require("@nomicfoundation/hardhat-toolbox");
+    require("@nomicfoundation/hardhat-ignition-ethers");
+    const { vars } = require("hardhat/config");
+
+    const NERO_TESTNET_PROVIDER_URL = vars.get("NERO_TESTNET_PROVIDER_URL");
+    const PRIVATE_KEY = vars.get("PRIVATE_KEY");
+
+    module.exports = {
+    solidity: "0.8.24",
+    defaultNetwork: "nero_testnet",
+    networks: {
+        nero_testnet: {
+        url: NERO_TESTNET_PROVIDER_URL,
+        accounts: [PRIVATE_KEY],
+        },
+    },
+    etherscan: {
+        apiKey: API_KEY,
+        customChains: [
+        {
+            network: "nero_testnet",
+            chainId: 689,
+            urls: {
+            apiURL: "https://api.testnet.neroscan.io",
+            browserURL: "https://testnet.neroscan.io",
+            },
+        },
+        ],
+        enabled: true
+        },
+    };
+
+````
+</Tabs.Tab>
+<Tabs.Tab>
+```typescript
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-ignition-ethers";
+import { vars } from "hardhat/config";
+
+const NERO_TESTNET_PROVIDER_URL = vars.get("NERO_TESTNET_PROVIDER_URL");
+const PRIVATE_KEY = vars.get("PRIVATE_KEY");
+const API_KEY = vars.get("API_KEY");//(optional)
+
+const config: HardhatUserConfig = {
+  solidity: "0.8.24",
+  defaultNetwork: "nero_testnet",
+  networks: {
+    nero_testnet: {
+      url: NERO_TESTNET_PROVIDER_URL,
+      accounts: [PRIVATE_KEY],
+    },
+  },
+  etherscan: {//(optional)
+    apiKey: API_KEY,
+    customChains: [
+      {
+        network: "nero_testnet",
+        chainId: 689,
+        urls: {
+          apiURL: "https://api.testnet.neroscan.io",
+          browserURL: "https://testnet.neroscan.io",
+        },
+      },
+    ],
+    enabled: true
+  },
+};
+export default config;
+```
+</Tabs.Tab>
+</Tabs>
+
+
+### Note:
+* You can obtain test coins from this faucet(https://app.testnet.nerochain.io/faucet)
+
+## Deploy Smart Contract on Nero Network
+
+1. Compile the contract by running npx hardhat compilein the terminal.
+2. Run ```npx hardhat ignition deploy ./ignition/modules/<deploy-file> --network <select-network>``` in the root of the project directory.
+3. Visit the **Testnet Explorer**(https://testnet.neroscan.io/) to view the deployed contract.
+
+Congratulations! You have successfully deployed your own Smart Contract.
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/building/figure2.png" alt="Figure 2" />
+  <p style={{ fontStyle: 'italic' }}>Figure 2: NERO testnet scan</p>
+</div>
+
+## Conclusion
+This tutorial has walked you through creating and deploying a basic smart contract using Hardhat. Although the tutorial used the testnet, you can follow the same process for the mainnet.​​

@@ -12,6 +12,7 @@ const themeConfig: DocsThemeConfig = {
       />
     </>
   ),
+  // 日本語meta情報
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />

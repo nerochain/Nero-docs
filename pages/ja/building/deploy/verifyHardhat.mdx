@@ -1,0 +1,61 @@
+import { Tabs } from "nextra/components";
+
+# Using the Hardhat for Verifying a Smart Contract on NERO Chain.
+
+Hardhat officially recommends using the hardhat-verify plugin in combination with the hardhat-toolbox for configuring custom browser APIs and verifying contracts.
+
+https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-verify
+
+### Installation
+
+`npm install --save-dev @nomicfoundation/hardhat-verify`
+
+And add the following statement to your hardhat.config.js/hardhat.config.ts
+
+<Tabs items={["hardhat.config.js", "hardhat.config.ts"]}>
+  <Tabs.Tab>``` require("@nomicfoundation/hardhat-verify"); ```</Tabs.Tab>
+  <Tabs.Tab>``` import "@nomicfoundation/hardhat-verify"; ```</Tabs.Tab>
+</Tabs>
+
+### Steps to Verify a Contract:
+
+1. To verify a contract, you must compile it using the same configuration parameters that were used during deployment (such as the Solidity version, optimizer settings, etc.). Otherwise, the compiled bytecode will not match the bytecode on the blockchain, making verification impossible.
+2. When verifying a contract, you need to specify the network, contract path, contract name, and other details. If the contract constructor has parameters, include the constructor arguments that were passed in during deployment. If there are no parameters, you don't need to include "constructorArguments." Here's an example:
+
+`npx hardhat verify --network mainnet DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"`
+
+3. Regarding passing constructor arguments, if the constructor arguments are of complex types, such as address[] or custom structs, it can be inconvenient to pass them through the command line. Instead, you can use --constructor-args arguments.js, where arguments.js exports the parameters in order.
+
+* Example of an arguments.js file for complex types
+
+For example, the contract is defined with the following constructor:
+
+```javascript
+struct Point {
+  uint x;
+  uint y;
+}
+
+contract Foo {
+  constructor (uint x, string s, Point memory point, bytes b) { ... }
+}
+```
+
+Then, the arguments.js file might look something like this:
+
+```javascript
+module.exports = [
+  50,
+  "a string argument",
+  {
+    x: 10,
+    y: 5,
+  },
+  // bytes have to be 0x-prefixed
+  "0xabcdef",
+];
+```
+
+The module can then be utilized by the verify task when invoked as follows:
+
+`npx hardhat verify --constructor-args arguments.js --contract contracts/path/path/SimpleContract.sol:SimpleContract DEPLOYED_CONTRACT_ADDRESS`

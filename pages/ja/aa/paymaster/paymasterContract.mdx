@@ -1,0 +1,19 @@
+# Paymaster Contract
+
+## registry & deposit/withdraw processContract description
+The ERC4377 abstract account paymaster contract provides developers with the ability to recharge NERO to sponsor user gas, or to exchange for specified ERC20 tokens to pay for gas.
+
+Developers first generate a projectId in the platform's backend, register it with the contract, and then deposit NERO as collateral. Developers set their own sponsorship policies and the types of ERC20 tokens they accept in the backend.
+
+Users in the developer's DApp select the type of gas payment: free, post-paid ERC20, or prepaid ERC20. If it's an ERC20 payment, they also need to select the token type. Then, through the centralized paymaster-rpc interface, after verification and signing, the paymaster-rpc will check the relevant conditions according to the developer's backend settings and set the price of the ERC20. The related payment parameters will be signed and submitted to the paymaster contract.
+
+When users pay for gas with ERC20, the postop may fail to deduct (calldata may call other contracts to transfer ERC20 away), so the choice is left to the developers. If developers want to facilitate user operations without requiring a prior approve (if prepaid ERC20 is required during the validation phase), developers can choose the post-paid mode and bind the ERC20 authorization operation to the calldata.
+
+
+## Developer registry & deposit/withdraw process
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure4.png" alt="Figure 4" />
+  <p style={{ fontStyle: 'italic' }}>Figure 4: Registry & Deposit/Withdraw Process Flow</p>
+</div>
