@@ -1,4 +1,4 @@
-# Architecture
+# アーキテクチャ
 
 <div style={{ height: '2rem' }} />
 <div style={{ textAlign: 'center' }}>
@@ -6,56 +6,59 @@
   <p style={{ fontStyle: 'italic' }}>Figure 1: Architecture</p>
 </div>
 
-## Key Component Specifications
+## 主要コンポーネントの仕様
 
 ### Entrypoint
 
-* An intelligent contract that serves as the universal Account Abstraction (AA) infrastructure should be globally unique and responsible for processing UserOperations.
+* 汎用的なアカウントアブストラクション（AA）インフラストラクチャとして機能するスマートコントラクトであり、グローバルに一意である必要があります。
+* UserOperationの処理を担当します。
 
 ### Bundler
 
-Responsible for collecting UserOperations and providing a MemPool to manage pending UserOperations.
-Verifies the validity of UserOperations to prevent DoS attacks.
-Packages UserOperations, pays for transaction fees, and assembles them into traditional transactions to be sent to the Entrypoint. After the Entrypoint executes the UserOperation, it will reimburse the UserOperation fees to the beneficiary address specified by the Bundler.
-Provides necessary Json-rpc APIs for users.
+* UserOperationを収集し、保留中のUserOperationを管理するためのMemPoolを提供します。
+* DoS攻撃を防ぐためにUserOperationの有効性を検証します。
+* UserOperationをまとめ、トランザクション手数料を支払い、従来のトランザクションに組み立てた後、Entrypointに送信します。
+* EntrypointがUserOperationを実行した後、Bundlerが指定した受益者アドレスにUserOperationの手数料を払い戻します。
+* ユーザー向けに必要なJson-rpc APIを提供します。
 
-### AA Platform
+### AAプラットフォーム
 
-* A business management platform for paymasters, provided for developers.
-* Offers paymaster infrastructure for AA wallet applications and DAPP developers, facilitating the provision of gas subsidy/token payment capabilities to their end-users.
-* Enables developers to define custom payment strategies.
-* Manages account balances.
-* Provides a webhooks mechanism, allowing developers to verify whether specific UserOperations comply with the sponsorship strategy before and after paymaster signing.
+* 開発者向けに提供されるPaymaster管理プラットフォームです。
+* AAウォレットアプリケーションやDAPP開発者向けに、ガス補助やトークン支払い機能をエンドユーザーに提供するためのPaymasterインフラを提供します。
+* 開発者がカスタム支払い戦略を定義できる機能を備えています。
+* アカウント残高の管理を行います。
+* Webhooksメカニズムを提供し、特定のUserOperationがPaymasterの署名前後でスポンサーシップ戦略に適合しているかを開発者が検証できる仕組みを提供します。
 
 ### Paymaster API
 
-* Provides APIs for developers to use paymasters.
+* 開発者がPaymasterを利用するためのAPIを提供します。
 
-### Developer SDK
+### 開発者向けSDK
 
-* Offers SDKs for developers to construct UserOperations.
-* Provides SDKs for developers to access the Nero Paymaster API.
-* Currently, only the JS version SDK is considered.
+* 開発者がUserOperationを構築するためのSDKを提供します。
+* Nero Paymaster APIにアクセスするためのSDKを提供します。
+* 現在、JSバージョンのSDKのみが対象とされています。
 
-### Paymaster & Paymaster template
+### Paymaster & Paymasterテンプレート
 
-* Provides official paymaster contracts.
-* Implements paymaster templates to support developers in customizing payment strategies (specific capabilities to be determined).
+* 公式のPaymasterコントラクトを提供します。
+* 開発者が支払い戦略をカスタマイズできるようにするPaymasterテンプレートを実装します（具体的な機能は未定です）。
 
-### Price Service
+### プライスサービス
 
-For Token paymasters, a service is needed to provide the exchange rate between tokens and $NERO, thus calculating how many tokens are required for a specific UserOperation. The price service primarily involves the source of the currency prices, so this service needs to be provided by the jp-team.
+* トークンPaymaster用に、トークンと$NEROの為替レートを提供し、特定のUserOperationに必要なトークン量を計算するサービスが必要です。
+* この価格サービスは主に通貨価格の情報元に関わるため、jpチームによって提供される必要があります。
 
-### User-Side Applications
+### ユーザ向けアプリケーション
 
 Includes all applications for end-users, such as AA Wallet and DAPPs. The AA Wallet can be built by Nero or in collaboration with third-party AA wallet service providers, allowing third-party wallets to support the Nero chain and integrate Nero’s Bundler and paymaster services.
 
-### AA Wallet Basic Features
+### AAウォレットの基本機能
 
-* Supports one or more login/permission control methods, which can refer to other competitors like Particle.
-* Offers smart contract wallets based on product positioning.
-* Conventional wallet functions: receive/send tokens, add token…
-* Social recovery feature
-* Provides gas subsidy and token-based payment features as needed
-* Offers SDKs for DAPPs to connect to wallets and interact with them
-* Should support DAPPs in building UserOperations (including paymaster data) to enable customized gas subsidies or payment methods.
+* 複数のログイン/権限制御方法をサポート。他のサービス（例：Particle）の事例を参考にすることができます。
+* Dappの利用シーンやニーズに応じたスマートコントラクトウォレットを提供します.
+* 従来のウォレット機能：トークンの受け取り/送信、トークンの追加などを提供します。
+* ソーシャルリカバリー機能を提供します。
+* 必要に応じて、ガス代の補助やトークンベースの支払い機能を提供します。
+* Dappがウォレットと接続し、やり取りを行うためのSDKを提供します。
+* DappがUserOperation（Paymasterデータを含む）を構築できるようにし、カスタマイズされたガス補助や支払い方法を実現します。
