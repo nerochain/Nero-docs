@@ -1,16 +1,21 @@
-# Paymaster Contract
+# Paymasterコントラクト
 
-## registry & deposit/withdraw processContract description
-The ERC4377 abstract account paymaster contract provides developers with the ability to recharge NERO to sponsor user gas, or to exchange for specified ERC20 tokens to pay for gas.
+## 登録と入金・出金プロセスの概要
+ERC4377のPaymasterコントラクトは、開発者が NERO をチャージしてユーザーのガス代を肩代わりしたり、指定したERC20トークンをガス支払いに利用できるよう交換する機能を提供します。
 
-Developers first generate a projectId in the platform's backend, register it with the contract, and then deposit NERO as collateral. Developers set their own sponsorship policies and the types of ERC20 tokens they accept in the backend.
+開発者はまず、プラットフォームのバックエンドで projectId を生成し、コントラクトに登録したうえで担保として NERO をデポジットします。また、開発者は自身のバックエンドでスポンサーシップポリシーや受け付ける ERC20 トークンの種類を設定します。
 
-Users in the developer's DApp select the type of gas payment: free, post-paid ERC20, or prepaid ERC20. If it's an ERC20 payment, they also need to select the token type. Then, through the centralized paymaster-rpc interface, after verification and signing, the paymaster-rpc will check the relevant conditions according to the developer's backend settings and set the price of the ERC20. The related payment parameters will be signed and submitted to the paymaster contract.
+開発者の DApp ユーザーは、以下のガス支払い方法を選択できます：
 
-When users pay for gas with ERC20, the postop may fail to deduct (calldata may call other contracts to transfer ERC20 away), so the choice is left to the developers. If developers want to facilitate user operations without requiring a prior approve (if prepaid ERC20 is required during the validation phase), developers can choose the post-paid mode and bind the ERC20 authorization operation to the calldata.
+- 無料
+- 後払い型のERC20
+- 前払い型のERC20
 
+ERC20で支払う場合は、併せてトークンの種類も選択します。その後、中央集約された paymaster-rpcインターフェースを通じてトランザクションの検証・署名が行われ、paymaster-rpcは開発者のバックエンド設定に基づいて条件をチェックし、ERC20の価格を設定します。これに関連する支払いパラメータは署名され、Paymasterコントラクトに提出されます。
 
-## Developer registry & deposit/withdraw process
+ユーザーが ERC20 でガスを支払う場合、後払い（postop）の際は引き落としが失敗する可能性があります（calldata が他のコントラクトを呼び出して、ERC20 が別のところへ移転してしまうなど）。このような点については開発者の方針次第です。もし検証段階で前払いのERC20を必要とする場合でも、事前にユーザーに approve を求めず操作を簡略化したいときは、後払い方式を採用し、ERC20の承認操作を calldata に組み込むことが可能です。
+
+## 開発者向け 登録と入金・出金プロセス
 
 <div style={{ height: '2rem' }} />
 <div style={{ textAlign: 'center' }}>
