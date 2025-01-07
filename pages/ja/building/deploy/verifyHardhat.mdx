@@ -1,36 +1,45 @@
 import { Tabs } from "nextra/components";
 
-# Using the Hardhat for Verifying a Smart Contract on NERO Chain.
+# Hardhat を用いた NERO チェーン上のスマートコントラクト検証
 
-Hardhat officially recommends using the hardhat-verify plugin in combination with the hardhat-toolbox for configuring custom browser APIs and verifying contracts.
+hardhat-verify プラグインを使用すると、NERO チェーン上にデプロイしたスマートコントラクトを簡単に検証できます。
 
 https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-verify
 
-### Installation
+### インストール
 
 `npm install --save-dev @nomicfoundation/hardhat-verify`
 
-And add the following statement to your hardhat.config.js/hardhat.config.ts
+### Hardhat 設定ファイルへの追加
 
 <Tabs items={["hardhat.config.js", "hardhat.config.ts"]}>
   <Tabs.Tab>``` require("@nomicfoundation/hardhat-verify"); ```</Tabs.Tab>
   <Tabs.Tab>``` import "@nomicfoundation/hardhat-verify"; ```</Tabs.Tab>
 </Tabs>
 
-### Steps to Verify a Contract:
+hardhat.config.js または hardhat.config.ts に上記の 1 行を追記してください。
 
-1. To verify a contract, you must compile it using the same configuration parameters that were used during deployment (such as the Solidity version, optimizer settings, etc.). Otherwise, the compiled bytecode will not match the bytecode on the blockchain, making verification impossible.
-2. When verifying a contract, you need to specify the network, contract path, contract name, and other details. If the contract constructor has parameters, include the constructor arguments that were passed in during deployment. If there are no parameters, you don't need to include "constructorArguments." Here's an example:
+### コントラクトの検証手順：
+
+1. コンパイルの一致：
+コントラクトを検証するには、デプロイ時と同じコンパイラ設定（Solidity のバージョン、オプティマイザ設定など）でコンパイルしておく必要があります。設定が一致しないと、ブロックチェーン上のバイトコードとローカルで生成したバイトコードが一致せず、検証に失敗します。
+2. 検証コマンドの実行：
+検証時にはネットワーク・コントラクトパス・コントラクト名などを指定し、必要に応じてコンストラクタ引数を渡します。コンストラクタに引数がない場合は、--constructor-args は不要です。
 
 `npx hardhat verify --network mainnet DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"`
 
-3. Regarding passing constructor arguments, if the constructor arguments are of complex types, such as address[] or custom structs, it can be inconvenient to pass them through the command line. Instead, you can use --constructor-args arguments.js, where arguments.js exports the parameters in order.
+3. コンストラクタ引数の管理：
+コンストラクタ引数が複雑（address[] や独自の struct など）の場合、コマンドラインで直接指定するのは手間がかかります。
+そのため --constructor-args にファイルを指定でき、外部ファイル（arguments.js など）に引数をまとめておく方法が便利です。
 
-* Example of an arguments.js file for complex types
+`npx hardhat verify \
+    --constructor-args arguments.js \
+    --contract contracts/path/path/SimpleContract.sol:SimpleContract \
+    <DEPLOYED_CONTRACT_ADDRESS>`
 
-For example, the contract is defined with the following constructor:
+### 例: 複雑な型のコンストラクタ引数
 
-```javascript
+```solidity
 struct Point {
   uint x;
   uint y;
@@ -41,7 +50,7 @@ contract Foo {
 }
 ```
 
-Then, the arguments.js file might look something like this:
+この時、引数をまとめた外部ファイルのargument.jsは以下のようになります
 
 ```javascript
 module.exports = [
@@ -51,11 +60,13 @@ module.exports = [
     x: 10,
     y: 5,
   },
-  // bytes have to be 0x-prefixed
+  // bytes型は "0x" で始まる16進数表記で指定
   "0xabcdef",
 ];
 ```
 
-The module can then be utilized by the verify task when invoked as follows:
+デプロイコマンドでは、コマンドライン上で直接すべての引数を指定するのではなく、ファイルから取り込むことで複雑な構造体や配列などを含む引数を簡潔に管理し、検証が行えます。
 
-`npx hardhat verify --constructor-args arguments.js --contract contracts/path/path/SimpleContract.sol:SimpleContract DEPLOYED_CONTRACT_ADDRESS`
+```bash
+npx hardhat verify --constructor-args arguments.js --contract contracts/path/path/SimpleContract.sol:SimpleContract DEPLOYED_CONTRACT_ADDRESS
+```

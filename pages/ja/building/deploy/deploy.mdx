@@ -1,35 +1,35 @@
 import { Tabs } from "nextra/components";
 
-# Deploying a Smart Contract
+# スマートコントラクトのデプロイ
 
-This tutorial explains how to create, compile, deploy, and verify a simple smart contract on the Nero modular chain Testnet using Hardhat.
+このチュートリアルでは、Nero モジュラーチェーンの Testnet 上で Hardhat を使ってスマートコントラクトを作成・コンパイル・デプロイ・検証する手順を説明します。
 
-## Hardhat
+## Hardhatとは
 
-- Hardhat is a toolset that allows you to compile, deploy, test, and verify your smart contracts.
+- Hardhat は、スマートコントラクトのコンパイル、デプロイ、テスト、および検証が行えるツールです。
 
-## Setting Up Your Workspace
+## 開発環境の準備
 
-- Node.js(https://nodejs.org)
+- Node.jsをインストールしておきます(https://nodejs.org)
 
-## Starting a New Project
+## プロジェクトの作成
 
-- To initiate a new project, run the following command:
+- 新しいプロジェクトを作成するには、以下のコマンドを実行します：
 
 <Tabs items={["npm", "yarn"]}>
   <Tabs.Tab>``` npm init ```</Tabs.Tab>
   <Tabs.Tab>``` yarn init ```</Tabs.Tab>
 </Tabs>
 
-- To install Hardhat in your project, run the following command:
+- Hardhat をプロジェクトにインストールするために、以下のコマンドを実行します：
 
 <Tabs items={["npm", "yarn"]}>
   <Tabs.Tab>``` npm install --save-dev hardhat ```</Tabs.Tab>
   <Tabs.Tab>``` yarn add --dev hardhat ```</Tabs.Tab>
 </Tabs>
 
-- To create a Hardhat project by running npx hardhat in your project directory.
-- Then, you will be presented with several options for project creation. Select the appropriate options.
+- その後、プロジェクトディレクトリで npx hardhat を実行し、プロジェクト作成ウィザードを利用して設定を行います。
+- 画面に表示される選択肢に従って適切なオプションを選びましょう。
 
 <div style={{ height: "2rem" }} />
 <div style={{ textAlign: "center" }}>
@@ -37,23 +37,25 @@ This tutorial explains how to create, compile, deploy, and verify a simple smart
   <p style={{ fontStyle: "italic" }}>Figure 1: npx hardhat</p>
 </div>
 
-## Create Smart Contract
+### スマートコントラクトの作成
 
-You can create your own smart contract or use the **Openzeppelin token smart contract template**(https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol), and place it in the contracts directory of your project.
+独自のスマートコントラクトを作成することも可能ですし、OpenZeppelin のトークン用スマートコントラクトテンプレートを利用しても構いません。
+作成したコントラクトは、プロジェクト内の contracts ディレクトリに配置します。
 
-# Modify Hardhat for NERO
+## NERO用にHardhatを設定
 
-The updates to the `<hardhat-config-file>` and `./ignition/module/<deploy-file>` files should resemble the following example (specific content should be adjusted according to requirements).
+`<hardhat-config-file>`や `./ignition/module/<deploy-file>` を以下の例のように修正してください（実際の要件に合わせて調整してください）。
 
-You'll need a **variables**(https://hardhat.org/hardhat-runner/docs/guides/configuration-variables#configuration-variables) with the following contents:
+### 変数ファイルの作成
+Hardhat の設定変数 (Configuration Variables)として、以下のような内容の variables ファイルを用意します:(https://hardhat.org/hardhat-runner/docs/guides/configuration-variables#configuration-variables)
 
 ```
 NERO_TESTNET_PROVIDER_URL=https://rpc-testnet.nerochain.io
 PRIVATE_KEY=add your own private key
 API_KEY=add your own etherscan api key
 ```
-
-You'll need a **hardhat.config.js** and **hardhat.config.ts** with the following contents:
+### hardhat.config ファイル
+次に、hardhat.config.js または hardhat.config.ts を作成（もしくは既存のファイルを編集）し、以下のように設定します。
 
 <Tabs items={["hardhat.config.js", "hardhat.config.ts"]}>
   <Tabs.Tab>
@@ -133,16 +135,25 @@ export default config;
 </Tabs>
 
 
-### Note:
-* You can obtain test coins from this faucet(https://app.testnet.nerochain.io/faucet)
+> Note：テスト用のトークンが必要な場合は、こちらのFaucetから入手できます。(https://app.testnet.nerochain.io/faucet)
 
-## Deploy Smart Contract on Nero Network
+## NERO ネットワークへスマートコントラクトをデプロイ
 
-1. Compile the contract by running npx hardhat compilein the terminal.
-2. Run ```npx hardhat ignition deploy ./ignition/modules/<deploy-file> --network <select-network>``` in the root of the project directory.
-3. Visit the **Testnet Explorer**(https://testnet.neroscan.io/) to view the deployed contract.
+1. コンパイル：ターミナルで以下を実行し、コントラクトをコンパイルします。
 
-Congratulations! You have successfully deployed your own Smart Contract.
+```bash
+npx hardhat compile
+```
+
+2. デプロイ：プロジェクトのルートディレクトリで、以下のコマンドを実行してデプロイします。
+
+```bash
+npx hardhat ignition deploy ./ignition/modules/<deploy-file> --network <select-network>
+```
+
+3. 確認： **Testnet Explorer**でデプロイしたコントラクトを確認できます。(https://testnet.neroscan.io/)
+
+これで独自のスマートコントラクトを NERO Testnet にデプロイできました。お疲れさまです！
 
 <div style={{ height: '2rem' }} />
 <div style={{ textAlign: 'center' }}>
@@ -150,5 +161,5 @@ Congratulations! You have successfully deployed your own Smart Contract.
   <p style={{ fontStyle: 'italic' }}>Figure 2: NERO testnet scan</p>
 </div>
 
-## Conclusion
-This tutorial has walked you through creating and deploying a basic smart contract using Hardhat. Although the tutorial used the testnet, you can follow the same process for the mainnet.​​
+## まとめ
+このチュートリアルでは、Hardhat を用いて基本的なスマートコントラクトを作成・デプロイする流れを解説しました。今回は Testnet を使用しましたが、同じ手順で Mainnet に対してもデプロイを行えます。お好みに合わせて活用してみてください。
