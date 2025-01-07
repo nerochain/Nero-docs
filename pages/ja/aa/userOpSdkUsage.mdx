@@ -1,40 +1,45 @@
-# UerOp-SDK Usage
+# UerOp-SDKの使用方法
 
-This document introduces the use of userop-sdk, how dapp assembles userop, and the process of obtaining gas solutions by calling paymaster-rpc, and bundling on-chain.
+以下では、userop-sdkの使い方や、DApp側でどのように userOpを組み立てて Paymaster-RPCによるガス支払いロジックを取得し、最終的にバンドラーによってオンチェーン化するまでの流れを解説します。
 
-Install package from github
+## インストール
+GitHub からパッケージをインストールします。
 ```
 npm install github:nerochain/aa-userop-sdk
 ```
-Import into dapp project
+## DAppへのインポート
 
 ```
 import {Client, Presets} from 'userop';
 ```
 
-Init build
+## 初期化（Builder の作成）
 ```typescript
 const builder = await Presets.Builder.SimpleAccount.init(
-    accountSigner,    //aa wallet owner provider
-    RPC_ENDPOINT,     //nerochain rpc
+    accountSigner,    // AAウォレット所有者のprovider
+    RPC_ENDPOINT,     // NERO Chain RPCエンドポイント
     {
-      overrideBundlerRpc: bundlerRpc,    //bundler rpc
-      entryPoint: entryPointAddress,    //entrypoint contract
-      factory: accountFactoryAddr,    //SimpleAccountFactory contract
+      overrideBundlerRpc: bundlerRpc,    // バンドラーRPC
+      entryPoint: entryPointAddress,    // EntryPointコントラクトアドレス
+      factory: accountFactoryAddr,    // SimpleAccountFactoryコントラクトアドレス
     }
 );
 ```
+SimpleAccount.init() では、アカウントのデプロイ状況などをチェックしつつ、UserOp を組み立てるための Builder インスタンスを生成します。
 
-Set platform apikey to paymaster
-*The method to create an API key can be found in the AA Platform usage.
+
+## Paymaster の設定（APIキーの設定）
+プラットフォームで作成した APIキーを利用し、Paymasterオプションを設定します。
+APIキーの作成方法は AA Platform使用ガイドをご参照ください。
+
 ```typescript
 builder.setPaymasterOptions({
-    apikey: apiKey,    //platform api-key
-    rpc: payMasterRpc  //paymaster rpc
+    apikey: apiKey,    // プラットフォームで発行したAPIキー
+    rpc: payMasterRpc  // Paymaster RPCエンドポイント
 });
 ```
 
-Init client(parameters same as build)
+## Client の初期化
 
 ```typescript
 const client = await Client.init(RPC_ENDPOINT, {
@@ -43,7 +48,7 @@ const client = await Client.init(RPC_ENDPOINT, {
 });
 ```
 
-Construct builder's transaction data on actual business scenarios
+## Builderのトランザクションデータ構築の実例
 
 ```typescript
 const callData = [
@@ -58,26 +63,34 @@ const callData = [
     ];
     const callTo = [testTokenAddr, testTokenAddr];
     builder.executeBatch(callTo, callData);
-    //builder.execute(..) for single calldata
+    // 単一のcallDataの場合は builder.execute(..) を利用
 ```
+ここでは例として、同じコントラクト（testTokenAddr）に対して連続的にapprove → transferを実行するためのデータをexecuteBatchを使って組み立てています。
 
-Now get supported tokens
+## サポートされているトークンの取得
 
 ```
 const supportedTokens = await client.getSupportedTokens(builder);
 ```
-The above data depends on the strategies set by developers on the platform. The dapp analyzes tokens for users to choose gas options:
+この結果は、開発者がプラットフォーム上で設定した戦略（受け付けるトークンやスポンサーシップの方針など）によって異なります。DApp ではこの情報をもとに、ユーザーに選択可能なガスオプションやトークン種別を提示します。
 
-* type=0 freegas. Developer sponsors gas fees, users do not need to pay ERC20.
-* type=1 prefund erc20. During the verification phase, the system first deducts the full amount of ERC20 from the user, and then returns the excess portion after executing the user operation.
-* type=2 postfund erc20. After the userop is executed, the system deducts the ERC20 from the user in one go. However, it’s possible that the deduction may fail due to the specific nature of the userop code.
+## PaymasterOptions のモード設定
+
+* type=0 freegas. 開発者がガス代を肩代わりし、ユーザーは ERC20 を支払う必要がありません。
+* type=1 prefund erc20. 検証段階で、ユーザーからガス相当の ERC20 を一旦全額徴収し、UserOp 実行後に余剰分を返還します。
+* type=2 postfund erc20. UserOp 実行後に、一括でユーザーの ERC20 を差し引きます。ただし、UserOp の処理内容によっては差し引きに失敗する可能性があります。
+
+取得したモードをユーザーの選択肢に応じて指定します。下記の例では、ユーザーが選択したモード (selectedMode.value) を Paymaster に設定しています。
 
 ```typescript
 builder.setPaymasterOptions({ type: selectedMode.value }); //type: 0/free 1/prepay 2/postpay
 ```
-then regenerates the transaction data, requests a signature from the paymaster and submits to the bundler for packaging and uploading to the blockchain.
+設定を変更した後、再度トランザクションデータを組み立て、Paymaster の署名要求を行います。そして最終的にバンドラーに送信し、オンチェーンにアップロードします。
+
+## UserOperation をバンドラーへ送信
 
 ```typescript
 const res = await client.sendUserOperation(builder)
 ```
+sendUserOperation を呼び出すと、内部で Paymaster への署名リクエストを行い、UserOp を完成させたうえでバンドラーに提出します。バンドラーによってオンチェーン化されると、ガス支払いロジックが適用されたトランザクションが実行されます。
 
