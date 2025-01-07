@@ -30,7 +30,7 @@ And add the following statement to your hardhat.config.js/hardhat.config.ts
 
 For example, the contract is defined with the following constructor:
 
-```javascript
+```solidity
 struct Point {
   uint x;
   uint y;
@@ -58,4 +58,6 @@ module.exports = [
 
 The module can then be utilized by the verify task when invoked as follows:
 
-`npx hardhat verify --constructor-args arguments.js --contract contracts/path/path/SimpleContract.sol:SimpleContract DEPLOYED_CONTRACT_ADDRESS`
+```bash
+npx hardhat verify --constructor-args arguments.js --contract contracts/path/path/SimpleContract.sol:SimpleContract DEPLOYED_CONTRACT_ADDRESS
+```
