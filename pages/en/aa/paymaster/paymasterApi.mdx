@@ -11,11 +11,13 @@
 
 We use three mappings to store developer data, achieving decentralized management.
 
+```solidity
 mapping(uint256 => address) public projectOwner; 
 
 mapping(uint256 => uint256) public projectNero; 
 
 mapping(uint256 => mapping(address => uint256)) public projectERC20; 
+```
 
 Developers bind their project to a wallet address on the platform and then recharge with NERO. After that, users can call the Paymaster API to pay for gas either for free or using ERC20. Please refer to the usage guidelines of the platform for more details.
 
@@ -137,7 +139,11 @@ Correct response:
       "callGasLimit": "0x...",  
   }  
 }
+```
+
 Error response:
+
+```json
 {  
   "jsonrpc": "2.0",  
   "id": 1,  
