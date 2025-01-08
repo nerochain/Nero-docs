@@ -1,6 +1,6 @@
 # UerOp-SDKの使用方法
 
-以下では、userop-sdkの使い方や、DApp側でどのように userOpを組み立てて Paymaster-RPCによるガス支払いロジックを取得し、最終的にバンドラーによってオンチェーン化するまでの流れを解説します。
+以下では、userop-sdkの使い方や、DApp側でどのように userOpを組み立てて Paymaster-RPCによるガス支払いロジックを取得し、最終的にBundlerによってオンチェーン化するまでの流れを解説します。
 
 ## インストール
 GitHub からパッケージをインストールします。
@@ -19,7 +19,7 @@ const builder = await Presets.Builder.SimpleAccount.init(
     accountSigner,    // AAウォレット所有者のprovider
     RPC_ENDPOINT,     // NERO Chain RPCエンドポイント
     {
-      overrideBundlerRpc: bundlerRpc,    // バンドラーRPC
+      overrideBundlerRpc: bundlerRpc,    // Bundler RPC
       entryPoint: entryPointAddress,    // EntryPointコントラクトアドレス
       factory: accountFactoryAddr,    // SimpleAccountFactoryコントラクトアドレス
     }
@@ -85,12 +85,12 @@ const supportedTokens = await client.getSupportedTokens(builder);
 ```typescript
 builder.setPaymasterOptions({ type: selectedMode.value }); //type: 0/free 1/prepay 2/postpay
 ```
-設定を変更した後、再度トランザクションデータを組み立て、Paymaster の署名要求を行います。そして最終的にバンドラーに送信し、オンチェーンにアップロードします。
+設定を変更した後、再度トランザクションデータを組み立て、Paymaster の署名要求を行います。そして最終的にBundlerに送信し、オンチェーンにアップロードします。
 
-## UserOperation をバンドラーへ送信
+## UserOperationをBundlerへ送信
 
 ```typescript
 const res = await client.sendUserOperation(builder)
 ```
-sendUserOperation を呼び出すと、内部で Paymaster への署名リクエストを行い、UserOp を完成させたうえでバンドラーに提出します。バンドラーによってオンチェーン化されると、ガス支払いロジックが適用されたトランザクションが実行されます。
+sendUserOperationを呼び出すと、内部で Paymasterへの署名リクエストを行い、UserOpを完成させたうえでBundlerに提出します。Bundlerによってオンチェーン化されると、ガス支払いロジックが適用されたトランザクションが実行されます。
 
