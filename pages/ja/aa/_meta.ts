@@ -5,5 +5,5 @@ export default {
   aaPlatformUsageGuide: "AAプラットフォーム使用ガイド",
   aaWalletUi: "AAウォレットのUI使用方法",
   accessEntryPoint: "エントリーポイント",
-  aaWallet: "AAウォレットの使用方法",
+  // aaWallet: "AAウォレットの使用方法",
 }
