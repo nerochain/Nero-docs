@@ -1,0 +1,286 @@
+# AA Walletの使用方法
+
+## 概要
+
+AA Walletは、Web3アプリケーション向けの「簡単かつ安全」なウォレット統合 ソリューションです。ソーシャルログイン（Web3Auth など）とアカウントアブストラクションを組み合わせることで、従来のウォレットに比べてユーザーが扱いやすい DApp を構築できます。
+
+### インストール
+
+```
+npm install nero-wallet
+# または
+yarn add nero-wallet
+```
+
+### 基本設定
+
+```typescript
+// main.tsx
+import { SocialWallet } from "nero-wallet";
+import "nero-wallet/index.css";
+import config from "../nerowallet.config"; // プロジェクトルート直下に配置した設定ファイル
+import "@rainbow-me/rainbowkit/styles.css";
+
+function App() {
+  return (
+    <SocialWallet config={config}>
+      <YourApp />
+    </SocialWallet>
+  );
+}
+```
+上記のように、SocialWallet でアプリをラップすることで、ウォレット機能が提供されます。
+
+## コア機能
+
+### 1. ウォレット接続
+
+```typescript
+import { useSignature } from "nero-wallet";
+
+function YourComponent() {
+  const { AAaddress, isConnected } = useSignature();
+
+  return (
+    <div>
+      {isConnected ? (
+        <p>Connected: {AAaddress}</p>
+      ) : (
+        <p>Please connect your wallet</p>
+      )}
+    </div>
+  );
+}
+```
+useSignature() を利用すると、ウォレットアドレスや接続状況などの情報を簡単に取得できます。
+
+### 2. トランザクション実行
+
+```typescript
+import { useSendUserOp } from "nero-wallet";
+
+function TransactionComponent() {
+  const { execute, waitForUserOpResult } = useSendUserOp();
+
+  const handleTransaction = async () => {
+    try {
+      await execute({
+        function: "yourFunction",
+        contractAddress: "CONTRACT_ADDRESS",
+        abi: CONTRACT_ABI,
+        value: "0x0", // デフォルトではトークンの送金なし
+        params: [param1, param2],
+      });
+      const result = await waitForUserOpResult();
+      console.log("Transaction successful:", result);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+}
+```
+execute メソッドでトランザクションを送信し、waitForUserOpResult で結果を待つことができます。
+
+### 3. バッチトランザクション
+
+```typescript
+import { useSignature } from "nero-wallet";
+
+function BatchComponent() {
+  const { executeBatch, waitForUserOpResult } = useSignature();
+
+  const handleBatchTransaction = async () => {
+    const operations = [
+      {
+        function: "function1",
+        contractAddress: "ADDRESS1",
+        abi: ABI1,
+        value: "0x0", // デフォルトではトークンの送金なし
+        params: [param1],
+      },
+      {
+        function: "function2",
+        contractAddress: "ADDRESS2",
+        abi: ABI2,
+        value: "0x0", // デフォルトではトークンの送金なし
+        params: [param2],
+      },
+    ];
+
+    try {
+      await executeBatch(operations);
+      const result = await waitForUserOpResult();
+    } catch (error) {
+      console.error("Batch transaction failed:", error);
+    }
+  };
+}
+```
+複数のトランザクションを一括して送信できます。
+
+## AA Walletの設定
+
+### 概要
+
+NERO Wallet（AA Wallet）は、設定ファイルを通じてカスタマイズ可能です。プロジェクトのルートディレクトリに nerowallet.config.ts ファイルを用意することで、接続先のネットワークやソーシャルログインなどの各種設定を行えます。
+
+### 基本的な設定例
+
+```typescript
+// nerowallet.config.ts
+import YourLogoIcon from "./path/to/your/logo.svg";
+
+const config = {
+  // ウォレットの基本設定
+  rainbowKitProjectId: "YOUR_PROJECT_ID",
+  walletName: "YOUR_WALLET_NAME",
+  walletLogo: YourLogoIcon,
+  iconBackground: "#ffffff",
+
+  // 外部リンク
+  contactAs: "YOUR_CONTACT_URL",
+  PrivacyPolicy: "YOUR_PRIVACY_POLICY_URL",
+  ServiceTerms: "YOUR_TERMS_URL",
+};
+```
+
+### チェーン設定例
+
+```typescript
+chains: [
+  {
+    chain: {
+      name: "YOUR_NETWORK_NAME",
+      logo: YourChainLogo,
+      networkType: "testnet", // または 'mainnet'
+      rpc: process.env.RPC_URL,
+      chainId: Number(process.env.CHAIN_ID),
+      explorer: process.env.EXPLORER_URL,
+      explorerAPI: process.env.EXPLORER_API,
+      nativeToken: {
+        decimals: 18,
+        name: "TOKEN",
+        symbol: "TOKEN_SYMBOL",
+      },
+    },
+    // Account Abstraction settings
+    aa: {
+      bundler: process.env.BUNDLER_URL,
+      paymaster: process.env.PAYMASTER_URL,
+      paymasterAPIKey: process.env.PAYMASTER_API,
+    },
+    // Contract Addresses
+    aaContracts: {
+      entryPoint: "YOUR_ENTRY_POINT_ADDRESS",
+      accountFactory: "YOUR_FACTORY_ADDRESS",
+      tokenPaymaster: "YOUR_PAYMASTER_ADDRESS",
+    },
+  },
+  {
+    chain: {
+      // メインネットなど別環境を設定
+    },
+  },
+];
+```
+
+### Web3Auth Configuration
+
+```typescript
+web3auth: {
+  clientId: process.env.WEB3AUTH_ID,
+  network: 'testnet', // または 'mainnet'
+  uiConfig: {
+    appName: 'YOUR_APP_NAME',
+    mode: 'light', // または 'dark'
+    useLogoLoader: true,
+    defaultLanguage: 'en',
+    theme: {
+      primary: '#YOUR_COLOR',
+    },
+    loginMethodsOrder: ['google', 'facebook', 'discord'],
+    uxMode: 'redirect',
+    modalZIndex: '2147483647',
+  },
+  loginConfig: {
+    google: {
+      name: 'google',
+      verifier: 'YOUR_VERIFIER',
+      typeOfLogin: 'google',
+      clientId: process.env.GOOGLE_CLIENT_ID,
+    },
+    facebook: {
+      name: 'facebook',
+      verifier: 'YOUR_VERIFIER',
+      typeOfLogin: 'facebook',
+      clientId: process.env.FACEBOOK_CLIENT_ID,
+    },
+  },
+}
+
+```
+
+### 環境変数
+
+```
+# ネットワーク関連
+RPC_URL=YOUR_RPC_URL
+CHAIN_ID=YOUR_CHAIN_ID
+EXPLORER_URL=YOUR_EXPLORER_URL
+EXPLORER_API=YOUR_EXPLORER_API_URL
+
+# AA 関連設定
+BUNDLER_URL=YOUR_BUNDLER_URL
+PAYMASTER_URL=YOUR_PAYMASTER_URL
+PAYMASTER_API=YOUR_PAYMASTER_API_KEY
+
+# ソーシャルログイン関連
+WEB3AUTH_ID=YOUR_WEB3AUTH_ID
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+FACEBOOK_CLIENT_ID=YOUR_FACEBOOK_CLIENT_ID
+```
+
+### 設定を利用する方法
+
+```typescript
+import { useConfig } from "nero-wallet";
+
+function YourComponent() {
+  const config = useConfig();
+
+  return (
+    <div>
+      <h1>{config.walletName}</h1>
+      <p>Chain: {config.chainName}</p>
+      <p>Network Type: {config.networkType}</p>
+    </div>
+  );
+}
+```
+useConfig()を使用すると、nerowallet.config.tsに定義した設定をどこからでも参照できます。
+
+### 重要事項
+
+1. 必須設定
+
+- RPC URL、Chain ID
+- （ソーシャルログインを利用する場合）Web3Authの設定
+- Bundler / Paymaster の設定
+
+2. セキュリティ
+
+- API キーやクライアントIDは環境変数で管理し、GitHub等に直接コミットしないようにしてください。
+- 本番環境では適切なネットワーク設定を使用してください。
+
+3. カスタマイズ
+
+- UIテーマ、ログイン方法、ネットワーク設定など、多様なカスタマイズが可能です。
+- プロジェクト要件に合わせて自由に変更してください。
+
+4. TypeScript設定
+
+- nerowallet.config.ts を使う際、tsconfig.json の "include" に *.config.ts を追加しておくと型定義を正しく解決できます。
+
+```typescript
+ "include": ["*.config.ts"]
+```

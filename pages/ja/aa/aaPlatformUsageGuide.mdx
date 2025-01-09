@@ -1,0 +1,143 @@
+# AA Platform使用ガイド
+
+## チーム作成ガイド
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure5.png" alt="Figure 5" />
+  <p style={{ fontStyle: 'italic' }}>Figure 5: Create a Team 1</p>
+</div>
+
+#### 1. 「Create a team」ボタンをクリック
+   * 画面上部のチーム選択セクションにある「Create a team」ボタンをクリックします。
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure6.png" alt="Figure 6" />
+  <p style={{ fontStyle: 'italic' }}>Figure 6: Create a Team 2</p>
+</div>
+
+#### 2. 必要情報の入力
+    * チームイメージ (Team Image)
+    * チーム名 (Team Name)
+    * 名 (First Name)
+    * 姓 (Last Name)
+
+#### 3. チーム作成の完了
+    * 必要事項を全て入力したら「Create」ボタンをクリックしてください。
+    * これでチームが正常に作成されます。
+
+
+## API キーの作成ガイド
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure7.png" alt="Figure 7" />
+  <p style={{ fontStyle: 'italic' }}>Figure 7: Create API Key</p>
+</div>
+
+
+NERO AAプラットフォームでAPIキーを作成するには、以下の手順にしたがってください：
+
+#### 1. ドロップダウンメニューから「Nero Testnet Chain」を選択します。
+#### 2. 「Create ApiKey」ボタンをクリックします。
+
+#### 注意:
+ボタンをクリックするとトランザクション署名が求められます。これはバインドウォレットの登録に必要な署名ですが、もし署名を「reject（拒否）」しても API キーの作成自体は続行できます。
+
+
+## チームメンバーとロール
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure8.png" alt="Figure 8" />
+  <p style={{ fontStyle: 'italic' }}>Figure 8: Create a Team</p>
+</div>
+
+各チームメンバーにはロール（役割）を割り当てることができ、アクセス範囲や権限が異なります。AA プラットフォームには、チーム管理と円滑な運用を可能にする 3 つのロールが用意されています。
+
+#### Owner
+* 通常、チームを作成したユーザーが「Owner」となります。
+* 最高レベルの権限を持ち、インスタンス管理、請求関連管理、チーム設定の変更などが可能です。
+
+#### Admin
+* Owner から追加の権限を付与された、信頼できるメンバーが担当します。
+* Owner に近い操作が可能ですが、請求関連の詳細管理のみ行えません。
+
+#### Team member (Colleague)
+* 一般的なユーザーとしての立ち位置です。
+* 主にインスタンスの管理を行いますが、チーム設定の変更や請求関連情報へのアクセスは制限されます。
+
+## Nero Platformの設定ガイド
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure9.png" alt="Figure 9" />
+  <p style={{ fontStyle: 'italic' }}>Figure 9: API Key Settings</p>
+</div>
+
+### 主な機能
+#### 1. ERC-20 支払い設定 (ERC-20 Payment Configuration)
+* ガス支払いに対応するトークンを設定できます。
+  * 「Select Token」ボタンからトークンを追加するか、コントラクトアドレスを直接入力してカスタムトークンを追加できます。
+* 設定したそれぞれのトークンに対して価格設定を行えます。
+* ガスの浮動率 (GAS floating rate) を設定できます (初期値: 0%)。
+
+
+#### 2. アドレスごとの無料利用設定 (Discount per Address Settings)
+* 新規アドレスに対する無料利用回数を設定可能。
+* 新規アドレスごとの最大無料金額 (ERC20 / NERO) を指定可能。
+* 時間設定（例：「毎日」などの期間指定）が可能。
+
+#### 3. 全アドレス向けの無料利用設定 (All Address Offers)
+* 全アドレス共通の無料利用上限を設定可能。
+* 全アドレスに対して最大無料金額や最大無料 NERO 数を指定可能。
+* 時間設定（例：「毎日」など）が可能。
+
+#### 4. コールバック設定 (Callback Configuration)
+* 呼び出し元アドレスを設定します。
+* ユーザーオペレーションをスポンサーするかどうかのポリシーをここで決定します。
+
+各種設定を行ったら、画面下部のボタンで「保存」または「リセット」を選択できます。
+
+
+## 支払い管理 (Payment Management)
+### 残高管理機能 (Balance Management Features)
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure10.png" alt="Figure 10" />
+  <p style={{ fontStyle: 'italic' }}>Figure 10: Payment Settings</p>
+</div>
+
+#### 1. ダッシュボード概要 (Dashboard Overview)
+##### Remaining Request
+* Paymaster が処理可能なリクエスト残数を表示します。
+* リクエスト数を増やしたい場合は NERO へお問い合わせください。
+
+##### Remaining sponsor NERO balance
+* 現在の NERO 残高を表示します。
+* 「Add」ボタンから NERO を追加できます。
+
+### 2. トークン残高テーブル (Token Balance Table)
+* 例： Chain, Token, Balance, Action
+* Action ボタン:
+  * Receive: トークンを受け取ります。
+  * Withdraw: トークンを出金します。
+
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure11.png" alt="Figure 11" />
+  <p style={{ fontStyle: 'italic' }}>Figure 11: Add/Withdraw</p>
+</div>
+
+### 3. NEROの追加 (ADD NERO)
+* 追加するNEROの量を入力します。
+* 現在の残高を確認できます。
+* Paymasterアドレスも確認できます。
+* Paymasterの残高を確認したら、トランザクションを実行するため「Confirm」ボタンを押します。
+
+### 4. NEROの出金（Withdraw NERO）
+* 出金したいNEROの金額を入力します。
+* Paymasterの残高を確認します。
+* 出金先アドレスを指定します。
+* 「Confirm」をクリックすると出金が完了します。
+
+API キーの利用方法については、UserOp-SDK を参照してください。

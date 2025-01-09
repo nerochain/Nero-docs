@@ -1,0 +1,96 @@
+# UerOp-SDKの使用方法
+
+以下では、userop-sdkの使い方や、DApp側でどのように userOpを組み立てて Paymaster-RPCによるガス支払いロジックを取得し、最終的にBundlerによってオンチェーン化するまでの流れを解説します。
+
+## インストール
+GitHub からパッケージをインストールします。
+```
+npm install github:nerochain/aa-userop-sdk
+```
+## DAppへのインポート
+
+```
+import {Client, Presets} from 'userop';
+```
+
+## 初期化（Builder の作成）
+```typescript
+const builder = await Presets.Builder.SimpleAccount.init(
+    accountSigner,    // AAウォレット所有者のprovider
+    RPC_ENDPOINT,     // NERO Chain RPCエンドポイント
+    {
+      overrideBundlerRpc: bundlerRpc,    // Bundler RPC
+      entryPoint: entryPointAddress,    // EntryPointコントラクトアドレス
+      factory: accountFactoryAddr,    // SimpleAccountFactoryコントラクトアドレス
+    }
+);
+```
+SimpleAccount.init() では、アカウントのデプロイ状況などをチェックしつつ、UserOp を組み立てるための Builder インスタンスを生成します。
+
+
+## Paymaster の設定（APIキーの設定）
+プラットフォームで作成した APIキーを利用し、Paymasterオプションを設定します。
+APIキーの作成方法は AA Platform使用ガイドをご参照ください。
+
+```typescript
+builder.setPaymasterOptions({
+    apikey: apiKey,    // プラットフォームで発行したAPIキー
+    rpc: payMasterRpc  // Paymaster RPCエンドポイント
+});
+```
+
+## Client の初期化
+
+```typescript
+const client = await Client.init(RPC_ENDPOINT, {
+    overrideBundlerRpc: bundlerRpc,
+    entryPoint: entryPointAddress,
+});
+```
+
+## Builderのトランザクションデータ構築の実例
+
+```typescript
+const callData = [
+      defaultTokenContract.interface.encodeFunctionData('approve', [
+        state.toAddress,
+        ethers.parseEther(state.tranNum.toString())
+      ]),
+      defaultTokenContract.interface.encodeFunctionData('transfer', [
+        state.toAddress,
+        ethers.parseEther(state.tranNum.toString())
+      ])
+    ];
+    const callTo = [testTokenAddr, testTokenAddr];
+    builder.executeBatch(callTo, callData);
+    // 単一のcallDataの場合は builder.execute(..) を利用
+```
+ここでは例として、同じコントラクト（testTokenAddr）に対して連続的にapprove → transferを実行するためのデータをexecuteBatchを使って組み立てています。
+
+## サポートされているトークンの取得
+
+```
+const supportedTokens = await client.getSupportedTokens(builder);
+```
+この結果は、開発者がプラットフォーム上で設定した戦略（使用できるトークンやスポンサーシップの方針など）によって異なります。DApp ではこの情報をもとに、ユーザーに選択可能なガスオプションやトークン種別を提示します。
+
+## PaymasterOptions のモード設定
+
+* type=0 freegas. 開発者がガス代を肩代わりし、ユーザーは ERC20 を支払う必要がありません。
+* type=1 prefund erc20. 検証段階で、ユーザーからガス相当の ERC20 を一旦全額徴収し、UserOp 実行後に余剰分を返還します。
+* type=2 postfund erc20. UserOp 実行後に、一括でユーザーの ERC20 を差し引きます。ただし、UserOp の処理内容によっては差し引きに失敗する可能性があります。
+
+取得したモードをユーザーの選択肢に応じて指定します。下記の例では、ユーザーが選択したモード (selectedMode.value) を Paymaster に設定しています。
+
+```typescript
+builder.setPaymasterOptions({ type: selectedMode.value }); //type: 0/free 1/prepay 2/postpay
+```
+設定を変更した後、再度トランザクションデータを組み立て、Paymaster の署名要求を行います。そして最終的にBundlerに送信し、オンチェーンにアップロードします。
+
+## UserOperationをBundlerへ送信
+
+```typescript
+const res = await client.sendUserOperation(builder)
+```
+sendUserOperationを呼び出すと、内部で Paymasterへの署名リクエストを行い、UserOpを完成させたうえでBundlerに提出します。Bundlerによってオンチェーン化されると、ガス支払いロジックが適用されたトランザクションが実行されます。
+

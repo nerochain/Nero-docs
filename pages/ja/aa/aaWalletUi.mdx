@@ -1,0 +1,279 @@
+# AA WalletのUI使用方法
+## サインアップ / ログイン
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/login-1.png"
+    alt="login"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 12: Login 1</p>
+</div>
+
+1. デバイスの「電源ボタン」を探してクリックします。これによりウォレット接続画面が表示されます。
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/login-2.png"
+    alt="login"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 13: Login 2</p>
+</div>
+
+2. 「Connect a Wallet」画面が表示されるので、インストール済みまたは推奨ウォレットの一覧から「NERO wallet」を選択します。
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/login-3.png"
+    alt="login"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 14: Login 3</p>
+</div>
+
+3. NERO Walletを選択すると、ウォレットのセットアップに必要なアカウント情報を入力する画面が表示されます。ソーシャルメディアのアカウント、メールアドレス、または電話番号など、ウォレットに紐づけたい情報を入力してください。
+4. 入力内容を再度確認し、間違いがなければ画面下部の「Continue」ボタンをクリックします。
+5. セットアップが完了すると、NERO Walletのメイン画面が表示されます。これでウォレット準備は完了です。
+
+>Note： Bitget WalletやGate Walletなど他のウォレットでログインしていても、AA Walletとして扱われ、同様に利用できます。
+
+## ウォレットホーム画面
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/home.png"
+    alt="home"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 15: Home</p>
+</div>
+
+ホーム画面では、ユーザーのNERO残高が大きく表示されます。
+
+その下にある2つのボタンを使って以下の操作が行えます。
+
+* Send：トークン送金を開始します。
+* Receive：ウォレットアドレスを表示し、受け取り専用QRコードを確認できます。
+
+また、画面下部には3つのタブがあります。
+
+#### 1. Tokens:
+
+* デフォルトのトークンリストと残高を確認できます。
+  - NERO (native token)
+  - DAI
+  - USDT
+  - USDC
+
+#### 2. NFTs:
+
+* ユーザーが保有するNFTコレクションを表示します
+
+#### 3. Activity:
+
+* トランザクション履歴を確認します。
+
+> Note: 上記のトークンは初期設定として用意されていますが、「+ Import Token」から追加でトークンをインポートできます。
+
+
+## サイドバーの機能
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/sidebar.png"
+    alt="sidebar"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 20: Sidebar Functions</p>
+</div>
+
+サイドバーはAA Walletのメインメニューとして機能します。
+主なメニュー項目は以下の通りです。
+
+- **Logo** - ホーム画面またはダッシュボードへ戻ります
+- **Home** - ウォレットのメイン画面（ダッシュボード）へ移動
+- **Send** - トークン送金の画面を表示
+- **Multi Send** - 1回のトランザクションで複数のアドレスへ送金
+- **Receive** - 資産受け取り用の QR コードとウォレットアドレスを表示
+- **Settings** - ウォレットの設定やオプションを変更
+- **Hide Wallet** - メインウォレット画面を非表示にする
+- **Hide Sidebar** - 左側のサイドバーを折りたたみ、表示領域を広げる
+- **Disconnect Wallet** - ウォレットからログアウトし、接続を解除
+
+これらのメニューを使うことで、ウォレットの操作や設定が簡単に行えます。
+
+## UserOperationのフロー
+
+AA Walletにおける全てのアクションは、UserOperation（以下、UserOp）を発行することでトランザクションを生成します。
+
+### UserOperationの確認画面
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/userOp.png"
+    alt="userOp"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 16: Send userOperation</p>
+</div>
+
+ユーザーがウォレットで操作（Send・Multi Sendなど）を行うと、まずUserOpの詳細が表示されます。そこでは以下の情報を確認できます。
+
+- 呼び出す関数（Function calls）
+- コントラクトアドレス（Contract addresses）
+- ABI情報（ABI information）
+
+この段階で取引内容を確認できるため、不正な操作がないかユーザー自身でチェックできます。
+
+### Operation Details画面
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/userOp-detail.png"
+    alt="sidebar"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 17: Send userOperation Detail</p>
+</div>
+
+詳細画面では以下の情報が確認できます。
+
+- オペレーション番号や種別（Operation number and type）
+- コントラクトアドレス（Contract address）
+- 呼び出し関数（Function being called）
+- 送信元（あなたのアドレス）や送信先アドレス（Sender address (You) and Receive address）
+- ネットワーク情報（Network information）
+- ネットワーク手数料（Network fee）
+
+### 確認プロセス
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/loading.png"
+    alt="sidebar"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 18: loading</p>
+</div>
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/success.png"
+    alt="sidebar"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 19: success</p>
+</div>
+
+1. すべての情報を確認し、問題がなければ「Confirm」ボタンをクリックしてUserOperationを開始
+2. ステータス更新：
+   - Loading：トランザクション処理中
+   - Success：UserOperationがネットワークに正常に送信され、完了した状態
+
+## ガス支払い方法
+
+「Select Payment Method」では以下の2つのオプションから選択可能です。
+
+### Sponsored Gas
+
+- ガス代をユーザーではなく、プロジェクトやプラットフォームが負担する方式です。
+- AA プラットフォーム上でプロジェクトがこの機能を有効化している場合のみ選択できます。
+- スポンサー機能を無効化されている場合は、選択できません。
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/sponsored-off.png"
+    alt="sponsored"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 21: Sponsored Gas Not Available</p>
+</div>
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/sponsored-on.png"
+    alt="sponsored"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 22: Sponsored Gas Available</p>
+</div>
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/sponsored-click.png"
+    alt="sponsored"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 23: Clicked Sponsored Gas</p>
+</div>
+
+### トークンでのガス支払い (Pay with Token)
+
+- 指定された ERC20 トークンを用いてガス代を支払う方式です。
+- プラットフォームまたはプロジェクト側でどのトークンをガス代支払いに使用できるかが設定されています。
+- 例として、利用可能なトークンが 6 種類ある場合、ユーザーが自由に選択可能です。
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/cyog.png"
+    alt="cyog"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 24: Pay with Token</p>
+</div>
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/assets/aaWallet/cyog-select.png"
+    alt="cyog"
+    style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+  />
+  <p style={{ fontStyle: "italic" }}>Figure 25: Pay with Token(select)</p>
+</div>
+
+> Note： デフォルトのトークンとしてネイティブトークンの***NERO Token***が指定されています
+
+#### ガス料金表示
+
+**Sponsored Gasの場合**
+
+- 「Sponsored Gas」を選択すると、ガス料金表示は「0」になります。
+- プロジェクト側がガス代を全額負担するため、ユーザーはガス代を支払う必要がありません。
+  <div style={{ height: "2rem" }} />
+  <div style={{ textAlign: "center" }}>
+    <img
+      src="/assets/aaWallet/gasFee-sponsor.png"
+      alt="sponsor"
+      style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+    />
+    <p style={{ fontStyle: "italic" }}>Figure 26: Sponsor Gas Fee Display</p>
+  </div>
+
+**トークン支払い (Pay with Token) の場合**
+
+- 「Pay with Token」を選択すると、ユーザーが支払う可能性のある最大ガス代が表示されます。
+- ユーザーは、このガス代を支払うために十分な残高がある必要があります。
+  <div style={{ height: "2rem" }} />
+  <div style={{ textAlign: "center" }}>
+    <img
+      src="/assets/aaWallet/gasFee-erc20.png"
+      alt="erc20"
+      style={{ margin: "0 auto", display: "block", maxWidth: "60%" }}
+    />
+    <p style={{ fontStyle: "italic" }}>Figure 27: Erc20 Gas Fee Display</p>
+  </div>

@@ -1,0 +1,184 @@
+# Paymaster API
+
+## ガス代支払いの仕組み
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure2.jpeg" alt="Figure 2" />
+  <p style={{ fontStyle: 'italic' }}>Figure 2: Paymaster API Flow</p>
+</div>
+
+## Paymasterコントラクト
+
+開発者データを保存するために、3つのマッピングを使用し、分散型管理を実現しています。
+
+```solidity
+mapping(uint256 => address) public projectOwner; 
+
+mapping(uint256 => uint256) public projectNero; 
+
+mapping(uint256 => mapping(address => uint256)) public projectERC20; 
+```
+
+開発者はAAプラットフォーム上でプロジェクトをウォレットアドレスに紐付け、その後NEROをチャージします。ユーザーはPaymaster APIを呼び出し、無料またはERC20を使用してガス代を支払うことができます。詳細については、AAプラットフォームの使用ガイドラインを参照してください。
+
+## スポンサー付きトランザクションのプロセス
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure3.png" alt="Figure 3" />
+  <p style={{ fontStyle: 'italic' }}>Figure 3: Sponsored Transaction Flow</p>
+</div>
+
+
+
+## RPC API
+
+### pm_supported_tokens
+プロジェクトでガス代支払いに使用可能なERC20トークンのリストを取得します。リクエストパラメータは次の順序で指定します：userop, project_apikey, entrypoint. request
+
+リクエスト：
+```json
+{  
+  "jsonrpc": "2.0",  
+  "id": 1,  
+  "method": "pm_supported_tokens",
+  "params": [
+      {
+          "sender": "0x002f25C57213D8E8d377696e6d8C649ca32381d9",
+          "nonce": "0x5",
+          "initCode": "0x",
+          "callData": "0xb61d27f600000000000000000000000013dcf97b6b94bda883492ab46d556e8919445876000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044095ea7b300000000000000000000000038764200d295b00d0e00a9b98b028dfe107e45b100000000000000000000000000000000000000000052b7d2dcc80cd2e400000000000000000000000000000000000000000000000000000000000000",
+          "callGasLimit": "0x88b8",
+          "verificationGasLimit": "0x33450",
+          "preVerificationGas": "0xc350",
+          "maxFeePerGas": "0x2162553062",
+          "maxPriorityFeePerGas": "0x40dbcf36",
+          "paymasterAndData": "0x",
+          "signature": "0xceda24e15c63ed6368bd3d7a2919cdbc15cc7a0659c8d8e25561510ddfc1960f5bf1c72cb84ae48baf95cb132142ba5ae7ebecb289e4b1e33e8887bd404632c51b"
+      },
+      "9r239fieu3u9fe",
+      "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```
+
+* typeが "system" の場合、pm_sponsor_userop をリクエストする際に変動する可能性があります。一方、"custom" の場合はバックエンドで設定された価格です。この価格は、ERC20トークンとNEROのレートを表します。  
+* freeGas: ガス代のスポンサーをサポートするかどうかを示します。ただし、トークンの価格と同様に、pm_sponsor_userop をリクエストする際に変更される可能性があります。例えば、ここで true が返された場合でも、他のリクエストによって pm_sponsor_userop のリクエスト数が上限を超えた場合、Paymasterの署名がエラーを返し、ユーザーはガス代を支払う別の方法を選択する必要があります。
+
+レスポンス：
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      freeGas: true,
+      native: { gas: '0x337dc', price: 1, decimals: 18, symbol: 'NERO' },
+      tokens: [
+        {
+          type: 'system',
+          token: '0xD5a6dcff7AC339A03f6964c315575bF65c3c6cF6',
+          symbol: 'DAI',
+          decimals: 18,
+          price: 2.1
+        },
+        {
+          type: 'custom',
+          token: '0x13DCf97b6B94bDA883492AB46d556E8919445876',
+          symbol: 'TestToken',
+          decimals: 18,
+          price: 0.1
+        }
+      ]
+    }
+}
+```
+
+## pm_sponsor_userop
+
+Paymasterと署名データを取得します。リクエストパラメータの順序は次の通りです：userop, project_apikey, entrypoint, context(type, erc20)
+
+* type=0 無料ガス。開発者がガス代を負担し、ユーザーはERC20を支払う必要がありません。  
+* type=1 前払いERC20。検証フェーズ中に、システムが最初にユーザーからERC20を全額差し引き、useropの実行後に余剰分を返金します。  
+* type=2 後払いERC20。useropの実行後、システムが一括でユーザーからERC20を差し引きます。ただし、useropコードの特性によっては差し引きが失敗する可能性があります。
+
+リクエスト：
+```json
+{
+  id: 42,
+  jsonrpc: '2.0',
+  method: 'pm_sponsor_userop',
+  params: [
+    {
+      sender: '0x002f25C57213D8E8d377696e6d8C649ca32381d9',
+      nonce: '0x5',
+      initCode: '0x',
+      callData: '0xb61d27f600000000000000000000000013dcf97b6b94bda883492ab46d556e8919445876000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044095ea7b300000000000000000000000038764200d295b00d0e00a9b98b028dfe107e45b100000000000000000000000000000000000000000052b7d2dcc80cd2e400000000000000000000000000000000000000000000000000000000000000',
+      callGasLimit: '0x88b8',
+      verificationGasLimit: '0x33450',
+      preVerificationGas: '0xc350',
+      maxFeePerGas: '0x2162553062',
+      maxPriorityFeePerGas: '0x40dbcf36',
+      paymasterAndData: '0x',
+      signature: '0xceda24e15c63ed6368bd3d7a2919cdbc15cc7a0659c8d8e25561510ddfc1960f5bf1c72cb84ae48baf95cb132142ba5ae7ebecb289e4b1e33e8887bd404632c51b'
+    },
+    '9r239fieu3u9fe',
+    '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+    {
+      type: '2',
+      token: '0x13DCf97b6B94bDA883492AB46d556E8919445876'
+    }
+  ]
+}
+```
+
+正しいレスポンス：
+
+```json
+{  
+  "jsonrpc": "2.0",  
+  "id": 1,  
+  "result": {  
+      "paymasterAndData": "0x1234...5678",  
+      "preVerificationGas": "0x...",  
+      "verificationGasLimit": "0x...",  
+      "callGasLimit": "0x...",  
+  }  
+}
+```
+エラーレスポンス：
+```json
+{  
+  "jsonrpc": "2.0",  
+  "id": 1,  
+  "error": {  
+    "message": "Gas exceeds the limit.", 
+    "code": -32601  
+  }  
+}
+```
+## pm_entrypoints
+
+現在サポートされているEntryPointアドレスを取得するためのリクエスト：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_entrypoints",
+  "params": [
+      "entryPoint"
+  ]
+}
+```
+
+レスポンス：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```

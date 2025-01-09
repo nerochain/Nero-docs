@@ -14,7 +14,7 @@ const withNextra = nextra({
 export default withNextra(
     {
         i18n: {
-          locales: ['en'],
+          locales: ['en', 'ja'],
           defaultLocale: 'en'
         }
       }

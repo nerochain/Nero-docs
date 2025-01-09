@@ -12,6 +12,7 @@ const themeConfig: DocsThemeConfig = {
       />
     </>
   ),
+  // 日本語meta情報
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -45,7 +46,7 @@ const themeConfig: DocsThemeConfig = {
   },
   i18n: [
     { locale: "en", name: "English" },
-    // { locale: "ja", name: "日本語" },
+    { locale: "ja", name: "日本語" },
   ],
 };
 

@@ -1,0 +1,7 @@
+export default {
+  index: "ようこそ",
+  learn: "Learn",
+  aa: "NERO AA",
+  building: "NERO Chain上での開発",
+  supports: "サポート＆お問い合わせ"
+}
