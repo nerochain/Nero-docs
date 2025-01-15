@@ -1,3 +1,8 @@
+{/*_meta.ts 
+  executionLayer: "2.2 Execution layer: Built-in ZK Rollup Execution Engine"
+  },
+*/}
+
 # 2.2 Execution layer: Built-in ZK Rollup Execution Engine
 
 The execution layer is key to NERO’s scalability. NERO is optimized by transferring resource-intensive transaction processing from the on-chain environment to off-chain, while retaining on-chain focus on result validation. NERO employs ZK Rollup technology as the primary implementation for its execution engine, dividing the transaction process into two phases. Initially, a multitude of transactions are executed off-chain and subsequently combined. Then, they are collectively submitted to the main chain for validation. The original transaction data is compressed and stored on-chain. This approach minimizes the volume of data transmitted to the main chain, thereby facilitating faster and more cost-effective transactions.
