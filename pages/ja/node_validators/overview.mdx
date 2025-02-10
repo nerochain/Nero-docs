@@ -1,0 +1,19 @@
+# Overview
+
+| Item | Value |
+| :--- | --- |
+| Gas token(Native token) | NERO (decimals: 18) |
+| Project token | NERO |  |
+| Networks info | refer to [Networks](../building/network.mdx) |
+| Block interval | 3 seconds |
+| Block gasLimit | 40,000,000 |
+| Will block reorg? | Yes |
+| Finality | very high probability safe with `15 blocks confirmations`; <br/>**absolutely safe** with `25 blocks confirmations` |
+| EIP-1559 supported | No | But the base fee will not be burned |
+| Priority fee per gas requied | 0.05 gwei |
+| Minimum gasPrice for legacy transaction | 0.050000007 gwei |
+| EVM compatibility | Supported up to `Cancun` |
+| Solidity version supported | ≤ 0.8.25 |
+| Geth json-rpc compatibility | Fully support but with `eth_feeHistory` disabled | 
+| Extra json-rpc | refer to [Json-RPC](./Json-RPC.md) |
+| Some basic or important contracts | refer to [Contracts](./Contracts.md) |

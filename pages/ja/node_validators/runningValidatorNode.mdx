@@ -1,0 +1,76 @@
+# Validators
+
+## Overview
+
+Nero chain relies on a system of multiple validators with a hybrid randomized DPoS (Delegated Proof of Stake) consensus that can support short block time and lower fees. The most bonded validators in staking will have the opportunity to produce blocks. The inactive detection and other slashing logics ensure security, stability, and chain finality.
+
+Validator nodes on the Nero chain are nodes responsible for producing blocks and securing the network through the consensus mechanism. Each of they represents a validator, participate in packaging transactions, creating and validating blocks to secure the Nero network, earning NERO tokens as rewards in exchange.
+
+## How to become a Validator
+
+Currently, you need to contact the Nero-offical to register as a validator, you need to get NERO tokens for staking, and provides the following infos:
+
+1. Your node name
+2. Validator address
+3. Manager address
+4. Self-stakes amount( $NERO)
+5. Accept delegation (yes/no)?
+6. Commission rate (%) 
+7. Do you want to run your validator node on your own? If yes:
+  a. You need a public IP address and open the P2P listening port, for the other nodes in the network to connect your node through P2P protocol.
+
+### How to generate a validator account
+
+Use the following command to generate an account( need a strong password to keep your account safe):
+
+```shell
+./geth --datadir ./ account new
+```
+
+For example:
+```shell
+-> % ./geth --datadir ./ account new
+INFO [09-24|11:13:09.372] Maximum peer count                       ETH=50 total=50
+Your new account is locked with a password. Please give a password. Do not forget this password.
+Password: 
+Repeat password: 
+
+Your new key was generated
+
+Public address of the key:   0xDbCFCBb1C4442eC76D329996530F1461733916ca
+Path of the secret key file: keystore/UTC--2024-09-24T03-13-16.723669000Z--dbcfcbb1c4442ec76d329996530f1461733916ca
+
+- You can share your public address with anyone. Others need it to interact with you.
+- You must NEVER share the secret key with anyone! The key controls access to your funds!
+- You must BACKUP your key file! Without the key, it's impossible to access account funds!
+- You must REMEMBER your password! Without the password, it's impossible to decrypt the key!
+```
+
+Then use the public address as your validator address.
+
+## Running a validator node
+
+First, make sure you are familiar with the content in [Compile and run](./CompileAndRun.md).
+
+Then, follow these instructions:
+
+- Copy your validator secret key file to the directory: `<DATADIR>/keystore/`; For example, if your datadir in the `config.toml` is `DataDir = "/data/nerochain/data"`, then your key file should be as `/data/nerochain/data/keystore/UTC--2024-09-24T03-13-16.723669000Z--dbcfcbb1c4442ec76d329996530f1461733916ca`
+- Put your password of the validator's key file to a text file, e.g. `/data/nerochain/.password`
+- Provides the following start options additionally in your `run.sh` :
+```sh
+--miner.etherbase <your validator address> \
+--mine \
+--allow-insecure-unlock \
+--unlock <your validator address> \
+--password /data/nerochain/.password \
+```
+
+And, for validator nodes, we recommand to use a full sync.
+
+```
+SyncMode = "full"
+```
+
+After all configs are done, you can run your validator node.
+
+Make sure your node has keeping up with the latest blocks, and then you can manage your validator's stakes through the system Staking contract (`0x000000000000000000000000000000000000F000`), to make it ready. As long as your validator become an active validator, then it can participate in packaging transactions, creating and validating blocks to secure the Nero network, earning NERO tokens as rewards in exchange.
