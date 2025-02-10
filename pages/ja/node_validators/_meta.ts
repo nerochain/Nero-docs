@@ -1,5 +1,5 @@
 export default {
   overview: "Overview",
+  compileAndRun: "Compile And Run",
   runningValidatorNode: "Running Validator Node",
-  compileAndRun: "Compile And Run"
-}
+};
