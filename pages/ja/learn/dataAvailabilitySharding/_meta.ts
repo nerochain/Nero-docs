@@ -1,8 +1,8 @@
 export default {
-  overview: "5.1 Overview",
+  overview: "4.1 Overview",
   modelAndAssumptions:
-  "5.2 Model and Assumptions",
-  dataAvailabilityVerification: "5.3 Data Availability Verification",
+  "4.2 Model and Assumptions",
+  dataAvailabilityVerification: "4.3 Data Availability Verification",
   transactionFeesAndIncentives:
-    "5.4 Transaction Fees and Incentives",
+    "4.4 Transaction Fees and Incentives",
 };

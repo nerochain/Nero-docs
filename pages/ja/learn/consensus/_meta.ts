@@ -1,8 +1,8 @@
 export default {
-  overview: "4.1 Overview",
-  validatorCommittee: "4.2 Validator Committee",
+  overview: "3.1 Overview",
+  // validatorCommittee: "4.2 Validator Committee",
   randomNumberGeneration:
-    "4.3 Random Number Generation",
+    "3.2 Random Number Generation",
   pipelinedConsensus:
-    "4.4 Pipelined Consensus",
+    "3.4 Pipelined Consensus",
 };
