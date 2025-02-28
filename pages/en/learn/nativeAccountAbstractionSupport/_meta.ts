@@ -1,8 +1,8 @@
 export default {
-  nativeAccountAbstractionSupport: "6.1 Overview",
-  keyComponents: "6.2 Key Components",
+  nativeAccountAbstractionSupport: "5.1 Overview",
+  keyComponents: "5.2 Key Components",
   flexibleGasMechanism:
-    "6.3 Flexible Gas Mechanism",
+    "5.3 Flexible Gas Mechanism",
   MpcTssTechnologyIntegration:
-    "6.4 MPC-TSS Technology Integration",
+    "5.4 MPC-TSS Technology Integration",
 };
