@@ -1,5 +1,5 @@
 export default {
-  index: "Welcome",
+  index: "",
   learn: "Learn",
   aa: "NERO AA",
   node_validators: "Nodes and Validators",
