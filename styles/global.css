@@ -80,3 +80,180 @@
   code {
     font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
   }
+
+  /* Grid Layout */
+  .grid {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 768px) {
+    .md\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  .gap-4 {
+    gap: 1rem;
+  }
+  
+  .mt-6 {
+    margin-top: 1.5rem;
+  }
+  
+  .mt-12 {
+    margin-top: 3rem;
+  }
+  
+  .mt-4 {
+    margin-top: 1rem;
+  }
+  
+  .mt-2 {
+    margin-top: 0.5rem;
+  }
+  
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
+  
+  /* Card styles */
+  .border {
+    border-width: 1px;
+    border-style: solid;
+  }
+  
+  .border-gray-200 {
+    border-color: #e5e7eb;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  .p-4 {
+    padding: 1rem;
+  }
+  
+  .hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .transition-shadow {
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  /* Text styles */
+  .text-lg {
+    font-size: 1.125rem;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  /* NERO Brand Colors */
+  .text-nero-brand {
+    color: #000000; /* Updated to match NERO logo color */
+  }
+  
+  .hover\:text-nero-dark:hover {
+    color: #333333; /* Updated hover color */
+  }
+  
+  .text-red-500 {
+    color: #000000; /* Replaced with NERO brand color */
+  }
+  
+  .hover\:text-red-700:hover {
+    color: #333333; /* Replaced with NERO brand darker color */
+  }
+  
+  .inline-block {
+    display: inline-block;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .items-center {
+    align-items: center;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  /* Icon styles */
+  .h-5 {
+    height: 1.25rem;
+  }
+  
+  .w-5 {
+    width: 1.25rem;
+  }
+  
+  /* Image styles */
+  .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Homepage specific styles */
+  .homepage-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* Hide sidebars on homepage */
+  [data-nextra-hide-sidebar] .nextra-sidebar-container,
+  [data-nextra-hide-sidebar] .nextra-toc,
+  [data-nextra-hide-sidebar] aside,
+  [data-nextra-hide-sidebar] nav[aria-label="Main"] {
+    display: none !important;
+  }
+
+  [data-nextra-hide-sidebar] main {
+    margin: 0 auto !important;
+    max-width: 1200px !important;
+    padding: 0 2rem !important;
+    width: 100% !important;
+  }
+  
+  [data-nextra-hide-sidebar] article {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  
+  /* Override Nextra default styles for homepage */
+  [data-nextra-hide-sidebar] .nx-container {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Full width layout */
+  .nextra-content.full {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .nextra-content.full .nextra-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
