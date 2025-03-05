@@ -1,11 +1,8 @@
 export default {
-  '*': {
-    theme: {
-      toc: true,
-      breadcrumb: true
-    }
-  },
-  'storage-scalability': "Storage Scalability",
-  'fraud-proofs': "Fraud Proofs",
-  'random-sampling': "Random Sampling"
-} 
+  overview: "Overview",
+  modelAndAssumptions:
+  "Model and Assumptions",
+  dataAvailabilityVerification: "Data Availability Verification",
+  transactionFeesAndIncentives:
+    "Transaction Fees and Incentives",
+};

@@ -14,5 +14,11 @@ export default {
   },
   'data-availability': {
     title: "Data Availability Sharding"
+  },
+  'native-account-abstraction': {
+    title: "Native Account Abstraction Support"
+  },
+  'fee-sharing': {
+    title: "Fee-Sharing Mechanism"
   }
 } 
