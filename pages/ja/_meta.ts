@@ -1,5 +1,5 @@
 export default {
-  index: "ようこそ",
+  index: "",
   learn: "Learn",
   aa: "NERO AA",
   node_validators: "NodesとValidators",
