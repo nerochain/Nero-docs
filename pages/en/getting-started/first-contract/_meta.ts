@@ -5,7 +5,6 @@ export default {
       breadcrumb: true
     }
   },
-  index: 'Overview',
   'using-remix': {
     title: 'Using Remix',
     type: 'page'
