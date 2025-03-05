@@ -131,16 +131,26 @@
     border-color: #e5e7eb;
   }
   
+  /* Dark mode support for cards */
+  :root.dark .border-gray-200 {
+    border-color: #2d2d2d;
+  }
+  
+  .hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Dark mode support for shadow */
+  :root.dark .hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
+  }
+  
   .rounded-lg {
     border-radius: 0.5rem;
   }
   
   .p-4 {
     padding: 1rem;
-  }
-  
-  .hover\:shadow-md:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
   .transition-shadow {
@@ -165,6 +175,15 @@
   
   .hover\:text-nero-dark:hover {
     color: #333333; /* Updated hover color */
+  }
+  
+  /* Dark mode support for icons */
+  :root.dark .text-nero-brand {
+    color: #ffffff; /* White color for dark mode */
+  }
+  
+  :root.dark .hover\:text-nero-dark:hover {
+    color: #cccccc; /* Light gray for hover in dark mode */
   }
   
   .text-red-500 {
