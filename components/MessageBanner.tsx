@@ -6,7 +6,7 @@ interface MessageBannerProps {
 }
 
 const messages = {
-  en: "NERO Chain is currently running in TestNet!",
+  en: "NERO Chain is currently running in TestNet",
   ja: "NERO Chainは現在TestNetで稼働中です"
 };
 
@@ -26,7 +26,7 @@ const MessageBanner: React.FC<MessageBannerProps> = ({ message }) => {
 
   return (
     <div className="message-banner">
-      {displayMessage}
+      <span>{displayMessage}</span>
     </div>
   );
 };

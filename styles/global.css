@@ -296,16 +296,43 @@
   /* Dynamic Message Banner */
   .message-banner {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     text-align: center;
-    background-color: #000000; /* Black for light mode */
+    background-color: #000000;
     color: white;
     font-size: 0.875rem;
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    z-index: 9999; /* Ensure it stays on top of everything */
+    z-index: 1000;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .message-banner span {
+    display: inline-block;
+    animation: slideMessage 15s linear infinite;
+  }
+
+  @keyframes slideMessage {
+    0% {
+      transform: translateX(100%);
+    }
+    50% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  body.has-banner {
+    padding-top: 2.5rem;
+  }
+
+  .dark .message-banner {
+    background-color: #ffffff;
+    color: #000000;
   }
 
   /* Fix for nextra banner container */
