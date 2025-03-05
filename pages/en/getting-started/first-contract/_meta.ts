@@ -5,12 +5,6 @@ export default {
       breadcrumb: true
     }
   },
-  'using-remix': {
-    title: 'Using Remix',
-    type: 'page'
-  },
-  'using-hardhat': {
-    title: 'Using Hardhat',
-    type: 'page'
-  }
+  'using-remix': "Using Remix",
+  'using-hardhat': "Using Hardhat"
 } 

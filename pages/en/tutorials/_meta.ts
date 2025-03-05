@@ -1,3 +1,3 @@
 export default {
-  index: 'Overview'
+  index: 'Create your first dApp on NeroChain'
 } 
