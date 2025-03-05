@@ -5,7 +5,7 @@ export default {
     display: "hidden"
   },
   'getting-started': "Getting Started",
-  'nero-architecture': "NERO Architecture",
+  'core-concepts': "Core Concepts",
   'developer-tools': "Developer Tools",
   'tutorials': "Tutorials",
   supports: "Support"
