@@ -1,5 +1,5 @@
 export default {
-  overview: "Overview",
+  overview: "Data availability",
   modelAndAssumptions:
   "Model and Assumptions",
   dataAvailabilityVerification: "Data Availability Verification",
