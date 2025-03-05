@@ -292,3 +292,63 @@
   [data-nextra-hide-sidebar] nav.nx-flex.nx-items-center.nx-gap-1.nx-mt-6.nx-mb-8 {
     display: none !important;
   }
+
+  /* Dynamic Message Banner */
+  .message-banner {
+    width: 100%;
+    padding: 0.5rem;
+    text-align: center;
+    background-color: #000000; /* Black for light mode */
+    color: white;
+    font-size: 0.875rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999; /* Ensure it stays on top of everything */
+  }
+
+  /* Fix for nextra banner container */
+  .nextra-banner-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  body.has-banner .nextra-banner-container {
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Dark mode support for message banner */
+  :root.dark .message-banner {
+    background-color: #ffffff; /* White for dark mode */
+    color: #000000; /* Black text for dark mode */
+  }
+
+  /* Adjust main content when banner is present */
+  body.has-banner {
+    padding-top: 2rem;
+  }
+
+  /* Adjust header position when banner is present */
+  body.has-banner .nextra-nav-container {
+    top: 2rem !important;
+    border-top: none !important;
+  }
+
+  /* Remove the top shadow/border of the header when banner is present */
+  body.has-banner .nextra-nav-container-blur {
+    box-shadow: none !important;
+    border-top: none !important;
+    background: none !important;
+  }
+
+  /* Remove any margin/padding that might cause gaps */
+  body.has-banner .nextra-nav-container-blur {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
