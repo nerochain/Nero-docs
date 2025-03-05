@@ -5,29 +5,17 @@ export default {
       breadcrumb: true
     }
   },
-  index: 'Overview',
+  index: "Overview",
   'core-concepts': {
-    title: 'Core Concepts',
-    type: 'folder',
-    theme: {
-      toc: true,
-      breadcrumb: true
-    }
+    title: "Core Concepts",
+    type: "folder"
   },
   'consensus-mechanism': {
-    title: 'Consensus Mechanism',
-    type: 'folder',
-    theme: {
-      toc: true,
-      breadcrumb: true
-    }
+    title: "Consensus Mechanism",
+    type: "folder"
   },
   'data-availability': {
-    title: 'Data Availability & Sharding',
-    type: 'folder',
-    theme: {
-      toc: true,
-      breadcrumb: true
-    }
+    title: "Data Availability & Sharding",
+    type: "folder"
   }
 } 
