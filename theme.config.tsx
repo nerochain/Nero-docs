@@ -1,5 +1,6 @@
 import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
+import MessageBanner from "./components/MessageBanner";
 
 const themeConfig: DocsThemeConfig = {
   logo: (
@@ -19,6 +20,11 @@ const themeConfig: DocsThemeConfig = {
       <title>NERO Chain Docs</title>
     </>
   ),
+  banner: {
+    key: 'network-status',
+    content: <MessageBanner />,
+    dismissible: false
+  },
   footer: {
     content: (
       <span>
