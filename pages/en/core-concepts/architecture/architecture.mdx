@@ -1,0 +1,14 @@
+# Layers
+
+Flexibility and scalability are the primary considerations in NERO's architectural design. In terms of flexibility, NERO introduces the Access Layer to handle user interactions with the blockchain, providing more choices in terms of keys, signatures, and token used for fees. Regarding scalability, NERO has deeply researched the Blockchain Trilemma of decentralization, security, and scalability that no current blockchain system can simultaneously achieve. We addressed the trilemma by splitting the traditional monolithic architecture into three layers: the Execution Layer, Settlement Layer, and Data Availability Layer. Therefore, the overall architecture can be illustrated in Picture 1
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/learn/figure1.png" alt="Figure 1" />
+  <p style={{ fontStyle: 'italic' }}>Figure 1: NERO Architecture Diagram</p>
+</div>
+
+* Access Layer: responsible for accepting various user operations as well as transferring and committing them to the chain.
+{/* * Execution Layer: responsible for the execution of almost all contract-based transactions and supports decentralized applications. It is the application of ZK Rollup, where the execution results are submitted to the settlement layer and the settlement layer establishes undeniable security as well as objective finality. */}
+* Settlement layer: responsible for verifying and settling the execution results of the execution layer and is also the asset layer, responsible for the management and settlement of the assets on the chain.
+* Data availability layer: focusing on execution data, it will ensure data availability in the network based on data sharding, and data sampling technologies.

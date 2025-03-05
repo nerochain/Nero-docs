@@ -6,16 +6,13 @@ export default {
     }
   },
   index: "Overview",
-  'core-concepts': {
-    title: "Core Concepts",
-    type: "folder"
+  'architecture': {
+    title: "Architecture"
   },
   'consensus-mechanism': {
-    title: "Consensus Mechanism",
-    type: "folder"
+    title: "Consensus Mechanism"
   },
   'data-availability': {
-    title: "Data Availability & Sharding",
-    type: "folder"
+    title: "Data Availability Sharding"
   }
 } 
