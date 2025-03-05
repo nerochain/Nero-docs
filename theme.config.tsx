@@ -1,6 +1,7 @@
 import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
 import MessageBanner from "./components/MessageBanner";
+import SidebarResources from "./components/SidebarResources";
 
 const themeConfig: DocsThemeConfig = {
   logo: (
@@ -58,6 +59,11 @@ const themeConfig: DocsThemeConfig = {
   // Default menu collapse level
   sidebar: {
     defaultMenuCollapseLevel: 1
+  },
+  
+  // Add custom components to the right sidebar
+  toc: {
+    extraContent: <SidebarResources />
   }
 };
 
