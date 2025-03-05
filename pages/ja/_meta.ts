@@ -1,5 +1,9 @@
 export default {
-  index: "",
+  index: {
+    title: "",
+    type: "page",
+    display: "hidden"
+  },
   learn: "Learn",
   aa: "NERO AA",
   node_validators: "NodesとValidators",
