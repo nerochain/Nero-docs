@@ -1,9 +1,0 @@
-# 4.3.1 Overview
-
-In terms of verification, we define the following roles of DA nodes in the DA layer of NERO:
-* **Common DA nodes.** Common DA nodes store the whole block of their sharding DA chain like full nodes and provide sampled block data to others. They can also broadcast fraud proof if some invalid block is found.
-* **Maintainer DA nodes.** Regular DA nodes have the option to stake tokens in the settlement layer, thereby qualifying as candidate maintainer DA nodes within their respective sharding chain. The top N nodes with the highest staked amounts will then assume the role of maintainer DA nodes. These nodes are entitled to share the revenue generated from providing DA capabilities while also being mandated to submit block sampling data.
-
-Data availability verification is conducted by validators within the settlement layer. Upon proposal of a block in the DA chain by the settlement layer's validator, who also serves as the block producer, the hash of the DA block is transmitted to the settlement layer. Subsequently, other validators within the settlement layer verify the data availability of the DA block through random sampling. If successfully verified, a settlement layer validator broadcasts the signature of the DA block hash, indicating validation. Once signatures from 2/3 of these validators are obtained, they are submitted to the settlement layer as confirmation proof.
-
-Upon passing the settlement layer verification in the subsequent settlement block, and provided no fraud proof has been issued since, the DA block is marked as confirmed within the settlement layer. Simultaneously, the next DA block is proposed.

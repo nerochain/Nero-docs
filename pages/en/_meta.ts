@@ -1,12 +1,27 @@
 export default {
   index: {
-    title: "",
-    type: "page",
-    display: "hidden"
+    title: 'Home',
+    type: 'page',
+    display: 'hidden'
   },
-  learn: "Learn",
-  aa: "NERO AA",
-  node_validators: "Nodes and Validators",
-  building: "Building on NERO Chain",
-  supports: "Support and Contact"
+  'getting-started': {
+    title: 'Getting Started',
+    type: 'folder'
+  },
+  'nero-architecture': {
+    title: 'NERO Architecture',
+    type: 'folder'
+  },
+  'developer-tools': {
+    title: 'Developer Tools & Account Abstraction',
+    type: 'folder'
+  },
+  'tutorials': {
+    title: 'Tutorials & Guides',
+    type: 'folder'
+  },
+  'supports': {
+    title: 'Support',
+    type: 'page'
+  }
 }
