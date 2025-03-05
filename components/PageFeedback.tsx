@@ -11,10 +11,10 @@ const PageFeedback: React.FC<PageFeedbackProps> = ({ path }) => {
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    // Show the feedback popup after 30 seconds
+    // Show the feedback popup after 10 seconds
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 30000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, []);
