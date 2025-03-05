@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'nextra/hooks';
 
 interface MessageBannerProps {
   message?: string;
 }
 
 const messages = {
-  en: "NERO Chain is currently running in TestNet",
+  en: "NERO Chain is currently running in TestNet!",
   ja: "NERO Chainは現在TestNetで稼働中です"
 };
 
 const MessageBanner: React.FC<MessageBannerProps> = ({ message }) => {
-  const { locale = 'en' } = useRouter();
+  const router = useRouter();
+  const locale = router.locale || 'en';
   
   useEffect(() => {
     document.body.classList.add('has-banner');
