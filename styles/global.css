@@ -379,3 +379,246 @@
     margin: 0 !important;
     padding: 0 !important;
   }
+
+  /* Page Feedback Component */
+  .page-feedback {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    margin: 0;
+    padding: 1.5rem;
+    width: 320px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 50;
+    animation: slideFeedback 0.3s ease-out;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  }
+
+  .page-feedback.exit {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  @keyframes slideFeedback {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .dark .page-feedback {
+    background: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+
+  .feedback-question {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #000000;
+  }
+
+  .dark .feedback-question {
+    color: #ffffff;
+  }
+
+  .feedback-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .feedback-option {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dark .feedback-option {
+    border-color: #2d2d2d;
+  }
+
+  .feedback-option:hover {
+    border-color: #000000;
+    background: #f9fafb;
+  }
+
+  .dark .feedback-option:hover {
+    border-color: #ffffff;
+    background: #2d2d2d;
+  }
+
+  .feedback-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .feedback-radio {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    transition: all 0.2s;
+  }
+
+  .dark .feedback-radio {
+    border-color: #4b5563;
+  }
+
+  .feedback-option input[type="radio"]:checked + .feedback-radio {
+    border-color: #000000;
+    background: #000000;
+  }
+
+  .dark .feedback-option input[type="radio"]:checked + .feedback-radio {
+    border-color: #ffffff;
+    background: #ffffff;
+  }
+
+  .feedback-option input[type="radio"]:checked + .feedback-radio::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .dark .feedback-option input[type="radio"]:checked + .feedback-radio::after {
+    background: black;
+  }
+
+  .feedback-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #000000;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .dark .feedback-label {
+    color: #ffffff;
+  }
+
+  .feedback-emoji {
+    font-size: 1.125rem;
+  }
+
+  .feedback-submit {
+    width: 100%;
+    padding: 0.75rem;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: not-allowed;
+    transition: all 0.2s;
+  }
+
+  .dark .feedback-submit {
+    background: #2d2d2d;
+  }
+
+  .feedback-submit.active {
+    background: #000000;
+    color: white;
+    cursor: pointer;
+  }
+
+  .dark .feedback-submit.active {
+    background: #ffffff;
+    color: black;
+  }
+
+  .feedback-thank-you {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    color: #000000;
+    font-weight: 500;
+  }
+
+  .dark .feedback-thank-you {
+    color: #ffffff;
+  }
+
+  .feedback-check-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: #000000;
+    animation: scaleCheck 0.3s ease-out;
+  }
+
+  .dark .feedback-check-icon {
+    color: #ffffff;
+  }
+
+  @keyframes scaleCheck {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .feedback-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.25rem;
+    background: transparent;
+    border: none;
+    color: #000000;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .feedback-close:hover {
+    transform: scale(1.1);
+  }
+
+  .dark .feedback-close {
+    color: #ffffff;
+  }
+
+  .feedback-close svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .page-feedback {
+      bottom: 1rem;
+      right: 1rem;
+      left: 1rem;
+      width: auto;
+    }
+  }
