@@ -1,51 +1,149 @@
 import PageFeedback from '../../../components/PageFeedback'
 
-## What is NeroChain?
+# Architecture Overview
 
-Developed for scalability, adaptability, and improved user experience, NeroChain is a developer-friendly Layer 1 modular blockchain. Natively, it features Account Abstraction (AA), which helps users quickly sign transactions without running gas from their wallets. Using the Paymaster system, dApps may allow users pay with ERC20 tokens or sponsor gas costs, therefore smoothing out transactions and providing a flawless experience. Additionally with Blockspace 2.0, NeroChain guarantees effective use of network resources by improving how transactions are handled and fees are distributed. It is completely EVM-compatible; developers may easily create strong Web3 apps by deploying smart contracts using Hardhat, Remix, and other well-known tools.
+Understanding Nerochain's architecture is essential for developers looking to build on the platform. This overview will help you understand how the different components work together to enable account abstraction and other key features.
 
-## Why build on NeroChain?
+## Modular Architecture
 
-Nerochain was created with a fresh perspective in mind for developers investigating blockchains: one that values applications instead of monopolizing them at the infrastructure level.
-
-### Applications Capture Their True Value
-In traditional blockchains, regardless of how good an application is, the infrastructure is always the true winner. Gas costs are paid in the chain's native cryptocurrency, thus the blockchain is the principal benefactor of each transaction. This results in a system in which apps produce value, but most of this value is extracted by the underlying network.
-Nero flips this model by introducing an economic structure where applications share in the network's success. Developers no longer need to surrender transaction volume to the chain itself - they can retain and redistribute value in ways that directly benefit their users and ecosystems.
-And more, by enabling gas payments with ERC20 tokens, developers can boost their token utility by driving sustainable demand and revenue for their projects. This means a special thing: If developers' project drives motion, so will their tokens, but with a way more potential for value.
+Nerochain employs a modular architecture consisting of three main layers:
 
 <div className="mt-8 mb-8">
   <figure className="text-center">
     <img 
-      src="/assets/simul.png" 
-      alt="Simulation comparing developer token performance across chains"
+      src="/assets/architecture.png" 
+      alt="Nerochain Modular Architecture"
       className="mx-auto rounded-lg shadow-md"
     />
     <figcaption className="mt-2 text-sm italic text-gray-600">
-      Figure 1: Simulation on developer token performance compared with other chains
+      Figure 1: Nerochain's Modular Architecture
     </figcaption>
   </figure>
 </div>
 
-### Blockspace 2.0: Redefining How Transactions Work
+### 1. Access Layer: Native Account Abstraction
 
-Nero proposes Blockspace 2.0, a step beyond the inflexible gas models of older blockchain systems. Instead of taking a one-size-fits-all approach to transaction costs, Nerochain allows:
-- Dynamic charge structures allow apps to establish their own transaction cost models.
-- Gas sponsorship via Paymaster allows developers to subsidize expenses and enhance UX.
-- Fee-sharing techniques enable dApps to get a share of the transaction fees they produce.
+The Access Layer implements ERC-4337 Account Abstraction natively, enabling a superior user experience:
+
+- **EntryPoint Contract**: The central contract that processes UserOperations
+- **Smart Contract Wallets**: Programmable wallets that can implement custom logic
+- **Bundlers**: Specialized nodes that collect UserOperations and submit them on-chain
+- **Paymasters**: Contracts that enable alternative gas payment methods
+
+This layer decouples user intent from transaction execution, allowing for a more flexible and user-friendly experience.
+
+### 2. Settlement Layer: High-Performance EVM
+
+The Settlement Layer is responsible for executing transactions and maintaining the state of the blockchain:
+
+- **EVM Compatibility**: Full compatibility with the Ethereum Virtual Machine
+- **Block Production**: Efficient block creation and transaction processing
+- **State Management**: Maintaining the current state of all accounts and contracts
+- **Consensus**: A performant consensus mechanism for transaction validation
+
+The Settlement Layer provides the secure and reliable foundation for all applications built on Nerochain.
+
+### 3. Data Availability Layer
+
+The Data Availability Layer ensures that all transaction data is accessible and verified:
+
+- **Data Sharding**: Efficient storage and retrieval of blockchain data
+- **Verification Mechanisms**: Ensures data integrity and availability
+- **Scalable Storage**: Accommodates growing data requirements without sacrificing performance
+
+## Account Abstraction Implementation
+
+A key feature of Nerochain is its native implementation of Account Abstraction through ERC-4337:
 
 <div className="mt-8 mb-8">
   <figure className="text-center">
     <img 
-      src="/assets/block2.png" 
-      alt="Blockspace 2.0 concept diagram"
+      src="/assets/aa-flow.png" 
+      alt="Account Abstraction Flow"
       className="mx-auto rounded-lg shadow-md"
     />
     <figcaption className="mt-2 text-sm italic text-gray-600">
-      Figure 2: Blockspace 2.0
+      Figure 2: Account Abstraction Flow
     </figcaption>
   </figure>
 </div>
 
-This implies that apps are no longer competing with their own infrastructure for economic viability. Blockspace becomes an asset that dApps may optimize and use, rather than a burden they must bear.
+### UserOperation Lifecycle
 
-<PageFeedback path="/en/getting-started/introduction" />
+1. **Creation**: The dApp creates a UserOperation object with the user's intended action
+2. **Signing**: The user signs the UserOperation with their wallet
+3. **Submission**: The UserOperation is submitted to a bundler
+4. **Validation**: The bundler validates the UserOperation and submits it to the mempool
+5. **Bundling**: Multiple UserOperations are bundled into a single transaction
+6. **Execution**: The EntryPoint contract processes the bundled UserOperations
+7. **Confirmation**: The results are returned to the user
+
+### Key Components
+
+- **EntryPoint Contract**: Nerochain uses the standard ERC-4337 EntryPoint at `0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789`
+- **Account Factory**: The factory that deploys smart contract wallets at `0x9406Cc6185a346906296840746125a0E44976454`
+- **Bundler Service**: Available at `https://bundler.service.nerochain.io`
+- **Paymaster Service**: Available at `https://paymaster-testnet.nerochain.io`
+
+## Paymaster Architecture
+
+The Paymaster component enables flexible gas payment mechanisms:
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/paymaster-architecture.png" 
+      alt="Paymaster Architecture"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 3: Paymaster Architecture
+    </figcaption>
+  </figure>
+</div>
+
+### Workflow
+
+1. **Strategy Configuration**: Developers configure payment strategies in the AA Platform
+2. **UserOperation Creation**: The dApp creates a UserOperation
+3. **Paymaster Request**: The dApp requests the Paymaster to sponsor the transaction
+4. **Verification**: The Paymaster verifies the request against configured strategies
+5. **Signature**: If approved, the Paymaster signs the UserOperation
+6. **Bundling**: The signed UserOperation is sent to the bundler
+7. **On-chain Processing**: The EntryPoint contract processes the transaction, and the Paymaster covers the gas
+
+### Payment Types
+
+- **Type 0 (Free)**: The developer sponsors all gas costs
+- **Type 1 (Prepay)**: The user pays with ERC20 tokens upfront
+- **Type 2 (Postpay)**: The user pays with ERC20 tokens after execution
+
+## Developer Integration Flow
+
+When building on Nerochain, your application will typically interact with the platform as follows:
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/developer-flow.png" 
+      alt="Developer Integration Flow"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 4: Developer Integration Flow
+    </figcaption>
+  </figure>
+</div>
+
+1. **User Connects Wallet**: User connects their EOA wallet (e.g., MetaMask)
+2. **AA Wallet Creation**: Your app creates or retrieves their AA wallet address
+3. **Transaction Intent**: User initiates an action in your dApp
+4. **UserOperation Creation**: Your app creates a UserOperation with the action details
+5. **Gas Payment Selection**: User selects their preferred gas payment method
+6. **Paymaster Integration**: If using alternative gas payment, your app requests Paymaster support
+7. **Transaction Execution**: The UserOperation is submitted and executed
+8. **Result Handling**: Your app processes and displays the results to the user
+
+In the following sections, we'll provide detailed guides on implementing each of these steps in your application.
+
+<PageFeedback path="/en/getting-started/nero-dapp-architecture" />

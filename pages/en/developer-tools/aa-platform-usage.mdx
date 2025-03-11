@@ -1,28 +1,240 @@
-# Developer Tools & Account Abstraction
+import PageFeedback from '../../../components/PageFeedback'
 
-Explore NERO's comprehensive suite of developer tools and learn about our advanced account abstraction capabilities.
+# AA Platform: Managing Your Account Abstraction Services
 
-## Developer Tools
+The Nerochain AA Platform is a powerful web-based dashboard that allows developers to manage their Account Abstraction services, create API keys, configure gas sponsorship strategies, and monitor usage. This guide will walk you through using the platform effectively.
 
-- NERO SDK
-- Smart Contract Development Kit
-- CLI Tools
-- API References
-- Testing Framework
+## Getting Started
 
-## Account Abstraction
+### Accessing the Platform
 
-- Understanding Account Abstraction
-- Implementing Smart Accounts
-- Gas Fee Abstraction
-- Multi-Signature Wallets
-- Account Recovery Mechanisms
+The AA Platform is available at [https://aa-platform.nerochain.io](https://aa-platform.nerochain.io). You'll need to:
 
-## Integration Guides
+1. Connect your wallet (MetaMask or other Web3 wallet)
+2. Register as a developer
+3. Create your first project
 
-- Wallet Integration
-- DApp Development
-- Smart Contract Deployment
-- Security Best Practices
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aa-platform-login.png" 
+      alt="AA Platform Login Screen"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
 
-Choose a topic from the sidebar to learn more about NERO's developer tools and account abstraction features. 
+### Creating a Project
+
+After logging in:
+
+1. Click on "Create New Project"
+2. Enter your project name, description, and website URL
+3. Select the networks you want to support (e.g., Nerochain Testnet, Mainnet)
+4. Click "Create Project"
+
+Each project will have its own dashboard, API keys, and configurations.
+
+## Managing API Keys
+
+API keys are essential for authenticating your applications with the Paymaster service.
+
+### Creating an API Key
+
+1. Navigate to your project dashboard
+2. Go to the "API Keys" tab
+3. Click "Create New API Key"
+4. Name your API key (e.g., "Development", "Production")
+5. Set any usage limits if desired
+6. Click "Create"
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aa-platform-apikey.png" 
+      alt="Creating an API Key"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+### API Key Security
+
+Your API keys grant access to your gas sponsorship resources. To keep them secure:
+
+- Never expose API keys in client-side code
+- Use environment variables to store keys in your backend
+- Implement domain restrictions for production keys
+- Rotate keys periodically
+- Set appropriate usage limits
+
+## Configuring Gas Strategies
+
+Gas strategies determine how your application handles transaction fees for users.
+
+### Creating a Gas Strategy
+
+1. Go to the "Gas Strategies" tab
+2. Click "Create New Strategy"
+3. Configure your strategy:
+   - **Strategy Name**: A descriptive name for your strategy
+   - **Payment Type**: Free, ERC20 Prepay, or ERC20 Postpay
+   - **Supported Tokens**: For ERC20 payment types, select which tokens to accept
+   - **Gas Limits**: Set maximum gas limits for user operations
+   - **Daily Limits**: Set daily spending limits for your sponsorship
+   - **User Limits**: Set per-user transaction or gas limits
+   - **Contract Filters**: Specify which contracts can be called using this strategy
+
+4. Save your strategy
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aa-platform-strategy.png" 
+      alt="Configuring a Gas Strategy"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+### Strategy Types Explained
+
+#### Free Gas (Type 0)
+
+With this strategy, you fully cover the gas costs for your users. This is ideal for:
+- Onboarding new users who don't own crypto
+- Promotional campaigns
+- Applications where you want to remove all friction
+- GameFi applications where you want to hide blockchain complexity
+
+#### ERC20 Prepay (Type 1)
+
+Users pay for gas using ERC20 tokens before the transaction is executed:
+- The full estimated amount is collected upfront
+- Any excess is refunded after execution
+- More secure for the developer as payment is guaranteed
+- Better suited for high-value operations
+
+#### ERC20 Postpay (Type 2)
+
+Users pay for gas using ERC20 tokens after the transaction is executed:
+- Only the exact gas cost is collected
+- Requires token approval before execution
+- Slightly better UX as users only pay what's needed
+- Has a risk of payment failure after execution
+
+## Monitoring Usage
+
+The platform provides detailed analytics about your API key and gas strategy usage.
+
+### Dashboard Overview
+
+The main dashboard shows:
+- Total operations processed
+- Gas consumed
+- Active users
+- Success/failure rates
+- Cost distribution
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aa-platform-dashboard.png" 
+      alt="AA Platform Dashboard"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+### Detailed Analytics
+
+For deeper insights:
+1. Go to the "Analytics" tab
+2. Filter by date range, API key, or strategy
+3. View charts for:
+   - Daily/weekly/monthly usage trends
+   - Gas consumption patterns
+   - User activity
+   - Token payment distribution
+   - Operation types
+
+### Transaction History
+
+To view individual transaction details:
+1. Go to the "Transactions" tab
+2. Browse the list of processed operations
+3. Click on any transaction to see:
+   - User operation details
+   - Gas consumption
+   - Status and result
+   - Error messages (if any)
+   - Timestamps
+
+## Managing Your Account
+
+### Funding Your Sponsorship Account
+
+If you're using Type 0 (Free Gas) strategies, you'll need to maintain a balance in your sponsorship account:
+
+1. Go to the "Account" tab
+2. Check your current balance
+3. Click "Add Funds"
+4. Specify the amount to add
+5. Complete the transaction from your wallet
+
+### Setting Alerts
+
+To avoid running out of funds:
+1. Go to "Settings" > "Alerts"
+2. Configure balance threshold alerts
+3. Add email contacts for notifications
+4. Set up usage alerts for specific thresholds
+
+## Advanced Features
+
+### Whitelisting Contracts
+
+To control which contracts can be called using your API key:
+1. Go to "Settings" > "Contract Whitelist"
+2. Add contract addresses to whitelist
+3. Optionally specify function selectors to allow/block specific functions
+
+### User Management
+
+For applications requiring KYC or tiered access:
+1. Go to "Users" > "User Management"
+2. Add user addresses to specific tiers
+3. Configure usage limits per tier
+4. Monitor individual user consumption
+
+## Integration with Your Application
+
+Once you've configured your API keys and strategies, integrate them into your application:
+
+```typescript
+// Configure your paymaster in your application
+builder.setPaymasterOptions({
+  apikey: "YOUR_API_KEY_FROM_PLATFORM",
+  rpc: "https://paymaster-testnet.nerochain.io",
+  type: 0 // Use your configured strategy type
+});
+```
+
+## Best Practices
+
+1. **Start with Limits**: Begin with conservative gas and usage limits until you understand your application's patterns.
+2. **Monitor Regularly**: Check your dashboard frequently to spot unusual activity.
+3. **Multiple Strategies**: Create different strategies for different user actions or user tiers.
+4. **Separate Development Keys**: Use separate API keys for development and production.
+5. **Maintain Adequate Funding**: For sponsored transactions, always keep sufficient funds in your account.
+
+## Troubleshooting
+
+### Common Issues
+
+- **API Key Rate Limiting**: If you're seeing rate limit errors, check your key's usage patterns and consider increasing limits.
+- **Strategy Rejection**: If transactions are being rejected, verify that your strategy parameters match your application's needs.
+- **Insufficient Funds**: Ensure your sponsorship account is adequately funded for Type 0 strategies.
+- **User Payment Failure**: For Type 1/2 strategies, ensure users have sufficient token balances and have approved the paymaster contract.
+
+<PageFeedback path="/en/developer-tools/aa-platform-usage" /> 

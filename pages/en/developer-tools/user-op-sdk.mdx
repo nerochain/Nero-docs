@@ -1,28 +1,327 @@
-# Developer Tools & Account Abstraction
+import PageFeedback from '../../../components/PageFeedback'
 
-Explore NERO's comprehensive suite of developer tools and learn about our advanced account abstraction capabilities.
+# UserOpSDK: Building with Account Abstraction
 
-## Developer Tools
+The UserOpSDK is a powerful JavaScript/TypeScript library that simplifies the process of creating, signing, and sending UserOperations on Nerochain. This guide will help you understand how to leverage the SDK to implement Account Abstraction features in your dApp.
 
-- NERO SDK
-- Smart Contract Development Kit
-- CLI Tools
-- API References
-- Testing Framework
+## Installation
 
-## Account Abstraction
+You can install the UserOpSDK directly from GitHub:
 
-- Understanding Account Abstraction
-- Implementing Smart Accounts
-- Gas Fee Abstraction
-- Multi-Signature Wallets
-- Account Recovery Mechanisms
+```bash
+npm install github:nerochain/aa-userop-sdk
+```
 
-## Integration Guides
+Or using yarn:
 
-- Wallet Integration
-- DApp Development
-- Smart Contract Deployment
-- Security Best Practices
+```bash
+yarn add github:nerochain/aa-userop-sdk
+```
 
-Choose a topic from the sidebar to learn more about NERO's developer tools and account abstraction features. 
+## Basic Usage
+
+### Importing the SDK
+
+```typescript
+import { Client, Presets } from 'userop';
+```
+
+### Configuration Constants
+
+Set up your configuration with the necessary contract addresses and service endpoints:
+
+```typescript
+// Chain configuration
+const NERO_RPC_URL = "https://rpc-testnet.nerochain.io";
+const BUNDLER_URL = "https://bundler.service.nerochain.io";
+const PAYMASTER_URL = "https://paymaster-testnet.nerochain.io";
+
+// Contract addresses
+const ENTRYPOINT_ADDRESS = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789";
+const ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454";
+```
+
+### Initializing the Client
+
+```typescript
+// Initialize the AA Client
+const client = await Client.init(NERO_RPC_URL, {
+  overrideBundlerRpc: BUNDLER_URL,
+  entryPoint: ENTRYPOINT_ADDRESS,
+});
+```
+
+### Creating a SimpleAccount Builder
+
+The SimpleAccount builder helps you create and configure UserOperations:
+
+```typescript
+// accountSigner is the EOA wallet that will own the AA wallet
+const builder = await Presets.Builder.SimpleAccount.init(
+  accountSigner,
+  NERO_RPC_URL,
+  {
+    overrideBundlerRpc: BUNDLER_URL,
+    entryPoint: ENTRYPOINT_ADDRESS,
+    factory: ACCOUNT_FACTORY_ADDRESS,
+  }
+);
+```
+
+## Working with AA Wallets
+
+### Getting the AA Wallet Address
+
+Each EOA wallet has a corresponding AA wallet address that's deterministically generated:
+
+```typescript
+// Get the AA wallet address (works even if not yet deployed on-chain)
+const aaWalletAddress = await builder.getSender();
+console.log("AA Wallet Address:", aaWalletAddress);
+```
+
+### Checking AA Wallet Deployment Status
+
+You can check if an AA wallet has already been deployed:
+
+```typescript
+const provider = new ethers.providers.JsonRpcProvider(NERO_RPC_URL);
+const code = await provider.getCode(aaWalletAddress);
+const isDeployed = code !== '0x';
+console.log("Wallet deployed:", isDeployed);
+```
+
+## Creating UserOperations
+
+### Simple Token Transfer
+
+To perform a simple ERC-20 token transfer:
+
+```typescript
+// Create an ERC-20 contract instance
+const tokenContract = new ethers.Contract(
+  tokenAddress,
+  ['function transfer(address to, uint256 amount) returns (bool)'],
+  accountSigner
+);
+
+// Prepare the call data for transfer
+const callData = tokenContract.interface.encodeFunctionData(
+  'transfer',
+  [recipientAddress, ethers.utils.parseUnits(amount, decimals)]
+);
+
+// Add the transaction to the builder
+builder.execute(tokenAddress, 0, callData);
+```
+
+### Executing Multiple Transactions
+
+You can bundle multiple actions into a single UserOperation:
+
+```typescript
+// Prepare multiple call data and targets
+const callData = [
+  tokenContract.interface.encodeFunctionData('approve', [spender, amount]),
+  tokenContract.interface.encodeFunctionData('transfer', [recipient, amount])
+];
+const callTo = [tokenAddress, tokenAddress];
+
+// Add batch execution to the builder
+builder.executeBatch(callTo, callData);
+```
+
+## Paymaster Integration
+
+### Setting API Key for Paymaster
+
+To use the Paymaster service, set your API key:
+
+```typescript
+builder.setPaymasterOptions({
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+```
+
+### Getting Supported Tokens
+
+You can retrieve the list of tokens supported by the Paymaster:
+
+```typescript
+const supportedTokens = await client.getSupportedTokens(builder);
+console.log("Supported tokens:", supportedTokens);
+```
+
+### Setting Payment Type
+
+Configure how users will pay for gas:
+
+```typescript
+// Type 0: Free gas (developer sponsors)
+builder.setPaymasterOptions({ 
+  type: 0,
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+
+// Type 1: Prepay with ERC20 tokens
+builder.setPaymasterOptions({ 
+  type: 1,
+  token: TOKEN_ADDRESS, // The ERC20 token address
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+
+// Type 2: Postpay with ERC20 tokens
+builder.setPaymasterOptions({ 
+  type: 2,
+  token: TOKEN_ADDRESS, // The ERC20 token address
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+```
+
+## Sending UserOperations
+
+Once your UserOperation is configured, you can send it:
+
+```typescript
+try {
+  // Send the UserOperation
+  const result = await client.sendUserOperation(builder);
+  
+  // Get the transaction hash
+  const userOpHash = result.userOpHash;
+  console.log("UserOperation hash:", userOpHash);
+  
+  // Wait for the transaction to be mined
+  const receipt = await result.wait();
+  console.log("Transaction hash:", receipt.transactionHash);
+  
+  return receipt;
+} catch (error) {
+  console.error("Error sending UserOperation:", error);
+  throw error;
+}
+```
+
+## Advanced Usage
+
+### Custom Gas Parameters
+
+You can customize gas parameters for your UserOperations:
+
+```typescript
+// Set specific gas values
+builder.setCallGasLimit("0x88b8");
+builder.setVerificationGasLimit("0x33450");
+builder.setPreVerificationGas("0xc350");
+builder.setMaxFeePerGas("0x2162553062");
+builder.setMaxPriorityFeePerGas("0x40dbcf36");
+```
+
+### Custom Nonce Management
+
+If needed, you can manually set the nonce for your UserOperations:
+
+```typescript
+// Get the current nonce
+const aaWallet = new ethers.Contract(
+  aaWalletAddress,
+  ['function getNonce() view returns (uint256)'],
+  accountSigner
+);
+const nonce = await aaWallet.getNonce();
+
+// Set a custom nonce
+builder.setNonce(nonce.add(1));
+```
+
+## Error Handling
+
+The UserOpSDK may return various errors during operation. Here are common errors and how to handle them:
+
+```typescript
+try {
+  const result = await client.sendUserOperation(builder);
+  // Process result
+} catch (error) {
+  if (error.message.includes('AA21')) {
+    console.error('Insufficient funds for gas payment');
+    // Handle insufficient funds error
+  } else if (error.message.includes('AA23')) {
+    console.error('Reverted during validation');
+    // Handle validation error
+  } else if (error.message.includes('AA25')) {
+    console.error('Invalid paymaster and data');
+    // Handle paymaster error
+  } else {
+    console.error('Unknown error:', error);
+    // Handle other errors
+  }
+}
+```
+
+## Practical Examples
+
+### NFT Minting Example
+
+```typescript
+// Create NFT contract instance
+const nftContract = new ethers.Contract(
+  nftContractAddress,
+  ['function mint(address to) external'],
+  accountSigner
+);
+
+// Create call data for minting
+const callData = nftContract.interface.encodeFunctionData(
+  'mint',
+  [aaWalletAddress]
+);
+
+// Build the UserOperation
+const builder = await Presets.Builder.SimpleAccount.init(
+  accountSigner,
+  NERO_RPC_URL,
+  {
+    overrideBundlerRpc: BUNDLER_URL,
+    entryPoint: ENTRYPOINT_ADDRESS,
+    factory: ACCOUNT_FACTORY_ADDRESS,
+  }
+);
+
+// Set paymaster for sponsored gas
+builder.setPaymasterOptions({
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL,
+  type: 0 // Free gas
+});
+
+// Add the mint transaction
+builder.execute(nftContractAddress, 0, callData);
+
+// Send the UserOperation
+const result = await client.sendUserOperation(builder);
+console.log("Mint transaction submitted:", result.userOpHash);
+
+// Wait for confirmation
+const receipt = await result.wait();
+console.log("Mint transaction confirmed:", receipt.transactionHash);
+```
+
+## Best Practices
+
+1. **Cache AA Wallet Addresses**: Calculate and store AA wallet addresses to avoid redundant computation.
+2. **Error Handling**: Implement comprehensive error handling to improve user experience.
+3. **Gas Estimation**: For complex operations, use gas estimation functions to ensure sufficient gas.
+4. **Test on Testnet**: Always test your implementation on Nerochain's testnet before deploying to mainnet.
+5. **Security**: Never store private keys or API keys in client-side code.
+
+For more details and advanced use cases, refer to the following resources:
+- [ERC-4337 Specification](https://eips.ethereum.org/EIPS/eip-4337)
+- [AA Platform Documentation](https://docs.nerochain.io/en/aa/platform)
+- [UserOpSDK GitHub Repository](https://github.com/nerochain/aa-userop-sdk)
+
+<PageFeedback path="/en/developer-tools/user-op-sdk" /> 

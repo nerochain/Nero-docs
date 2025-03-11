@@ -1,3 +1,5 @@
+import PageFeedback from '../../../components/PageFeedback'
+
 # Developer Tools & Account Abstraction
 
 Explore NERO's comprehensive suite of developer tools and learn about our advanced account abstraction capabilities.
@@ -25,4 +27,380 @@ Explore NERO's comprehensive suite of developer tools and learn about our advanc
 - Smart Contract Deployment
 - Security Best Practices
 
-Choose a topic from the sidebar to learn more about NERO's developer tools and account abstraction features. 
+Choose a topic from the sidebar to learn more about NERO's developer tools and account abstraction features.
+
+# Paymaster API: Gas Abstraction for Your dApp
+
+The Nerochain Paymaster API enables developers to implement gas abstraction in their dApps, allowing users to pay gas fees with ERC20 tokens or have transactions sponsored entirely. This guide covers the API endpoints, request/response formats, and best practices for integration.
+
+## Introduction
+
+The Paymaster API sits between your dApp and the Nerochain blockchain, providing services to:
+
+1. Sponsor gas fees for your users
+2. Allow users to pay for gas with ERC20 tokens
+3. Validate and sign UserOperations before they're sent to the bundler
+4. Apply your configured gas strategies to user transactions
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/paymaster-flow.png" 
+      alt="Paymaster API Flow"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 1: Paymaster API integration flow
+    </figcaption>
+  </figure>
+</div>
+
+## API Endpoints
+
+### Base URL
+
+The Paymaster API is available at:
+
+```
+https://paymaster-testnet.nerochain.io
+```
+
+For mainnet (when available):
+
+```
+https://paymaster.nerochain.io
+```
+
+### Authentication
+
+All API requests require an API key created through the [AA Platform](https://aa-platform.nerochain.io). The API key should be included in the `x-api-key` header:
+
+```
+x-api-key: your_api_key_here
+```
+
+## Core Endpoints
+
+### 1. Get Supported Tokens
+
+Retrieves the list of ERC20 tokens supported by the Paymaster for gas payments.
+
+**Endpoint:** `GET /supported-tokens`
+
+**Headers:**
+- `x-api-key`: Your API key
+
+**Response:**
+```json
+{
+  "success": true,
+  "tokens": [
+    {
+      "address": "0xTokenAddress1",
+      "symbol": "TOKEN1",
+      "decimals": 18,
+      "logoURI": "https://example.com/token1.png"
+    },
+    {
+      "address": "0xTokenAddress2",
+      "symbol": "TOKEN2",
+      "decimals": 6,
+      "logoURI": "https://example.com/token2.png"
+    }
+  ]
+}
+```
+
+### 2. Sign UserOperation
+
+Signs a UserOperation with the Paymaster, adding the paymasterAndData field necessary for sponsored or token-paid transactions.
+
+**Endpoint:** `POST /sign-userops`
+
+**Headers:**
+- `x-api-key`: Your API key
+- `Content-Type`: application/json
+
+**Request Body:**
+```json
+{
+  "userOperation": {
+    "sender": "0xAAWalletAddress",
+    "nonce": "0x0",
+    "initCode": "0x",
+    "callData": "0xCallData",
+    "callGasLimit": "0x88b8",
+    "verificationGasLimit": "0x33450",
+    "preVerificationGas": "0xc350",
+    "maxFeePerGas": "0x9502f900",
+    "maxPriorityFeePerGas": "0x9502f900",
+    "paymasterAndData": "0x",
+    "signature": "0xUserSignature"
+  },
+  "paymentType": 0,
+  "tokenAddress": "0xTokenAddress" // Required for types 1 and 2
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "userOperation": {
+    "sender": "0xAAWalletAddress",
+    "nonce": "0x0",
+    "initCode": "0x",
+    "callData": "0xCallData",
+    "callGasLimit": "0x88b8",
+    "verificationGasLimit": "0x33450",
+    "preVerificationGas": "0xc350",
+    "maxFeePerGas": "0x9502f900",
+    "maxPriorityFeePerGas": "0x9502f900",
+    "paymasterAndData": "0xPaymasterAddress+EncodedData+PaymasterSignature",
+    "signature": "0xUserSignature"
+  }
+}
+```
+
+### 3. Estimate Gas for UserOperation
+
+Estimates the gas required for a UserOperation.
+
+**Endpoint:** `POST /estimate-gas`
+
+**Headers:**
+- `x-api-key`: Your API key
+- `Content-Type`: application/json
+
+**Request Body:**
+```json
+{
+  "userOperation": {
+    "sender": "0xAAWalletAddress",
+    "nonce": "0x0",
+    "initCode": "0x",
+    "callData": "0xCallData",
+    "callGasLimit": "0x0",
+    "verificationGasLimit": "0x0",
+    "preVerificationGas": "0x0",
+    "maxFeePerGas": "0x9502f900",
+    "maxPriorityFeePerGas": "0x9502f900",
+    "paymasterAndData": "0x",
+    "signature": "0x"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "gasEstimates": {
+    "callGasLimit": "0x88b8",
+    "verificationGasLimit": "0x33450",
+    "preVerificationGas": "0xc350"
+  }
+}
+```
+
+### 4. Get Token Price
+
+Retrieves the current price of a token relative to the native token (NERO).
+
+**Endpoint:** `GET /token-price?tokenAddress=0xTokenAddress`
+
+**Headers:**
+- `x-api-key`: Your API key
+
+**Response:**
+```json
+{
+  "success": true,
+  "tokenAddress": "0xTokenAddress",
+  "priceInNativeToken": "0.05", // 1 Token = 0.05 NERO
+  "timestamp": 1697483209
+}
+```
+
+## Payment Types
+
+The Paymaster supports three payment types:
+
+### Type 0: Free Gas (Sponsored)
+
+The developer fully sponsors gas fees for the user. This is ideal for:
+
+- User onboarding
+- Promotional campaigns
+- Simplifying UX
+- GameFi applications
+
+No additional configuration is needed beyond setting `paymentType: 0` in the request.
+
+### Type 1: Prepay with ERC20
+
+Users pay for gas with ERC20 tokens before transaction execution:
+
+1. Full estimated amount is collected upfront
+2. Excess is refunded after execution
+3. Requires token approval before transaction
+
+To use this type:
+- Set `paymentType: 1`
+- Include `tokenAddress` in the request
+- Ensure the user has approved the Paymaster contract to spend their tokens
+
+### Type 2: Postpay with ERC20
+
+Users pay for gas with ERC20 tokens after transaction execution:
+
+1. Only exact gas cost is collected
+2. Requires token approval before execution
+3. Better UX as users only pay what's needed
+4. Has a risk of payment failure after execution
+
+To use this type:
+- Set `paymentType: 2`
+- Include `tokenAddress` in the request
+- Ensure the user has approved the Paymaster contract to spend their tokens
+
+## Integration Examples
+
+### Basic Integration with JavaScript/TypeScript
+
+```typescript
+import { ethers } from 'ethers';
+import { Client, Presets } from 'userop';
+
+// Initialize client and builder
+const client = await Client.init(RPC_URL, {
+  overrideBundlerRpc: BUNDLER_URL,
+  entryPoint: ENTRYPOINT_ADDRESS,
+});
+
+const builder = await Presets.Builder.SimpleAccount.init(
+  accountSigner,
+  RPC_URL,
+  {
+    overrideBundlerRpc: BUNDLER_URL,
+    entryPoint: ENTRYPOINT_ADDRESS,
+    factory: FACTORY_ADDRESS,
+  }
+);
+
+// Configure paymaster for free gas (Type 0)
+builder.setPaymasterOptions({
+  apikey: 'YOUR_API_KEY',
+  rpc: 'https://paymaster-testnet.nerochain.io',
+  type: 0
+});
+
+// Or for ERC20 payment (Type 1)
+builder.setPaymasterOptions({
+  apikey: 'YOUR_API_KEY',
+  rpc: 'https://paymaster-testnet.nerochain.io',
+  type: 1,
+  token: '0xTokenAddress'
+});
+
+// Add transaction data to the builder
+builder.execute(targetAddress, 0, callData);
+
+// Send the UserOperation
+const response = await client.sendUserOperation(builder);
+console.log('UserOperation hash:', response.userOpHash);
+
+// Wait for transaction to be mined
+const receipt = await response.wait();
+console.log('Transaction hash:', receipt.transactionHash);
+```
+
+### Direct API Call Example
+
+For more advanced use cases, you can call the API directly:
+
+```typescript
+async function signUserOperation(userOp, paymentType, tokenAddress = '') {
+  const response = await fetch('https://paymaster-testnet.nerochain.io/sign-userops', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': 'YOUR_API_KEY'
+    },
+    body: JSON.stringify({
+      userOperation: userOp,
+      paymentType: paymentType,
+      tokenAddress: tokenAddress
+    })
+  });
+
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(`Paymaster error: ${data.error}`);
+  }
+
+  return data.userOperation;
+}
+```
+
+## Error Handling
+
+The Paymaster API can return various error responses. Here are common error codes and their meanings:
+
+| Error Code | Description | Solution |
+|------------|-------------|----------|
+| 400 | Bad Request | Check your request format |
+| 401 | Unauthorized | Verify your API key |
+| 403 | Forbidden | Check if your API key has permission for the request |
+| 429 | Too Many Requests | Rate limit exceeded - slow down your requests |
+| 500 | Internal Server Error | Server-side issue - try again later |
+
+### Error Response Format
+
+```json
+{
+  "success": false,
+  "error": "Error message",
+  "errorCode": "ERROR_CODE",
+  "details": {
+    // Additional details about the error
+  }
+}
+```
+
+## Common Error Codes
+
+| Error Code | Description |
+|------------|-------------|
+| `INVALID_USER_OP` | The UserOperation format is invalid |
+| `INSUFFICIENT_BALANCE` | User has insufficient token balance |
+| `NO_APPROVAL` | User hasn't approved the Paymaster contract |
+| `EXCEEDS_GAS_LIMIT` | The operation exceeds configured gas limits |
+| `UNSUPPORTED_TOKEN` | The token is not supported for gas payment |
+| `STRATEGY_REJECTED` | The operation was rejected by your strategy rules |
+| `RATE_LIMIT_EXCEEDED` | API rate limit exceeded |
+
+## Best Practices
+
+1. **Implement Robust Error Handling**: Always handle potential errors from the Paymaster API
+2. **Use Gas Estimation**: Get accurate gas estimates before submitting UserOperations
+3. **Cache Supported Tokens**: Store supported token list and refresh periodically
+4. **Check Token Approvals**: Verify user has approved tokens before attempting Type 1/2 payments
+5. **Secure API Keys**: Never expose API keys in client-side code
+6. **Implement Retries**: Use exponential backoff for temporary failures
+7. **Monitor Usage**: Track your API usage and costs through the AA Platform
+
+## Rate Limits and Quotas
+
+The Paymaster API has rate limits based on your plan. By default:
+
+- 100 requests per minute
+- 10,000 requests per day
+- Maximum gas limit per operation: 1,000,000 gas units
+- Maximum daily gas consumption: Determined by your plan
+
+You can monitor and adjust these limits in the [AA Platform](https://aa-platform.nerochain.io).
+
+For more details, refer to the [Paymaster Contract documentation](https://docs.nerochain.io/en/aa/paymasterContract) or contact Nerochain support.
+
+<PageFeedback path="/en/developer-tools/paymaster-api" /> 

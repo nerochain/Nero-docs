@@ -1,28 +1,394 @@
-# Developer Tools & Account Abstraction
+import PageFeedback from '../../../components/PageFeedback'
 
-Explore NERO's comprehensive suite of developer tools and learn about our advanced account abstraction capabilities.
+# AA Wallet UI: Integrating Account Abstraction UI Components
 
-## Developer Tools
+The Nerochain AA Wallet UI library provides ready-to-use React components that make it easy to integrate Account Abstraction wallet functionality into your dApp. This guide will help you understand how to use these components to create a seamless user experience.
 
-- NERO SDK
-- Smart Contract Development Kit
-- CLI Tools
-- API References
-- Testing Framework
+## Overview
 
-## Account Abstraction
+The AA Wallet UI library offers:
 
-- Understanding Account Abstraction
-- Implementing Smart Accounts
-- Gas Fee Abstraction
-- Multi-Signature Wallets
-- Account Recovery Mechanisms
+- Pre-built React components for common AA wallet features
+- Responsive and customizable UI elements
+- Integration with the UserOpSDK
+- Support for multiple themes and styling options
+- Comprehensive state management for wallet operations
 
-## Integration Guides
+## Installation
 
-- Wallet Integration
-- DApp Development
-- Smart Contract Deployment
-- Security Best Practices
+Install the AA Wallet UI package using npm or yarn:
 
-Choose a topic from the sidebar to learn more about NERO's developer tools and account abstraction features. 
+```bash
+npm install @nerochain/aa-wallet-ui ethers@5.7.2
+```
+
+Or with yarn:
+
+```bash
+yarn add @nerochain/aa-wallet-ui ethers@5.7.2
+```
+
+Note: The library requires ethers v5.7.2 as a peer dependency.
+
+## Basic Usage
+
+### Provider Setup
+
+First, wrap your application with the `AAWalletProvider` to provide context for all AA wallet components:
+
+```jsx
+import { AAWalletProvider } from '@nerochain/aa-wallet-ui';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+// Configuration for Nerochain
+const config = {
+  rpcUrl: "https://rpc-testnet.nerochain.io",
+  bundlerUrl: "https://bundler.service.nerochain.io",
+  paymasterUrl: "https://paymaster-testnet.nerochain.io",
+  entryPointAddress: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  accountFactoryAddress: "0x9406Cc6185a346906296840746125a0E44976454",
+  paymasterAPIKey: "YOUR_PAYMASTER_API_KEY"
+};
+
+ReactDOM.render(
+  <React.StrictMode>
+    <AAWalletProvider config={config}>
+      <App />
+    </AAWalletProvider>
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+```
+
+### Using the Connect Button
+
+The simplest way to get started is with the `ConnectButton` component:
+
+```jsx
+import { ConnectButton, useAAWallet } from '@nerochain/aa-wallet-ui';
+
+function MyComponent() {
+  const { isConnected, aaWalletAddress, eoaAddress } = useAAWallet();
+
+  return (
+    <div>
+      <ConnectButton />
+      
+      {isConnected && (
+        <div>
+          <p>EOA Address: {eoaAddress}</p>
+          <p>AA Wallet Address: {aaWalletAddress}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Customizing the Connect Button
+
+You can customize the appearance of the connect button:
+
+```jsx
+<ConnectButton
+  label="Connect to Nerochain"
+  loadingLabel="Connecting..."
+  connectedLabel="Connected"
+  className="my-custom-button"
+  style={{ backgroundColor: '#5289F2', color: 'white' }}
+/>
+```
+
+## Core Components
+
+### WalletCard
+
+The `WalletCard` component displays wallet information and balance:
+
+```jsx
+import { WalletCard } from '@nerochain/aa-wallet-ui';
+
+function WalletInfo() {
+  return (
+    <WalletCard 
+      showBalance={true}
+      showCopy={true}
+      showDisconnect={true}
+    />
+  );
+}
+```
+
+### Transaction Components
+
+#### TransactionBuilder
+
+The `TransactionBuilder` component helps construct UserOperations:
+
+```jsx
+import { TransactionBuilder, TransactionStatus } from '@nerochain/aa-wallet-ui';
+
+function SendTransaction() {
+  const handleSubmit = (builder) => {
+    // Send the transaction using the configured builder
+    console.log("Transaction builder ready:", builder);
+  };
+
+  return (
+    <div>
+      <TransactionBuilder
+        contractAddress="0xYourContractAddress"
+        contractAbi={yourContractAbi}
+        functionName="mint"
+        functionParams={{ to: "0xRecipientAddress" }}
+        onSubmit={handleSubmit}
+      />
+      
+      <TransactionStatus />
+    </div>
+  );
+}
+```
+
+#### PaymentTypeSelector
+
+Allow users to choose their preferred gas payment method:
+
+```jsx
+import { PaymentTypeSelector } from '@nerochain/aa-wallet-ui';
+
+function PaymentOptions() {
+  const handleTypeChange = (type, token) => {
+    console.log("Selected payment type:", type);
+    console.log("Selected token (if applicable):", token);
+  };
+
+  return (
+    <PaymentTypeSelector
+      onChange={handleTypeChange}
+      showTokenSelector={true}
+      defaultType={0}
+    />
+  );
+}
+```
+
+## Advanced Usage
+
+### Custom Hooks
+
+The library provides several hooks for advanced use cases:
+
+#### useAAWallet
+
+Access wallet state and functions:
+
+```jsx
+import { useAAWallet } from '@nerochain/aa-wallet-ui';
+
+function WalletActions() {
+  const { 
+    isConnected, 
+    connect, 
+    disconnect, 
+    aaWalletAddress, 
+    eoaAddress, 
+    balance,
+    builder,
+    client
+  } = useAAWallet();
+
+  const handleCustomAction = async () => {
+    if (!isConnected) {
+      await connect();
+    }
+    
+    // Use the builder to create a custom transaction
+    if (builder) {
+      // Configure builder
+      builder.execute(targetAddress, 0, callData);
+      
+      // Send the UserOperation
+      const result = await client.sendUserOperation(builder);
+      console.log("Transaction sent:", result);
+    }
+  };
+
+  return (
+    <button onClick={handleCustomAction}>
+      Perform Custom Action
+    </button>
+  );
+}
+```
+
+#### useTransactions
+
+Manage transaction state:
+
+```jsx
+import { useTransactions } from '@nerochain/aa-wallet-ui';
+
+function TransactionHistory() {
+  const { 
+    transactions, 
+    currentTransaction, 
+    sendTransaction, 
+    clearTransactions 
+  } = useTransactions();
+
+  return (
+    <div>
+      <h2>Transaction History</h2>
+      <button onClick={clearTransactions}>Clear History</button>
+      
+      <ul>
+        {transactions.map((tx, index) => (
+          <li key={index}>
+            {tx.hash} - {tx.status}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+### Theme Customization
+
+You can customize the appearance of all components using the theme provider:
+
+```jsx
+import { AAWalletProvider, defaultTheme } from '@nerochain/aa-wallet-ui';
+
+// Customize the default theme
+const customTheme = {
+  ...defaultTheme,
+  colors: {
+    ...defaultTheme.colors,
+    primary: '#5289F2',
+    secondary: '#1E293B',
+    success: '#10B981',
+    error: '#EF4444',
+  },
+  borderRadius: '8px',
+  fontFamily: '"Roboto", sans-serif',
+};
+
+function App() {
+  return (
+    <AAWalletProvider config={config} theme={customTheme}>
+      {/* Your app components */}
+    </AAWalletProvider>
+  );
+}
+```
+
+## Integration Examples
+
+### NFT Minting Interface
+
+Here's a complete example of an NFT minting interface using AA Wallet UI:
+
+```jsx
+import { 
+  AAWalletProvider, 
+  ConnectButton, 
+  TransactionBuilder, 
+  TransactionStatus,
+  PaymentTypeSelector,
+  useAAWallet
+} from '@nerochain/aa-wallet-ui';
+import React, { useState } from 'react';
+
+// NFT Contract ABI (simplified)
+const nftAbi = [
+  "function mint(address to) external",
+  "function balanceOf(address owner) view returns (uint256)"
+];
+
+function MintNFT() {
+  const { isConnected, aaWalletAddress } = useAAWallet();
+  const [paymentType, setPaymentType] = useState(0);
+  const [token, setToken] = useState('');
+
+  const handlePaymentChange = (type, selectedToken) => {
+    setPaymentType(type);
+    setToken(selectedToken || '');
+  };
+
+  return (
+    <div className="mint-container">
+      <h1>Mint Your NFT</h1>
+      
+      <ConnectButton />
+      
+      {isConnected && (
+        <>
+          <div className="payment-section">
+            <h3>Select Payment Method</h3>
+            <PaymentTypeSelector onChange={handlePaymentChange} />
+          </div>
+          
+          <div className="mint-section">
+            <h3>Mint NFT</h3>
+            <TransactionBuilder
+              contractAddress="0xYourNFTContract"
+              contractAbi={nftAbi}
+              functionName="mint"
+              functionParams={{ to: aaWalletAddress }}
+              paymentType={paymentType}
+              paymentToken={token}
+              buttonLabel="Mint NFT"
+            />
+          </div>
+          
+          <TransactionStatus />
+        </>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  const config = {
+    rpcUrl: "https://rpc-testnet.nerochain.io",
+    bundlerUrl: "https://bundler.service.nerochain.io",
+    paymasterUrl: "https://paymaster-testnet.nerochain.io",
+    entryPointAddress: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+    accountFactoryAddress: "0x9406Cc6185a346906296840746125a0E44976454",
+    paymasterAPIKey: "YOUR_API_KEY"
+  };
+
+  return (
+    <AAWalletProvider config={config}>
+      <MintNFT />
+    </AAWalletProvider>
+  );
+}
+
+export default App;
+```
+
+## Best Practices
+
+1. **Error Handling**: Always implement robust error handling for wallet operations
+2. **Progressive Enhancement**: Show fallback UI when wallet functionality isn't available
+3. **Clear User Feedback**: Provide clear status messages during transaction processing
+4. **Responsive Design**: Ensure wallet UI components work well on both desktop and mobile
+5. **API Key Security**: Never include API keys directly in client-side code
+
+## Troubleshooting
+
+### Common Issues
+
+- **Connection Issues**: Ensure the RPC URL is correct and the network is available
+- **Transaction Failures**: Check paymaster settings and gas configurations
+- **UI Rendering Problems**: Verify that the AAWalletProvider is properly set up
+- **Style Conflicts**: Use the className prop to override default styles
+
+For more information, check the AA Wallet UI repository or contact Nerochain support.
+
+<PageFeedback path="/en/developer-tools/aa-wallet-ui-usage" /> 

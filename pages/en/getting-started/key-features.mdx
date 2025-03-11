@@ -1,37 +1,62 @@
 import PageFeedback from '../../../components/PageFeedback'
 
-## What is NeroChain?
+# Key Features for Developers
 
-Developed for scalability, adaptability, and improved user experience, NeroChain is a developer-friendly Layer 1 modular blockchain. Natively, it features Account Abstraction (AA), which helps users quickly sign transactions without running gas from their wallets. Using the Paymaster system, dApps may allow users pay with ERC20 tokens or sponsor gas costs, therefore smoothing out transactions and providing a flawless experience. Additionally with Blockspace 2.0, NeroChain guarantees effective use of network resources by improving how transactions are handled and fees are distributed. It is completely EVM-compatible; developers may easily create strong Web3 apps by deploying smart contracts using Hardhat, Remix, and other well-known tools.
+This section provides a highlevel overview of Nerochain's key features that make it an ideal platform for developers. Knowing these characteristics will enable you to fully use Nerochain for developing your apps.
 
-## Why build on NeroChain?
+## Native Account Abstraction
 
-Nerochain was created with a fresh perspective in mind for developers investigating blockchains: one that values applications instead of monopolizing them at the infrastructure level.
+Using a native ERC-4337 Account Abstraction implementation, Nerochain provides developers with advanced tools allowing them to construct better user experiences:
 
-### Applications Capture Their True Value
-In traditional blockchains, regardless of how good an application is, the infrastructure is always the true winner. Gas costs are paid in the chain's native cryptocurrency, thus the blockchain is the principal benefactor of each transaction. This results in a system in which apps produce value, but most of this value is extracted by the underlying network.
-Nero flips this model by introducing an economic structure where applications share in the network's success. Developers no longer need to surrender transaction volume to the chain itself - they can retain and redistribute value in ways that directly benefit their users and ecosystems.
-And more, by enabling gas payments with ERC20 tokens, developers can boost their token utility by driving sustainable demand and revenue for their projects. This means a special thing: If developers' project drives motion, so will their tokens, but with a way more potential for value.
+#### Smart Contract Wallets
 
-<div className="mt-8 mb-8">
-  <figure className="text-center">
-    <img 
-      src="/assets/simul.png" 
-      alt="Simulation comparing developer token performance across chains"
-      className="mx-auto rounded-lg shadow-md"
-    />
-    <figcaption className="mt-2 text-sm italic text-gray-600">
-      Figure 1: Simulation on developer token performance compared with other chains
-    </figcaption>
-  </figure>
-</div>
+Unlike traditional Externally Owned Accounts (EOAs), smart contract wallets on Nerochain provide:
 
-### Blockspace 2.0: Redefining How Transactions Work
+- **Programmable Authorization**: Implement any verification logic for transaction approval.
+- **Multi-signature Support**: Require multiple signers for transaction authorization.
+- **Social Recovery**: Enable account recovery through trusted friends or services.
+- **Session Keys**: Implement limited-use keys for specific applications or time periods.
+
+#### UserOperation and Bundlers
+
+At the core of Account Abstraction is the `UserOperation` object:
+
+- **Flexible Transaction Format**: Completely separates the user's intent from the transaction execution.
+- **Bundlers**: Specialized nodes that package multiple UserOperations into a single transaction.
+- **Mempool Management**: Dedicated mempool for UserOperations enhances predictability.
+
+
+## Paymaster System
+
+The Paymaster is a core component that enables flexible gas payment mechanisms:
+
+#### Payment Options
+
+- **Sponsored Transactions (Free)**: Developers can fully cover gas costs for users.
+- **ERC20 Token Payments**: Users can pay gas fees using supported ERC20 tokens instead of NERO.
+- **Pre-fund/Post-fund Models**: Choose between upfront payments or after-execution settlements.
+
+#### Integration Benefits
+
+- **Token Utility**: Increase your token's utility by enabling it for gas payments.
+- **User Experience**: Remove the need for users to own NERO tokens to interact with your dApp.
+- **Flexible Pricing Models**: Implement subscription models, free trials, or per-action pricing.
+
+## Blockspace 2.0
 
 Nero proposes Blockspace 2.0, a step beyond the inflexible gas models of older blockchain systems. Instead of taking a one-size-fits-all approach to transaction costs, Nerochain allows:
-- Dynamic charge structures allow apps to establish their own transaction cost models.
-- Gas sponsorship via Paymaster allows developers to subsidize expenses and enhance UX.
-- Fee-sharing techniques enable dApps to get a share of the transaction fees they produce.
+
+#### Dynamic Fee Structure
+
+- **App-specific Fee Models**: Create custom fee structures for your application.
+- **Fee Sharing Mechanism**: Capture a portion of the transaction fees generated by your dApp.
+- **Predictable Costs**: More stable fee environment compared to traditional gas markets.
+
+#### Resource Optimization
+
+- **Efficient Transaction Bundling**: Reduce overhead through intelligent transaction packaging.
+- **Priority Lanes**: Ensure critical transactions are processed promptly.
+- **Resource Allocation**: More predictable resource consumption for your application.
 
 <div className="mt-8 mb-8">
   <figure className="text-center">
@@ -41,11 +66,10 @@ Nero proposes Blockspace 2.0, a step beyond the inflexible gas models of older b
       className="mx-auto rounded-lg shadow-md"
     />
     <figcaption className="mt-2 text-sm italic text-gray-600">
-      Figure 2: Blockspace 2.0
+      Figure 1: Blockspace 2.0 Architecture
     </figcaption>
   </figure>
 </div>
 
-This implies that apps are no longer competing with their own infrastructure for economic viability. Blockspace becomes an asset that dApps may optimize and use, rather than a burden they must bear.
 
-<PageFeedback path="/en/getting-started/introduction" />
+<PageFeedback path="/en/getting-started/key-features" />
