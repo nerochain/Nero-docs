@@ -5,8 +5,10 @@ export default {
     display: "hidden"
   },
   'getting-started': "Getting Started",
-  'core-concepts': "Core Concepts",
+  'core-concepts': "White Paper",
   'developer-tools': "Developer Tools",
   'tutorials': "Tutorials",
+  'node_validators': "Node Validators",
+  faq: "FAQ",
   supports: "Support"
 }

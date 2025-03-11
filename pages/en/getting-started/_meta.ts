@@ -6,6 +6,6 @@ export default {
     }
   },
   introduction: 'Nerochain',
-  'quick-setup': 'Quick Setup Guide',
-  'first-contract': 'Deploying Your First Smart Contract'
+  'key-features': 'Key Features',
+  'nero-dapp-overview': 'Architecture of a Nero DApp'
 } 
