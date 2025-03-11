@@ -3,8 +3,8 @@ export default {
   'aa-wallet-integration': 'AA Wallet Integration',
   'paymaster-integration': 'Paymaster Integration',
   'sending-ops': 'Sending Operations to Paymaster',
-  'types-payment-methods': 'Types of Payment Methods',
+  'types-payments': 'Types of Payment Methods',
   'checking-sup-tokens': 'Checking Supported Tokens',
-  'creating-first-dapp': 'Creating Your First DApp',
+  'create-first-dapp': 'Creating Your First DApp',
   'api-error-list': 'API Error List'
 } 

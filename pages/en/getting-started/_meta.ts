@@ -7,5 +7,5 @@ export default {
   },
   introduction: 'Nerochain',
   'key-features': 'Key Features',
-  'nero-dapp-overview': 'Architecture of a Nero DApp'
+  'nero-dapp-architecture': 'Architecture of a Nero DApp'
 } 

@@ -8,7 +8,7 @@ export default {
   'core-concepts': "White Paper",
   'developer-tools': "Developer Tools",
   'tutorials': "Tutorials",
-  'node_validators': "Node Validators",
+  'node-validators': "Node Validators",
   faq: "FAQ",
   supports: "Support"
 }
