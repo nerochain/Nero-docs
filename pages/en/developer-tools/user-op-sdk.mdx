@@ -263,54 +263,6 @@ try {
 }
 ```
 
-## Practical Examples
-
-### NFT Minting Example
-
-```typescript
-// Create NFT contract instance
-const nftContract = new ethers.Contract(
-  nftContractAddress,
-  ['function mint(address to) external'],
-  accountSigner
-);
-
-// Create call data for minting
-const callData = nftContract.interface.encodeFunctionData(
-  'mint',
-  [aaWalletAddress]
-);
-
-// Build the UserOperation
-const builder = await Presets.Builder.SimpleAccount.init(
-  accountSigner,
-  NERO_RPC_URL,
-  {
-    overrideBundlerRpc: BUNDLER_URL,
-    entryPoint: ENTRYPOINT_ADDRESS,
-    factory: ACCOUNT_FACTORY_ADDRESS,
-  }
-);
-
-// Set paymaster for sponsored gas
-builder.setPaymasterOptions({
-  apikey: YOUR_API_KEY,
-  rpc: PAYMASTER_URL,
-  type: 0 // Free gas
-});
-
-// Add the mint transaction
-builder.execute(nftContractAddress, 0, callData);
-
-// Send the UserOperation
-const result = await client.sendUserOperation(builder);
-console.log("Mint transaction submitted:", result.userOpHash);
-
-// Wait for confirmation
-const receipt = await result.wait();
-console.log("Mint transaction confirmed:", receipt.transactionHash);
-```
-
 ## Best Practices
 
 1. **Cache AA Wallet Addresses**: Calculate and store AA wallet addresses to avoid redundant computation.

@@ -1,0 +1,218 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# Core JSON-RPC Methods
+
+The Paymaster API uses JSON-RPC, which is the standard for communicating with Ethereum-compatible nodes. Below are the key methods available:
+
+## pm_supported_tokens
+
+Retrieves the list of ERC20 tokens supported by the Paymaster for gas payments along with pricing information.
+
+**Parameters:**
+1. `userOperation` - A minimal UserOperation object with at least the sender field
+2. `apiKey` - Your API key from the AA Platform
+3. `entryPoint` - The EntryPoint contract address (typically `0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789`)
+
+**Example Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_supported_tokens",
+  "params": [
+    {
+      "sender": "0xAAWalletAddress",
+      "nonce": "0x0",
+      "initCode": "0x",
+      "callData": "0x",
+      "callGasLimit": "0x0",
+      "verificationGasLimit": "0x0",
+      "preVerificationGas": "0x0",
+      "maxFeePerGas": "0x0",
+      "maxPriorityFeePerGas": "0x0",
+      "paymasterAndData": "0x",
+      "signature": "0x"
+    },
+    "YOUR_API_KEY",
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```
+
+**Example Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "freeGas": true,
+    "native": { 
+      "gas": "0x337dc", 
+      "price": 1, 
+      "decimals": 18, 
+      "symbol": "NERO" 
+    },
+    "tokens": [
+      {
+        "type": "system",
+        "token": "0xD5a6dcff7AC339A03f6964c315575bF65c3c6cF6",
+        "symbol": "DAI",
+        "decimals": 18,
+        "price": 2.1
+      },
+      {
+        "type": "custom",
+        "token": "0x13DCf97b6B94bDA883492AB46d556E8919445876",
+        "symbol": "TestToken",
+        "decimals": 18,
+        "price": 0.1
+      }
+    ]
+  }
+}
+```
+
+In this response:
+- `freeGas` indicates whether gas sponsorship (Type 0) is available
+- `native` provides information about the native token (NERO)
+- `tokens` lists all supported ERC20 tokens with their respective price ratios relative to NERO
+
+## pm_sponsor_userop
+
+Signs a UserOperation with the Paymaster, adding the paymasterAndData field necessary for sponsored or token-paid transactions.
+
+**Parameters:**
+1. `userOperation` - The complete UserOperation to be signed
+2. `apiKey` - Your API key from the AA Platform
+3. `entryPoint` - The EntryPoint contract address
+4. `context` - An object containing payment details:
+   - `type` - Payment type (0 for sponsored, 1 for prepay, 2 for postpay)
+   - `token` - ERC20 token address (required for types 1 and 2)
+
+**Example Request for Free Gas (Type 0):**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_sponsor_userop",
+  "params": [
+    {
+      "sender": "0xAAWalletAddress",
+      "nonce": "0x0",
+      "initCode": "0x",
+      "callData": "0xCallData",
+      "callGasLimit": "0x88b8",
+      "verificationGasLimit": "0x33450",
+      "preVerificationGas": "0xc350",
+      "maxFeePerGas": "0x9502f900",
+      "maxPriorityFeePerGas": "0x9502f900",
+      "paymasterAndData": "0x",
+      "signature": "0xUserSignature"
+    },
+    "YOUR_API_KEY",
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+    {
+      "type": 0
+    }
+  ]
+}
+```
+
+**Example Request for ERC20 Payment (Type 1):**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_sponsor_userop",
+  "params": [
+    {
+      "sender": "0xAAWalletAddress",
+      "nonce": "0x0",
+      "initCode": "0x",
+      "callData": "0xCallData",
+      "callGasLimit": "0x88b8",
+      "verificationGasLimit": "0x33450",
+      "preVerificationGas": "0xc350",
+      "maxFeePerGas": "0x9502f900",
+      "maxPriorityFeePerGas": "0x9502f900",
+      "paymasterAndData": "0x",
+      "signature": "0xUserSignature"
+    },
+    "YOUR_API_KEY",
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+    {
+      "type": 1,
+      "token": "0xTokenAddress"
+    }
+  ]
+}
+```
+
+**Example Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "sender": "0xAAWalletAddress",
+    "nonce": "0x0",
+    "initCode": "0x",
+    "callData": "0xCallData",
+    "callGasLimit": "0x88b8",
+    "verificationGasLimit": "0x33450",
+    "preVerificationGas": "0xc350",
+    "maxFeePerGas": "0x9502f900",
+    "maxPriorityFeePerGas": "0x9502f900",
+    "paymasterAndData": "0xPaymasterAddress+EncodedData+PaymasterSignature",
+    "signature": "0xUserSignature"
+  }
+}
+```
+
+## eth_estimateUserOperationGas
+
+Estimates the gas required for a UserOperation.
+
+**Parameters:**
+1. `userOperation` - The UserOperation to estimate gas for 
+2. `entryPoint` - The EntryPoint contract address
+
+**Example Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "eth_estimateUserOperationGas",
+  "params": [
+    {
+      "sender": "0xAAWalletAddress",
+      "nonce": "0x0",
+      "initCode": "0x",
+      "callData": "0xCallData",
+      "callGasLimit": "0x0",
+      "verificationGasLimit": "0x0",
+      "preVerificationGas": "0x0",
+      "maxFeePerGas": "0x9502f900",
+      "maxPriorityFeePerGas": "0x9502f900",
+      "paymasterAndData": "0x",
+      "signature": "0x"
+    },
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```
+
+**Example Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "callGasLimit": "0x88b8",
+    "verificationGasLimit": "0x33450",
+    "preVerificationGas": "0xc350"
+  }
+}
+```
+
+<PageFeedback path="/en/developer-tools/paymaster-api/core-methods" /> 

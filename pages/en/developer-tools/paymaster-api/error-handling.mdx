@@ -1,0 +1,33 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# Error Handling
+
+Proper error handling is essential when integrating with the Paymaster API. This section covers common errors you may encounter and best practices for a robust implementation.
+
+## Common Error Codes
+
+The Paymaster API returns standard JSON-RPC errors. Here are common error codes and their meanings:
+
+| Error Code | Description | Solution |
+|------------|-------------|----------|
+| -32700 | Parse error | Check your JSON formatting |
+| -32600 | Invalid request | Verify the request structure |
+| -32601 | Method not found | Check the method name |
+| -32602 | Invalid params | Verify parameter types and order |
+| -32603 | Internal error | Server-side issue - try again later |
+| -32000 to -32099 | Server error | Various server-side errors |
+
+## Common Specific Errors
+
+| Error Message | Description |
+|------------|-------------|
+| `Unauthorized` | Invalid or missing API key |
+| `Invalid UserOperation` | The UserOperation format is invalid |
+| `Insufficient balance` | User has insufficient token balance |
+| `No approval` | User hasn't approved the Paymaster contract |
+| `Gas limit exceeded` | The operation exceeds configured gas limits |
+| `Unsupported token` | The token is not supported for gas payment |
+| `Policy restriction` | The operation was rejected by your strategy rules |
+| `Rate limit exceeded` | Too many requests in a short time period |
+
+<PageFeedback path="/en/developer-tools/paymaster-api/error-handling" /> 
