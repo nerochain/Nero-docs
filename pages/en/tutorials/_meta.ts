@@ -1,5 +1,5 @@
 export default {
-  index: 'Overview',
+  index: 'Cookbook',
   'first-contract': 'Deploying your first contract in Nerochain',
   'aa-wallet-integration': 'AA Wallet Integration',
   'paymaster-integration': 'Paymaster Integration',
