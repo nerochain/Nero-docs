@@ -1,0 +1,305 @@
+# Types of Nerochain Paymaster Operations
+
+This tutorial explains the different types of payment operations supported by the Nerochain Paymaster, their use cases, and how to implement them in your application.
+
+## Understanding Paymaster Payment Types
+
+The Nerochain Paymaster supports three payment types for transaction gas fees:
+
+1. **Free/Sponsored (Type 0)**: The developer sponsors all gas costs for users
+2. **Prepay ERC20 (Type 1)**: Users pay gas costs upfront with ERC20 tokens
+3. **Postpay ERC20 (Type 2)**: Users pay gas costs after transaction execution with ERC20 tokens
+
+Let's explore each type in detail.
+
+## Type 0: Free/Sponsored Gas
+
+In this model, the developer (API key owner) covers all gas costs for users. This is most common for applications that want to provide a seamless user experience without requiring users to own native tokens.
+
+### Use Cases
+- Onboarding new users to web3 applications
+- NFT minting platforms that cover gas costs
+- Games and applications targeting mainstream users
+
+### Implementation Example
+
+```typescript
+// src/utils/aaUtils.ts
+export const executeSponsoredOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Initialize builder with API key
+    const builder = await initAABuilder(accountSigner, options?.apiKey);
+    
+    // Set payment type to FREE (0)
+    const paymasterOptions = {
+      apikey: options?.apiKey || API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: "0" // Free/Sponsored
+    };
+    
+    builder.setPaymasterOptions(paymasterOptions);
+    
+    // Execute the operation
+    // (Same implementation as in executeOperation function)
+    // ...
+    
+  } catch (error) {
+    console.error("Error executing sponsored operation:", error);
+    throw error;
+  }
+};
+```
+
+### Important Considerations
+- Monitor your gas costs on the AA Platform dashboard
+- Set limits on how much gas each user can consume
+- Consider using prepay/postpay for higher-value transactions
+
+## Type 1: Prepay with ERC20 Tokens
+
+In this model, users pay for gas using ERC20 tokens before the transaction is executed. The paymaster estimates the gas cost and collects the required tokens upfront, refunding any excess after execution.
+
+### Use Cases
+- Applications where users don't hold native tokens but have ERC20 tokens
+- Platforms requiring payment certainty before executing operations
+- Games and applications with their own economy tokens
+
+### Implementation Example
+
+```typescript
+// src/utils/aaUtils.ts
+export const executePrepayOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  tokenAddress: string,
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Initialize builder with API key
+    const builder = await initAABuilder(accountSigner, options?.apiKey);
+    
+    // Set payment type to PREPAY (1) with selected token
+    const paymasterOptions = {
+      apikey: options?.apiKey || API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: "1", // Prepay
+      token: tokenAddress
+    };
+    
+    builder.setPaymasterOptions(paymasterOptions);
+    
+    // Handle token approval first
+    await approveTokenForPaymaster(
+      accountSigner, 
+      tokenAddress, 
+      CONTRACT_ADDRESSES.tokenPaymaster
+    );
+    
+    // Execute the operation
+    // (Same implementation as in executeOperation function)
+    // ...
+    
+  } catch (error) {
+    console.error("Error executing prepay operation:", error);
+    throw error;
+  }
+};
+```
+
+### Important Considerations
+- Always check that the user has sufficient token balance
+- Ensure the token has been approved for the paymaster to spend
+- Explain to users that they'll be charged a small amount of tokens for gas
+
+## Type 2: Postpay with ERC20 Tokens
+
+In this model, users pay for gas using ERC20 tokens after the transaction has been executed. The paymaster fronts the gas costs and then collects the exact amount in tokens afterward.
+
+### Use Cases
+- Applications where the exact gas cost is important to know upfront
+- Platforms that want to charge the exact cost rather than estimates
+- Higher-trust environments where the paymaster is willing to front the costs
+
+### Implementation Example
+
+```typescript
+// src/utils/aaUtils.ts
+export const executePostpayOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  tokenAddress: string,
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Initialize builder with API key
+    const builder = await initAABuilder(accountSigner, options?.apiKey);
+    
+    // Set payment type to POSTPAY (2) with selected token
+    const paymasterOptions = {
+      apikey: options?.apiKey || API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: "2", // Postpay
+      token: tokenAddress
+    };
+    
+    builder.setPaymasterOptions(paymasterOptions);
+    
+    // Handle token approval first
+    await approveTokenForPaymaster(
+      accountSigner, 
+      tokenAddress, 
+      CONTRACT_ADDRESSES.tokenPaymaster
+    );
+    
+    // Execute the operation
+    // (Same implementation as in executeOperation function)
+    // ...
+    
+  } catch (error) {
+    console.error("Error executing postpay operation:", error);
+    throw error;
+  }
+};
+```
+
+### Important Considerations
+- Similar to prepay, always check balances and approvals
+- Be aware that the paymaster will charge the exact gas amount used
+- Users should understand they're committing to pay after execution
+
+## Creating a Payment Type Selector Component
+
+To allow users to choose their preferred payment type, create a component like this:
+
+```typescript
+// src/components/PaymentTypeSelector.tsx
+import React from 'react';
+
+interface PaymentTypeSelectorProps {
+  paymentType: number;
+  setPaymentType: (type: number) => void;
+  selectedToken: string;
+  setSelectedToken: (token: string) => void;
+  supportedTokens: Array<{address: string, symbol: string, type: number}>;
+  isLoading: boolean;
+}
+
+const PaymentTypeSelector: React.FC<PaymentTypeSelectorProps> = ({
+  paymentType,
+  setPaymentType,
+  selectedToken,
+  setSelectedToken,
+  supportedTokens,
+  isLoading
+}) => {
+  // Filter tokens by payment type
+  const availableTokens = supportedTokens.filter(token => 
+    paymentType === 0 || token.type === paymentType
+  );
+  
+  return (
+    <div className="payment-type-selector">
+      <div className="form-group">
+        <label>Gas Payment Method:</label>
+        <select
+          value={paymentType}
+          onChange={(e) => {
+            const newType = parseInt(e.target.value);
+            setPaymentType(newType);
+            // Reset token selection when switching to free mode
+            if (newType === 0) {
+              setSelectedToken('');
+            }
+          }}
+          disabled={isLoading}
+          className="select-field"
+        >
+          <option value={0}>Sponsored (Free Gas)</option>
+          <option value={1}>Prepay with ERC20 Token</option>
+          <option value={2}>Postpay with ERC20 Token</option>
+        </select>
+        
+        <p className="help-text">
+          {paymentType === 0 
+            ? "Gas fees are sponsored by the application." 
+            : paymentType === 1 
+              ? "Pay for gas upfront with ERC20 tokens. Excess will be refunded." 
+              : "Pay for exact gas costs after transaction execution."}
+        </p>
+      </div>
+      
+      {paymentType > 0 && (
+        <div className="form-group">
+          <label>Select Token:</label>
+          <select
+            value={selectedToken}
+            onChange={(e) => setSelectedToken(e.target.value)}
+            disabled={isLoading || availableTokens.length === 0}
+            className="select-field"
+          >
+            <option value="">Select a token</option>
+            {availableTokens.map(token => (
+              <option key={token.address} value={token.address}>
+                {token.symbol}
+              </option>
+            ))}
+          </select>
+          
+          {availableTokens.length === 0 && (
+            <p className="error-text">No tokens available for this payment type.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PaymentTypeSelector;
+```
+
+## Comparing Payment Types
+
+| Feature | Type 0 (Free) | Type 1 (Prepay) | Type 2 (Postpay) |
+|---------|--------------|-----------------|------------------|
+| Who pays gas | Developer | User | User |
+| When payment occurs | N/A | Before execution | After execution |
+| Refunds | N/A | Yes, if over-estimated | N/A |
+| Token approval required | No | Yes | Yes |
+| Developer costs | High | Low | Low |
+| UX simplicity | Highest | Medium | Medium |
+| Risk to paymaster | High | Low | Medium |
+
+## Usage Recommendations
+
+1. **Start with Type 0 (Free)** for onboarding and simple applications
+2. **Use Type 1 (Prepay)** for most general-purpose applications
+3. **Use Type 2 (Postpay)** for applications where exact gas costs matter
+
+## Configuration Best Practices
+
+1. **Token Whitelist**: Carefully select which tokens to accept for payment
+2. **Gas Estimation**: Set reasonable gas limits for different transaction types
+3. **Rate Limiting**: Implement user-based rate limiting to prevent abuse
+4. **Monitoring**: Track usage patterns and gas costs in the AA Platform dashboard

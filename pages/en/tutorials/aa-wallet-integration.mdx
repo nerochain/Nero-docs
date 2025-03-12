@@ -1,557 +1,162 @@
-import PageFeedback from '../../../components/PageFeedback'
+# Integrating Account Abstraction Wallets in React
 
-# Integrating Account Abstraction Wallets
+This tutorial shows how to integrate Account Abstraction (AA) wallet creation and management into a React application using the Nerochain AA platform.
 
-This recipe will guide you through the process of integrating Account Abstraction (AA) wallets into your React application. You'll learn how to create, deploy, and interact with AA wallets on Nerochain.
+## Understanding Account Abstraction Wallets
 
-## Prerequisites
+In the traditional Ethereum model, users need to own ETH to pay for gas fees. With Account Abstraction (AA), users can:
 
-Before you begin, ensure you have:
+- Execute transactions without holding the native token for gas
+- Use smart contract wallets with advanced features
+- Have transactions sponsored by a third party (Paymaster)
 
-- Node.js (v16 or later) installed
-- A code editor (VS Code recommended)
-- Basic knowledge of React and TypeScript
-- MetaMask or another Ethereum wallet extension
-- An API key from the [Nero AA Platform](https://aa-platform.nerochain.io)
+## Step 1: Setting Up the Configuration
 
-## Project Setup
-
-Let's start by creating a new React project and installing the necessary dependencies:
-
-```bash
-# Create a new React project
-npx create-react-app aa-wallet-integration --template typescript
-
-# Navigate to the project directory
-cd aa-wallet-integration
-
-# Install required packages
-npm install ethers@5.7.2 userop@github:nerochain/aa-userop-sdk react-toastify
-```
-
-Note: We're using ethers v5.7.2 specifically as it's compatible with the AA-SDK.
-
-## Creating Configuration Files
-
-First, let's set up our configuration files:
+First, create a configuration file that contains your chain information and AA contract addresses:
 
 ```typescript
 // src/config.ts
-export const NETWORK_CONFIG = {
-  rpcUrl: "https://rpc-testnet.nerochain.io",
+export const NERO_CHAIN_CONFIG = {
   chainId: 689,
-  chainName: "Nero Testnet",
-  nativeCurrency: {
-    name: "NERO",
-    symbol: "NERO",
-    decimals: 18
-  },
-  blockExplorerUrl: "https://testnet.neroscan.io"
+  chainName: "NERO Chain Testnet",
+  rpcUrl: "https://rpc-testnet.nerochain.io",
+  currency: "NERO",
+  explorer: "https://testnet.neroscan.io"
 };
 
-export const AA_CONFIG = {
-  bundlerUrl: "https://bundler.service.nerochain.io",
-  paymasterUrl: "https://paymaster-testnet.nerochain.io",
-  entryPointAddress: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-  accountFactoryAddress: "0x9406Cc6185a346906296840746125a0E44976454"
+export const AA_PLATFORM_CONFIG = {
+  bundlerRpc: "https://bundler.service.nerochain.io",
+  paymasterRpc: "https://paymaster-testnet.nerochain.io",
 };
 
-// This should be stored securely in a .env file in real applications
-export const PAYMASTER_API_KEY = "YOUR_API_KEY_FROM_AA_PLATFORM";
+export const CONTRACT_ADDRESSES = {
+  entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  accountFactory: "0x9406Cc6185a346906296840746125a0E44976454",
+};
 ```
 
-## Creating AA Wallet Utilities
+## Step 2: Creating Utility Functions
 
-Next, let's create utility functions for working with AA wallets:
+Create utility functions to interact with the AA wallet:
 
 ```typescript
-// src/utils/aaWalletUtils.ts
+// src/utils/aaUtils.ts
 import { ethers } from 'ethers';
 import { Client, Presets } from 'userop';
-import { NETWORK_CONFIG, AA_CONFIG, PAYMASTER_API_KEY } from '../config';
+import { NERO_CHAIN_CONFIG, AA_PLATFORM_CONFIG, CONTRACT_ADDRESSES } from '../config';
 
-// Get Ethereum provider from browser wallet
+// Get Ethereum provider
 export const getProvider = () => {
-  return new ethers.providers.JsonRpcProvider(NETWORK_CONFIG.rpcUrl);
+  return new ethers.providers.JsonRpcProvider(NERO_CHAIN_CONFIG.rpcUrl);
 };
 
-// Connect to browser wallet and get signer
-export const connectWallet = async () => {
+// Get signer from browser wallet
+export const getSigner = async () => {
   if (!window.ethereum) {
-    throw new Error("No Ethereum wallet found. Please install MetaMask.");
+    throw new Error("No crypto wallet found. Please install Metamask.");
   }
   
   await window.ethereum.request({ method: 'eth_requestAccounts' });
   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const address = await signer.getAddress();
-  
-  return { signer, address };
+  return provider.getSigner();
 };
 
 // Initialize AA Client
-export const initAAClient = async () => {
-  return await Client.init(NETWORK_CONFIG.rpcUrl, {
-    overrideBundlerRpc: AA_CONFIG.bundlerUrl,
-    entryPoint: AA_CONFIG.entryPointAddress,
+export const initAAClient = async (accountSigner: ethers.Signer) => {
+  return await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+    overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+    entryPoint: CONTRACT_ADDRESSES.entryPoint,
   });
 };
 
-// Initialize AA Builder
-export const initAABuilder = async (accountSigner: ethers.Signer) => {
-  return await Presets.Builder.SimpleAccount.init(
-    accountSigner,
-    NETWORK_CONFIG.rpcUrl,
-    {
-      overrideBundlerRpc: AA_CONFIG.bundlerUrl,
-      entryPoint: AA_CONFIG.entryPointAddress,
-      factory: AA_CONFIG.accountFactoryAddress,
-    }
-  );
-};
-
 // Get AA wallet address for a signer
-export const getAAWalletAddress = async (accountSigner: ethers.Signer) => {
-  const builder = await initAABuilder(accountSigner);
-  return await builder.getSender();
-};
-
-// Check if AA wallet is deployed
-export const isAAWalletDeployed = async (aaWalletAddress: string) => {
-  const provider = getProvider();
-  const code = await provider.getCode(aaWalletAddress);
-  return code !== '0x';
-};
-
-// Configure paymaster for the builder
-export const configurePaymaster = (
-  builder: any, 
-  paymentType: number = 0, 
-  tokenAddress: string = ''
-) => {
-  const paymasterOptions: any = {
-    apikey: PAYMASTER_API_KEY,
-    rpc: AA_CONFIG.paymasterUrl,
-    type: paymentType
-  };
-  
-  if (paymentType > 0 && tokenAddress) {
-    paymasterOptions.token = tokenAddress;
-  }
-  
-  builder.setPaymasterOptions(paymasterOptions);
-  return builder;
-};
-
-// Get supported tokens for gas payments
-export const getSupportedTokens = async (client: any, builder: any) => {
+export const getAAWalletAddress = async (accountSigner: ethers.Signer, apiKey?: string) => {
   try {
-    return await client.getSupportedTokens(builder);
+    // Initialize the SimpleAccount builder
+    const simpleAccount = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Get the counterfactual address of the AA wallet
+    const address = await simpleAccount.getSender();
+    console.log("AA wallet address:", address);
+    
+    return address;
   } catch (error) {
-    console.error("Error getting supported tokens:", error);
-    return [];
+    console.error("Error getting AA wallet address:", error);
+    throw error;
   }
 };
 ```
 
-## Creating the Wallet Connection Component
+## Step 3: Creating a React Component
 
-Now, let's create a React component to connect to the wallet and display the AA wallet address:
+Now, create a React component that allows users to connect their wallet and see their AA wallet address:
 
-```tsx
-// src/components/WalletConnection.tsx
-import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
-import { connectWallet, getAAWalletAddress, isAAWalletDeployed } from '../utils/aaWalletUtils';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+```typescript
+// src/components/AAWalletConnect.tsx
+import React, { useState } from 'react';
+import { getSigner, getAAWalletAddress } from '../utils/aaUtils';
 
-const WalletConnection: React.FC = () => {
-  const [connected, setConnected] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [eoaAddress, setEoaAddress] = useState<string>('');
-  const [aaWalletAddress, setAAWalletAddress] = useState<string>('');
-  const [isDeployed, setIsDeployed] = useState<boolean>(false);
-  
-  const handleConnect = async () => {
+const AAWalletConnect: React.FC = () => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [userAddress, setUserAddress] = useState('');
+  const [aaWalletAddress, setAAWalletAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const connectWallet = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       
-      // Connect to wallet
-      const { signer, address } = await connectWallet();
-      setEoaAddress(address);
+      // Get signer from browser wallet
+      const signer = await getSigner();
+      const address = await signer.getAddress();
+      setUserAddress(address);
       
       // Get AA wallet address
       const aaAddress = await getAAWalletAddress(signer);
       setAAWalletAddress(aaAddress);
       
-      // Check if wallet is deployed
-      const deployed = await isAAWalletDeployed(aaAddress);
-      setIsDeployed(deployed);
-      
-      setConnected(true);
-      toast.success("Wallet connected successfully!");
+      setIsConnected(true);
     } catch (error: any) {
       console.error("Error connecting wallet:", error);
-      toast.error(error.message || "Failed to connect wallet");
+      alert(error.message || "Failed to connect wallet");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
-  
+
   return (
     <div className="wallet-container">
       <h2>Account Abstraction Wallet</h2>
       
       <div className="connect-section">
         <button 
-          onClick={handleConnect}
-          disabled={loading || connected}
-          className="connect-button"
+          onClick={connectWallet}
+          disabled={isLoading || isConnected}
         >
-          {loading ? "Connecting..." : connected ? "Connected" : "Connect Wallet"}
+          {isLoading ? "Connecting..." : isConnected ? "Connected" : "Connect Wallet"}
         </button>
       </div>
       
-      {connected && (
+      {isConnected && (
         <div className="wallet-info">
           <div className="address-item">
             <strong>EOA Address:</strong> 
-            <span>{eoaAddress}</span>
+            <span>{userAddress}</span>
           </div>
           <div className="address-item">
             <strong>AA Wallet Address:</strong> 
             <span>{aaWalletAddress}</span>
           </div>
-          <div className="address-item">
-            <strong>Status:</strong> 
-            <span>{isDeployed ? "Deployed" : "Not Deployed (Counterfactual)"}</span>
-          </div>
-          {!isDeployed && (
-            <p className="note">
-              This wallet will be automatically deployed when you send your first transaction.
-            </p>
-          )}
-        </div>
-      )}
-      
-      <ToastContainer position="bottom-right" />
-    </div>
-  );
-};
-
-export default WalletConnection;
-```
-
-## Add the Component to Your App
-
-Next, update your App.tsx file to use the WalletConnection component:
-
-```tsx
-// src/App.tsx
-import React from 'react';
-import './App.css';
-import WalletConnection from './components/WalletConnection';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Nerochain AA Wallet Integration</h1>
-      </header>
-      <main>
-        <WalletConnection />
-      </main>
-    </div>
-  );
-}
-
-export default App;
-```
-
-## Styling the Application
-
-Let's add some CSS to make our application look better:
-
-```css
-/* src/App.css */
-.App {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.App-header {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.wallet-container {
-  background-color: #f5f7fa;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.connect-section {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.connect-button {
-  background-color: #5289F2;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.connect-button:hover {
-  background-color: #3A6BD3;
-}
-
-.connect-button:disabled {
-  background-color: #a0b2d6;
-  cursor: not-allowed;
-}
-
-.wallet-info {
-  margin-top: 20px;
-  background-color: white;
-  border-radius: 8px;
-  padding: 15px;
-}
-
-.address-item {
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.address-item strong {
-  margin-right: 8px;
-  color: #333;
-}
-
-.address-item span {
-  font-family: monospace;
-  word-break: break-all;
-  padding: 5px;
-  background-color: #f0f0f0;
-  border-radius: 4px;
-}
-
-.note {
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #fff8e1;
-  border-left: 4px solid #ffc107;
-  font-size: 14px;
-}
-```
-
-## Creating a Transaction Component
-
-Now, let's create a component to send a transaction using the AA wallet. This will also trigger the counterfactual wallet deployment if it hasn't been deployed yet:
-
-```tsx
-// src/components/SendTransaction.tsx
-import React, { useState } from 'react';
-import { ethers } from 'ethers';
-import { Client, Presets } from 'userop';
-import { toast } from 'react-toastify';
-import { 
-  connectWallet,
-  initAAClient,
-  initAABuilder,
-  configurePaymaster,
-  getSupportedTokens
-} from '../utils/aaWalletUtils';
-
-const SendTransaction: React.FC = () => {
-  const [recipient, setRecipient] = useState<string>('');
-  const [amount, setAmount] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [paymentType, setPaymentType] = useState<number>(0); // 0: Free, 1: Prepay, 2: Postpay
-  const [tokens, setTokens] = useState<any[]>([]);
-  const [selectedToken, setSelectedToken] = useState<string>('');
-  const [txHash, setTxHash] = useState<string>('');
-  
-  // Load supported tokens
-  const loadTokens = async () => {
-    try {
-      const { signer } = await connectWallet();
-      const client = await initAAClient();
-      const builder = await initAABuilder(signer);
-      const supportedTokens = await getSupportedTokens(client, builder);
-      
-      if (supportedTokens && supportedTokens.length > 0) {
-        setTokens(supportedTokens);
-      }
-    } catch (error) {
-      console.error("Error loading tokens:", error);
-    }
-  };
-  
-  // Handle payment type change
-  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const type = parseInt(e.target.value);
-    setPaymentType(type);
-    
-    // Load tokens if switching to token payment
-    if (type > 0 && tokens.length === 0) {
-      loadTokens();
-    }
-  };
-  
-  // Send transaction
-  const handleSend = async () => {
-    if (!recipient || !amount) {
-      toast.error("Please enter recipient address and amount");
-      return;
-    }
-    
-    if (!ethers.utils.isAddress(recipient)) {
-      toast.error("Invalid recipient address");
-      return;
-    }
-    
-    if (paymentType > 0 && !selectedToken) {
-      toast.error("Please select a token for gas payment");
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      setTxHash('');
-      
-      // Connect to wallet
-      const { signer } = await connectWallet();
-      
-      // Initialize client and builder
-      const client = await initAAClient();
-      let builder = await initAABuilder(signer);
-      
-      // Configure paymaster with selected payment type
-      builder = configurePaymaster(builder, paymentType, selectedToken);
-      
-      // Create transaction data for sending NERO
-      builder.execute(
-        recipient,
-        ethers.utils.parseEther(amount),
-        "0x" // No calldata for simple transfers
-      );
-      
-      toast.info("Sending transaction...");
-      
-      // Send the transaction
-      const result = await client.sendUserOperation(builder);
-      console.log("UserOperation hash:", result.userOpHash);
-      
-      toast.info("Transaction sent! Waiting for confirmation...");
-      
-      // Wait for the transaction to be mined
-      const receipt = await result.wait();
-      console.log("Transaction hash:", receipt.transactionHash);
-      
-      setTxHash(receipt.transactionHash);
-      toast.success("Transaction confirmed!");
-    } catch (error: any) {
-      console.error("Error sending transaction:", error);
-      toast.error(error.message || "Failed to send transaction");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  return (
-    <div className="transaction-container">
-      <h2>Send NERO</h2>
-      
-      <div className="form-group">
-        <label>Recipient Address:</label>
-        <input
-          type="text"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-          placeholder="0x..."
-          disabled={loading}
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Amount (NERO):</label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="0.01"
-          step="0.001"
-          min="0"
-          disabled={loading}
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Gas Payment Type:</label>
-        <select
-          value={paymentType}
-          onChange={handlePaymentTypeChange}
-          disabled={loading}
-        >
-          <option value={0}>Sponsored (Free Gas)</option>
-          <option value={1}>Pay with ERC20 (Prepay)</option>
-          <option value={2}>Pay with ERC20 (Postpay)</option>
-        </select>
-      </div>
-      
-      {paymentType > 0 && (
-        <div className="form-group">
-          <label>Select Token for Gas Payment:</label>
-          <select
-            value={selectedToken}
-            onChange={(e) => setSelectedToken(e.target.value)}
-            disabled={loading || tokens.length === 0}
-          >
-            <option value="">Select a token</option>
-            {tokens.map((token, index) => (
-              <option key={index} value={token.address}>
-                {token.symbol}
-              </option>
-            ))}
-          </select>
-          {tokens.length === 0 && (
-            <p className="note">Loading tokens...</p>
-          )}
-        </div>
-      )}
-      
-      <div className="button-container">
-        <button
-          className="send-button"
-          onClick={handleSend}
-          disabled={loading}
-        >
-          {loading ? "Sending..." : "Send Transaction"}
-        </button>
-      </div>
-      
-      {txHash && (
-        <div className="transaction-result">
-          <h3>Transaction Successful!</h3>
-          <p>
-            <strong>Transaction Hash:</strong>
-            <a 
-              href={`https://testnet.neroscan.io/tx/${txHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {txHash.substring(0, 10)}...{txHash.substring(txHash.length - 8)}
-            </a>
+          <p className="note">
+            This AA wallet is counterfactual and will be deployed on your first transaction.
           </p>
         </div>
       )}
@@ -559,168 +164,24 @@ const SendTransaction: React.FC = () => {
   );
 };
 
-export default SendTransaction;
+export default AAWalletConnect;
 ```
 
-## Add the Transaction Component to Your App
+## How AA Wallets Work
 
-Now, update your App.tsx to include the SendTransaction component:
+1. **Counterfactual Deployment**: The AA wallet address is calculated before it's deployed on-chain
+2. **Lazy Deployment**: The wallet contract is deployed automatically on the first transaction
+3. **Deterministic Address**: The same EOA (user wallet) will always get the same AA wallet address
 
-```tsx
-// src/App.tsx
-import React from 'react';
-import './App.css';
-import WalletConnection from './components/WalletConnection';
-import SendTransaction from './components/SendTransaction';
+## Testing Your Integration
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Nerochain AA Wallet Integration</h1>
-      </header>
-      <main>
-        <WalletConnection />
-        <div className="spacer"></div>
-        <SendTransaction />
-      </main>
-    </div>
-  );
-}
+1. Add your `AAWalletConnect` component to your main App component
+2. Run your React application
+3. Click "Connect Wallet" and approve the connection in your browser wallet
+4. You should see both your EOA address and your AA wallet address displayed
 
-export default App;
-```
+## Important Notes
 
-Add some additional CSS for the new component:
-
-```css
-/* Add to src/App.css */
-.spacer {
-  height: 30px;
-}
-
-.transaction-container {
-  background-color: #f5f7fa;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.button-container {
-  margin-top: 20px;
-}
-
-.send-button {
-  background-color: #00c853;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.send-button:hover {
-  background-color: #00a844;
-}
-
-.send-button:disabled {
-  background-color: #a5d6a7;
-  cursor: not-allowed;
-}
-
-.transaction-result {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #e8f5e9;
-  border-radius: 8px;
-  border-left: 4px solid #00c853;
-}
-
-.transaction-result a {
-  color: #0066cc;
-  text-decoration: none;
-  font-family: monospace;
-  display: block;
-  margin-top: 5px;
-  word-break: break-all;
-}
-
-.transaction-result a:hover {
-  text-decoration: underline;
-}
-```
-
-## Running the Application
-
-Start your application with:
-
-```bash
-npm start
-```
-
-Your browser should open to `http://localhost:3000`, displaying your AA wallet integration.
-
-## How It Works
-
-Let's break down the key aspects of the integration:
-
-1. **Counterfactual Wallets**: AA wallets are initially "counterfactual" - they exist as an address but aren't deployed on-chain until the first transaction.
-
-2. **Deterministic Addresses**: The AA wallet address is derived deterministically from the user's EOA address, ensuring they always get the same AA wallet.
-
-3. **Transaction Flow**:
-   - User connects their EOA wallet (e.g., MetaMask)
-   - Your app calculates their AA wallet address
-   - When sending a transaction, the UserOperation includes the wallet deployment code if needed
-   - The transaction is processed through the EntryPoint contract
-   - Gas fees are handled by the Paymaster based on the selected payment type
-
-4. **Paymaster Integration**:
-   - Type 0 (Free): The developer covers all gas costs
-   - Type 1 (Prepay): User pays with ERC20 tokens before execution
-   - Type 2 (Postpay): User pays with ERC20 tokens after execution
-
-## Next Steps
-
-Congratulations! You've built a basic AA wallet integration. Here are some ways to enhance it:
-
-1. **Token Transfers**: Add support for ERC20 token transfers
-2. **NFT Minting**: Integrate NFT minting functionality
-3. **Transaction History**: Add a component to display transaction history
-4. **Account Recovery**: Implement social recovery or guardian features
-5. **Multi-signature Support**: Extend to support multiple signers
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Wallet Not Connecting**: Ensure MetaMask is installed and on the Nerochain network
-2. **Transaction Failing**: Check if you have sufficient NERO for gas (if using Type 0)
-3. **API Key Issues**: Verify your Paymaster API key is correct and has sufficient permissions
-4. **Network Issues**: Ensure you're connected to the correct network in your wallet
-
-By following this recipe, you've learned how to integrate Account Abstraction wallets into your application, allowing your users to benefit from the advanced features and improved user experience that AA provides.
-
-<PageFeedback path="/en/cookbook/aa-wallet-integration" />
-
+- AA wallets are unique per chain, so the same EOA will have different AA addresses on different chains
+- The wallet address is derived from the factory address, EOA address, and a salt value
+- The AA wallet is only deployed on the first transaction to save gas costs
