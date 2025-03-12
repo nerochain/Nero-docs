@@ -11,6 +11,7 @@ const themeConfig: DocsThemeConfig = {
         alt="NERO Chain Logo"
         width={200}
         height={128}
+        style={{ borderRadius: '20px' }}
       />
     </>
   ),
