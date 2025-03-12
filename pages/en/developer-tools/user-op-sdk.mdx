@@ -314,14 +314,20 @@ try {
   const result = await client.sendUserOperation(builder);
   // Process result
 } catch (error) {
-  if (error.message.includes('AA21')) {
-    console.error('Insufficient funds for gas payment');
+  if (error.message.includes('AA1')) {
+    console.error('error codes relate to creating an account');
     // Handle insufficient funds error
-  } else if (error.message.includes('AA23')) {
-    console.error('Reverted during validation');
+  } else if (error.message.includes('AA2')) {
+    console.error('error codes relate to the sender of the user operation');
     // Handle validation error
-  } else if (error.message.includes('AA25')) {
-    console.error('Invalid paymaster and data');
+  } else if (error.message.includes('AA3')) {
+    console.error('error codes relate to paymasters');
+    // Handle paymaster error
+  }else if (error.message.includes('AA4')) {
+    console.error('error codes relate to verification generally');
+    // Handle paymaster error
+  }else if (error.message.includes('AA5')) {
+    console.error('errors relate to actions after the user operation was executed');
     // Handle paymaster error
   } else {
     console.error('Unknown error:', error);
@@ -340,7 +346,6 @@ try {
 
 For more details and advanced use cases, refer to the following resources:
 - [ERC-4337 Specification](https://eips.ethereum.org/EIPS/eip-4337)
-- [AA Platform Documentation](https://docs.nerochain.io/en/aa/platform)
 - [UserOpSDK GitHub Repository](https://github.com/nerochain/aa-userop-sdk)
 
 <PageFeedback path="/en/developer-tools/user-op-sdk" /> 

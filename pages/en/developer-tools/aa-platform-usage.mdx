@@ -11,29 +11,80 @@ The Nerochain AA Platform is a powerful web-based dashboard that allows develope
 The AA Platform is available at [https://aa-platform.nerochain.io](https://aa-platform.nerochain.io). You'll need to:
 
 1. Connect your wallet (MetaMask or other Web3 wallet)
-2. Register as a developer
-3. Create your first project
 
 <div className="mt-8 mb-8">
   <figure className="text-center">
     <img 
-      src="/assets/aa-platform-login.png" 
+      src="/assets/aaPlatform/gifs/Loginaa.gif" 
       alt="AA Platform Login Screen"
       className="mx-auto rounded-lg shadow-md"
     />
   </figure>
 </div>
 
-### Creating a Project
+### Creating a Team
 
 After logging in:
 
-1. Click on "Create New Project"
+1. Click on "Create New Team"
 2. Enter your project name, description, and website URL
-3. Select the networks you want to support (e.g., Nerochain Testnet, Mainnet)
-4. Click "Create Project"
 
-Each project will have its own dashboard, API keys, and configurations.
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/create1.gif" 
+      alt="AA Platform Team Creation 1 Screen"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+3. The first time will trigger creating a first API Key, so select between the Nerochain options now (e.g., Nerochain Testnet, Mainnet)
+4. Click "Create ApiKey"
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/create2.gif" 
+      alt="AA Platform Team Creation 2 Screen"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+Each team will have its own dashboard, API keys, and configurations.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/dash.gif" 
+      alt="AA Platform Team Creation 2 Screen"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+### Managing Team Members
+
+#### Adding
+
+You can add multiple users as team members of your team following the steps:
+
+1. Go to the Team Tab, and click in the "Invite" button.
+2. Add user by setting their name and email, and a email will be sent to them. 
+3. Press the confirm button to send the invite. 
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/addmember.gif" 
+      alt="Adding team member"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+> **_NOTE:_**  Teams can have three kinds of roles: Owner, Admin or Colleagues. Colleagues only have reading access, while Admins and Owners have write access. But only owners can delete an API key.
 
 ## Managing API Keys
 
@@ -43,16 +94,15 @@ API keys are essential for authenticating your applications with the Paymaster s
 
 1. Navigate to your project dashboard
 2. Go to the "API Keys" tab
-3. Click "Create New API Key"
-4. Name your API key (e.g., "Development", "Production")
-5. Set any usage limits if desired
-6. Click "Create"
+3. Click "Create"
+4. Select between Testnet or Mainnet
+5. Click on "Create ApiKey"
 
 <div className="mt-8 mb-8">
   <figure className="text-center">
     <img 
-      src="/assets/aa-platform-apikey.png" 
-      alt="Creating an API Key"
+      src="/assets/aaPlatform/gifs/createapi.gif" 
+      alt="AA Platform Team Creation 2 Screen"
       className="mx-auto rounded-lg shadow-md"
     />
   </figure>
@@ -68,38 +118,54 @@ Your API keys grant access to your gas sponsorship resources. To keep them secur
 - Rotate keys periodically
 - Set appropriate usage limits
 
-## Configuring Gas Strategies
+## Configuring Policies
 
-Gas strategies determine how your application handles transaction fees for users.
+Policies determine how your application handles transaction fees for users. There are four main configurations to consider:
 
-### Creating a Gas Strategy
+- Enabling ERC20 Payments
+- Discounts per Address
+- Offers for all addresses
+- Specify Callbacks
 
-1. Go to the "Gas Strategies" tab
-2. Click "Create New Strategy"
-3. Configure your strategy:
-   - **Strategy Name**: A descriptive name for your strategy
-   - **Payment Type**: Free, ERC20 Prepay, or ERC20 Postpay
-   - **Supported Tokens**: For ERC20 payment types, select which tokens to accept
-   - **Gas Limits**: Set maximum gas limits for user operations
-   - **Daily Limits**: Set daily spending limits for your sponsorship
-   - **User Limits**: Set per-user transaction or gas limits
-   - **Contract Filters**: Specify which contracts can be called using this strategy
+### Enabling ERC20 Payments
 
-4. Save your strategy
+1. Go to the "API Keys" tab and select the desired APIKey to configure
+2. Click in the "Policies" tab
+3. Click on the ERC-20 Payment toggle
+4. Select Between the Payment modes: Pre-Payment and Post Payment or only Pre-Payment
 
 <div className="mt-8 mb-8">
   <figure className="text-center">
     <img 
-      src="/assets/aa-platform-strategy.png" 
-      alt="Configuring a Gas Strategy"
+      src="/assets/aaPlatform/gifs/erc20.gif" 
+      alt="Configuring a Gas Policy"
       className="mx-auto rounded-lg shadow-md"
     />
   </figure>
 </div>
 
-### Strategy Types Explained
+#### Selecting tokens that supports Gas Payment
+Here you can select any ERC20 token you wish to receive as Payment for Gas. 
 
-#### Free Gas (Type 0)
+1. Click on the "Select" button
+2. Select the tokens on the list or Input a Token contract in the text field to make it appear on the list
+3. "Confirm" your selection
+4. Configure the Gas-Payment Floating rate.
+5. Click in the "Save" button at the end of the dashboard.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/erc20config.gif" 
+      alt="Configuring a Gas Policy"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+#### Strategy Types Explained
+
+##### Free Gas (Type 0)
 
 With this strategy, you fully cover the gas costs for your users. This is ideal for:
 - Onboarding new users who don't own crypto
@@ -107,7 +173,7 @@ With this strategy, you fully cover the gas costs for your users. This is ideal 
 - Applications where you want to remove all friction
 - GameFi applications where you want to hide blockchain complexity
 
-#### ERC20 Prepay (Type 1)
+##### ERC20 Prepay (Type 1)
 
 Users pay for gas using ERC20 tokens before the transaction is executed:
 - The full estimated amount is collected upfront
@@ -115,7 +181,7 @@ Users pay for gas using ERC20 tokens before the transaction is executed:
 - More secure for the developer as payment is guaranteed
 - Better suited for high-value operations
 
-#### ERC20 Postpay (Type 2)
+##### ERC20 Postpay (Type 2)
 
 Users pay for gas using ERC20 tokens after the transaction is executed:
 - Only the exact gas cost is collected
@@ -123,89 +189,129 @@ Users pay for gas using ERC20 tokens after the transaction is executed:
 - Slightly better UX as users only pay what's needed
 - Has a risk of payment failure after execution
 
-## Monitoring Usage
 
-The platform provides detailed analytics about your API key and gas strategy usage.
+### Giving Discounts per Address
 
-### Dashboard Overview
+You can configure the total USD or native tokens you are willing to sponsor per address.
 
-The main dashboard shows:
-- Total operations processed
-- Gas consumed
-- Active users
-- Success/failure rates
-- Cost distribution
+1. On the Policies tab, toggle the "Discount per address" option
+2. Configure the amount of times per address per day, week , or month modes.
+3. Maximum free amount per new address : you can use this to set a total limit you can sponsor per address
+4. You can also set the amount of overral free times an address can be sponsored. 
+5. Click on the "Save" button.
 
 <div className="mt-8 mb-8">
   <figure className="text-center">
     <img 
-      src="/assets/aa-platform-dashboard.png" 
-      alt="AA Platform Dashboard"
+      src="/assets/aaPlatform/gifs/discount.gif" 
+      alt="Configuring Discounts"
       className="mx-auto rounded-lg shadow-md"
     />
   </figure>
 </div>
 
-### Detailed Analytics
+### Offers for all addresses
 
-For deeper insights:
-1. Go to the "Analytics" tab
-2. Filter by date range, API key, or strategy
-3. View charts for:
-   - Daily/weekly/monthly usage trends
-   - Gas consumption patterns
-   - User activity
-   - Token payment distribution
-   - Operation types
+You can also have a similar configuration configured for all address at the same time.
 
-### Transaction History
+1. On the Policies tab, toggle the "All Addresses offer" option
+2. Configure the amount of times per address per day, week , or month modes.
+3. Maximum free amount per new address : you can use this to set a total limit you can sponsor per address
+4. You can also set the amount of overral free times an address can be sponsored. 
+5. Click on the "Save" button.
 
-To view individual transaction details:
-1. Go to the "Transactions" tab
-2. Browse the list of processed operations
-3. Click on any transaction to see:
-   - User operation details
-   - Gas consumption
-   - Status and result
-   - Error messages (if any)
-   - Timestamps
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/alldiscount.gif" 
+      alt="Configuring Discounts for all addresses"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
 
-## Managing Your Account
+### Specify Callbacks
 
-### Funding Your Sponsorship Account
+You can set specific addresses wheter a user operation should be sponsored or not.
 
-If you're using Type 0 (Free Gas) strategies, you'll need to maintain a balance in your sponsorship account:
+1. Toggle the "Specify Callback" option.
+2. Set the address
+3. Save
 
-1. Go to the "Account" tab
-2. Check your current balance
-3. Click "Add Funds"
-4. Specify the amount to add
-5. Complete the transaction from your wallet
+## Payment Manageemnt
 
-### Setting Alerts
+### Balance Management Features
 
-To avoid running out of funds:
-1. Go to "Settings" > "Alerts"
-2. Configure balance threshold alerts
-3. Add email contacts for notifications
-4. Set up usage alerts for specific thresholds
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/figure10.png" 
+      alt="Payment Overview"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
 
-## Advanced Features
 
-### Whitelisting Contracts
+#### Remaining Request
+- Displays the number of remaining requests that Paymaster can process.
+- To increase the number of requests, please contact NERO.
 
-To control which contracts can be called using your API key:
-1. Go to "Settings" > "Contract Whitelist"
-2. Add contract addresses to whitelist
-3. Optionally specify function selectors to allow/block specific functions
+> **_NOTE:_**  If your API have 0 remaining requests, it means that even if your have enough funds, it won't be able to process any further requests. 
 
-### User Management
+#### Remaining sponsor NERO balance
+- Display the current NERO balance.
+- Use the “Add” button to increase NERO.
 
-For applications requiring KYC or tiered access:
-1. Go to "Users" > "User Management"
-2. Add user addresses to specific tiers
-3. Configure usage limits per tier
-4. Monitor individual user consumption
+> **_NOTE:_**  Adding NERO here means the funds your API will use to pay for the Gas of your application requests.  
+
+#### Token Balance Table
+
+The token balance table shows all the balances your API have. Primarly it shows the NERO Token balance, but it will also show the balance for any token that is configured as avaliable to be paid as Gas. When the users of your application starts to pay Gas in any token you configured, you will see the balance being changed in this table.
+
+##### Adding Funds
+
+To add NERO tokens to your APIKey, follow the steps:
+
+1. Click in the Add button
+2. Input amount of NERO to add.
+3. Click "Confirm" to start processing the transaction.
+4. Check the balance after a while.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/deposit.gif" 
+      alt="Payment Overview"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+> **_NOTE:_**  If the value in the dashboard doesn't update, refresh it a few times.
+
+
+##### Withdrawing Funds
+
+To Withdraw any fund tokens from your APIKey, follow the steps:
+
+1. Click in the "withdraw" icon on the funds table on the line of the token you want to withdraw. 
+2. Input amount of the token to withdraw.
+3. Click "Confirm" to start processing the transaction.
+4. Check the balance after a while.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/withdraw.gif" 
+      alt="Payment Overview"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+> **_NOTE:_**  If the value in the dashboard doesn't update, refresh it a few times.
+
 
 ## Integration with Your Application
 
