@@ -1,0 +1,38 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# Integration and Best Practices
+
+## Integration with Your Application
+
+Once you've configured your API keys and strategies, integrate them into your application:
+
+```typescript
+// Configure your paymaster in your application
+builder.setPaymasterOptions({
+  apikey: "YOUR_API_KEY_FROM_PLATFORM",
+  rpc: "https://paymaster-testnet.nerochain.io",
+  type: 0 // Use your configured strategy type
+});
+```
+
+## Best Practices
+
+1. **Start with Limits**: Begin with conservative gas and usage limits until you understand your application's patterns.
+2. **Monitor Regularly**: Check your dashboard frequently to spot unusual activity.
+3. **Multiple Strategies**: Create different strategies for different user actions or user tiers.
+4. **Separate Development Keys**: Use separate API keys for development and production.
+5. **Maintain Adequate Funding**: For sponsored transactions, always keep sufficient funds in your account.
+
+## Security Recommendations
+
+- Store API keys in secure environment variables
+- Implement rate limiting in your application
+- Monitor usage for unusual patterns
+- Restrict API key usage to specific domains
+- Keep your API keys confidential
+
+## Next Steps
+
+If you encounter any issues, check out the [troubleshooting guide](/en/developer-tools/aa-platform/troubleshooting).
+
+<PageFeedback path="/en/developer-tools/aa-platform/integration-and-best-practices" /> 
