@@ -1,0 +1,316 @@
+# How to Send Operations to the Nerochain Paymaster API
+
+This tutorial explains how to execute transactions using the Nerochain Paymaster API, focusing on the actual process of building and sending User Operations.
+
+## Understanding UserOperations
+
+In the ERC-4337 Account Abstraction standard, a `UserOperation` replaces traditional Ethereum transactions. It contains:
+
+- **Sender**: The AA wallet address
+- **CallData**: The encoded function call to execute
+- **Gas Parameters**: Limits and prices for the execution
+- **Signature**: Proof that the operation is authorized by the wallet owner
+- **PaymasterAndData**: Optional paymaster information for gas sponsorship
+
+## Step 1: Creating a Basic Transaction Function
+
+Let's create a function that can send a generic transaction through the Paymaster:
+
+```typescript
+// src/utils/aaUtils.ts
+import { ethers } from 'ethers';
+import { Client, Presets } from 'userop';
+import { 
+  NERO_CHAIN_CONFIG, 
+  AA_PLATFORM_CONFIG, 
+  CONTRACT_ADDRESSES,
+  API_KEY 
+} from '../config';
+
+// Function to execute a contract call via AA and paymaster
+export const executeOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  paymentType: number = 0,
+  selectedToken: string = '',
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Initialize AA client
+    const client = await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+      overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+      entryPoint: CONTRACT_ADDRESSES.entryPoint,
+    });
+    
+    // Initialize AA builder
+    const builder = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Configure gas parameters
+    const gasParams = {
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+    };
+    
+    // Set gas parameters
+    builder.setCallGasLimit(gasParams.callGasLimit);
+    builder.setVerificationGasLimit(gasParams.verificationGasLimit);
+    builder.setPreVerificationGas(gasParams.preVerificationGas);
+    builder.setMaxFeePerGas(gasParams.maxFeePerGas);
+    builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
+    
+    // Configure paymaster
+    const paymasterOptions = {
+      apikey: options?.apiKey || API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: paymentType.toString()
+    };
+    
+    // Add token address for ERC20 payments
+    if (paymentType > 0 && selectedToken) {
+      paymasterOptions.token = selectedToken;
+    }
+    
+    // Set paymaster options
+    builder.setPaymasterOptions(paymasterOptions);
+    
+    // Create contract instance
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      ethers.getDefaultProvider()
+    );
+    
+    // Encode function call
+    const callData = contract.interface.encodeFunctionData(
+      functionName,
+      functionParams
+    );
+    
+    // Create the UserOperation
+    const userOp = await builder.execute(contractAddress, 0, callData);
+    
+    console.log("Sending UserOperation to paymaster...");
+    
+    // Send the UserOperation
+    const res = await client.sendUserOperation(userOp);
+    console.log("UserOperation sent with hash:", res.userOpHash);
+    
+    // Wait for the transaction to be included
+    const receipt = await res.wait();
+    console.log("Transaction mined in block:", receipt.receipt.blockNumber);
+    
+    return {
+      userOpHash: res.userOpHash,
+      transactionHash: receipt.receipt.transactionHash,
+      receipt: receipt.receipt
+    };
+  } catch (error) {
+    console.error("Error executing operation:", error);
+    throw error;
+  }
+};
+```
+
+## Step 2: Handling ERC20 Token Approvals for Paymaster
+
+When using ERC20 tokens to pay for gas (payment types 1 and 2), the user's AA wallet must first approve the token paymaster contract:
+
+```typescript
+// Add to executeOperation function, before creating the UserOperation
+if (paymentType > 0 && selectedToken) {
+  try {
+    // Create token contract instance
+    const erc20Interface = new ethers.Contract(
+      selectedToken,
+      [
+        'function approve(address spender, uint256 amount) returns (bool)',
+        'function allowance(address owner, address spender) view returns (uint256)'
+      ],
+      ethers.getDefaultProvider()
+    );
+    
+    // Get the AA wallet address
+    const aaWalletAddress = await builder.getSender();
+    
+    // Check current allowance
+    const currentAllowance = await erc20Interface.allowance(
+      aaWalletAddress,
+      CONTRACT_ADDRESSES.tokenPaymaster
+    );
+    
+    // If allowance is too low, approve more tokens
+    if (currentAllowance.lt(ethers.utils.parseUnits("100", 18))) {
+      console.log("Approving tokens for paymaster...");
+      
+      // Create the approval call data
+      const approveCallData = erc20Interface.interface.encodeFunctionData(
+        'approve',
+        [CONTRACT_ADDRESSES.tokenPaymaster, ethers.constants.MaxUint256]
+      );
+      
+      // Create a UserOperation just for the approval
+      const approveOp = await builder.execute(selectedToken, 0, approveCallData);
+      
+      // We need to use FREE payment for the approval operation
+      builder.setPaymasterOptions({
+        apikey: options?.apiKey || API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: "0" // Use free for the approval
+      });
+      
+      // Send the approval UserOperation
+      const approveRes = await client.sendUserOperation(approveOp);
+      console.log("Approval transaction sent:", approveRes.userOpHash);
+      
+      // Wait for the approval to be mined
+      await approveRes.wait();
+      console.log("Token approval confirmed");
+      
+      // Reset paymaster options for the main transaction
+      builder.setPaymasterOptions(paymasterOptions);
+    }
+  } catch (error) {
+    console.warn("Error during token approval:", error);
+    // Continue anyway, the main transaction will fail if approval was needed
+  }
+}
+```
+
+## Step 3: Creating a Specific Function for NFT Minting
+
+Let's implement a specific function for minting an NFT using the generic operation executor:
+
+```typescript
+// src/utils/aaUtils.ts
+import NeroNFTABI from '../abis/NeroNFT.json';
+
+export const mintNFT = async (
+  accountSigner: ethers.Signer,
+  recipientAddress: string,
+  metadataUri: string,
+  paymentType: number = 0,
+  selectedToken: string = '',
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Execute the mint function
+    return await executeOperation(
+      accountSigner,
+      CONTRACT_ADDRESSES.nftContract,
+      NeroNFTABI.abi,
+      'mint',
+      [recipientAddress, metadataUri],
+      paymentType,
+      selectedToken,
+      options
+    );
+  } catch (error) {
+    console.error("Error minting NFT:", error);
+    throw error;
+  }
+};
+```
+
+## Step 4: Using the Functions in a React Component
+
+Now, implement the function in a React component:
+
+```typescript
+// Example usage in a component
+import React, { useState } from 'react';
+import { getSigner, mintNFT } from '../utils/aaUtils';
+import { toast } from 'react-toastify';
+
+const NFTMinterButton: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState('');
+
+  const handleMint = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get signer
+      const signer = await getSigner();
+      
+      // Example recipient and metadata
+      const recipientAddress = await signer.getAddress();
+      const metadataUri = 'ipfs://QmYourMetadataHash';
+      
+      // Choose payment type (0: free, 1: prepay, 2: postpay)
+      const paymentType = 0;
+      
+      // Execute minting
+      const result = await mintNFT(
+        signer,
+        recipientAddress,
+        metadataUri,
+        paymentType
+      );
+      
+      console.log("NFT Minted!", result);
+      setTxHash(result.transactionHash);
+      toast.success("NFT minted successfully!");
+    } catch (error: any) {
+      console.error("Error minting NFT:", error);
+      toast.error(error.message || "Failed to mint NFT");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <button 
+        onClick={handleMint}
+        disabled={isLoading}
+      >
+        {isLoading ? "Minting..." : "Mint NFT"}
+      </button>
+      
+      {txHash && (
+        <div>
+          <p>Transaction successful! <a href={`https://testnet.neroscan.io/tx/${txHash}`} target="_blank" rel="noreferrer">View on Explorer</a></p>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+## Understanding the Paymaster Flow
+
+1. **Builder Creation**: Initialize the SimpleAccount builder with your signer
+2. **Paymaster Configuration**: Set the API key and payment type
+3. **Operation Preparation**: Create the contract call data for your function
+4. **UserOp Creation**: Build the UserOperation with the builder
+5. **Token Approval**: For ERC20 payments, approve the token paymaster first
+6. **UserOp Submission**: Send the operation to the bundler via the client
+7. **Transaction Tracking**: Wait for the receipt and track the result
+
+## Best Practices
+
+1. **Error Handling**: Always implement proper error handling and provide user feedback
+2. **Gas Parameters**: Adjust gas parameters based on your operation's complexity
+3. **API Key Security**: Protect your API key by using backend proxies in production
+4. **Retries**: Implement a retry mechanism for failed operations
+5. **User Feedback**: Show loading states and transaction results clearly
