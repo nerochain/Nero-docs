@@ -215,4 +215,30 @@ Estimates the gas required for a UserOperation.
 }
 ```
 
+## pm_entrypoints
+
+Get EntryPoint address supported currently request:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_entrypoints",
+  "params": [
+      "entryPoint"
+  ]
+}
+```
+
+response:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+
 <PageFeedback path="/en/developer-tools/paymaster-api/core-methods" /> 
