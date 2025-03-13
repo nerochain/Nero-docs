@@ -6,7 +6,7 @@ This recipe explains how to create, compile, deploy, and verify a simple smart c
 
 ## Hardhat
 
-- Hardhat is a toolset that allows you to compile, deploy, test, and verify your smart contracts.
+Hardhat is a toolset that allows you to compile, deploy, test, and verify your smart contracts.
 
 ## Setting Up Your Workspace
 
@@ -14,14 +14,14 @@ This recipe explains how to create, compile, deploy, and verify a simple smart c
 
 ## Starting a New Project
 
-- To initiate a new project, run the following command:
+To initiate a new project, run the following command:
 
 <Tabs items={["npm", "yarn"]}>
   <Tabs.Tab>``` npm init ```</Tabs.Tab>
   <Tabs.Tab>``` yarn init ```</Tabs.Tab>
 </Tabs>
 
-- To install Hardhat in your project, run the following command:
+To install Hardhat in your project, run the following command:
 
 <Tabs items={["npm", "yarn"]}>
   <Tabs.Tab>``` npm install --save-dev hardhat ```</Tabs.Tab>
@@ -41,7 +41,7 @@ This recipe explains how to create, compile, deploy, and verify a simple smart c
 
 You can create your own smart contract or use the **Openzeppelin token smart contract template**(https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol), and place it in the contracts directory of your project.
 
-# Modify Hardhat for NERO
+## Modify Hardhat for NERO
 
 The updates to the `<hardhat-config-file>` and `./ignition/module/<deploy-file>` files should resemble the following example (specific content should be adjusted according to requirements).
 
@@ -132,9 +132,7 @@ export default config;
 </Tabs.Tab>
 </Tabs>
 
-
-### Note:
-* You can obtain test coins from this faucet(https://app.testnet.nerochain.io/faucet)
+> **_NOTE_**: You can obtain test coins from this faucet(https://app.testnet.nerochain.io/faucet)
 
 ## Deploy Smart Contract on Nero Network
 
