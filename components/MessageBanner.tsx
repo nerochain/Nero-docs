@@ -6,8 +6,8 @@ interface MessageBannerProps {
 }
 
 const messages = {
-  en: "NERO Chain is currently running in TestNet",
-  ja: "NERO Chainは現在TestNetで稼働中です"
+  en: "NERO Chain x AKINDO Wavehack is comming! More info soon!",
+  ja: "NERO Chain × AKINDO Wavehack、まもなく開催！詳細は近日公開予定です。お楽しみに！"
 };
 
 const MessageBanner: React.FC<MessageBannerProps> = ({ message }) => {
