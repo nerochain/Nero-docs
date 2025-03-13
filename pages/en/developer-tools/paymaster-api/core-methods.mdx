@@ -169,52 +169,6 @@ Signs a UserOperation with the Paymaster, adding the paymasterAndData field nece
 }
 ```
 
-## eth_estimateUserOperationGas
-
-Estimates the gas required for a UserOperation.
-
-**Parameters:**
-1. `userOperation` - The UserOperation to estimate gas for 
-2. `entryPoint` - The EntryPoint contract address
-
-**Example Request:**
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "eth_estimateUserOperationGas",
-  "params": [
-    {
-      "sender": "0xAAWalletAddress",
-      "nonce": "0x0",
-      "initCode": "0x",
-      "callData": "0xCallData",
-      "callGasLimit": "0x0",
-      "verificationGasLimit": "0x0",
-      "preVerificationGas": "0x0",
-      "maxFeePerGas": "0x9502f900",
-      "maxPriorityFeePerGas": "0x9502f900",
-      "paymasterAndData": "0x",
-      "signature": "0x"
-    },
-    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
-  ]
-}
-```
-
-**Example Response:**
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "result": {
-    "callGasLimit": "0x88b8",
-    "verificationGasLimit": "0x33450",
-    "preVerificationGas": "0xc350"
-  }
-}
-```
-
 ## pm_entrypoints
 
 Get EntryPoint address supported currently request:
@@ -240,5 +194,6 @@ response:
     "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
   ]
 }
+```
 
 <PageFeedback path="/en/developer-tools/paymaster-api/core-methods" /> 
