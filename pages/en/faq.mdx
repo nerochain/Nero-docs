@@ -1,0 +1,116 @@
+import PageFeedback from '../../components/PageFeedback'
+
+# Frequently Asked Questions
+
+This FAQ answers common challenges, pitfalls, and questions that developers may have when building on Nerochain.
+
+## Account Abstraction
+
+### What exactly is Account Abstraction?
+Account Abstraction (AA) is a paradigm that allows smart contract wallets to execute transactions without users needing to hold the native token (NERO) for gas fees. Account Abstraction (AA) is a paradigm that allows smart contract wallets to execute transactions without users needing to hold the native token (NERO) for gas fees. It lets features like transaction sponsorship, batch transactions, and complex authorizing methods isolate the account management logic from transaction validation.
+
+### Why do my UserOperations keep getting rejected?
+UserOperations might be rejected for several reasons:
+- **Invalid signature**: Ensure you're using the correct signer for the wallet
+- **Insufficient gas**: Try increasing gas limits or using the SDK's gas estimation functions
+- **Paymaster rejections**: Check if your Paymaster API key is valid and has sufficient funding. Check if the APIKey has enough Remaining Requests. If it runs out of requests, please enter in contact with NERO team.
+- **Nonce issues**: Ensure you're using the correct nonce for the account
+- **Validation failures**: Smart contract wallet might reject operations that don't meet its requirements
+
+### How do I debug AA error codes?
+Error codes follow a pattern where:
+- **AA1** codes relate to creating an account (e.g., insufficient funds for deployment)
+- **AA2** codes relate to the sender (e.g., invalid signature)
+- **AA3** codes relate to paymasters (e.g., insufficient deposit)
+- **AA4** codes relate to general verification failures
+- **AA5** codes relate to post-execution issues
+
+## Paymaster Integration
+
+### Why are my sponsored transactions failing?
+Common reasons for paymaster failures include:
+- **API Key rate limiting**: Check your key's usage patterns and consider increasing limits
+- **Strategy rejection**: Verify your strategy parameters match your application's needs
+- **Insufficient funds**: Ensure your sponsorship account has adequate funds for Type 0 strategies
+- **User payment failure**: For Type 1/2 strategies, ensure users have sufficient token balances and have approved the paymaster contract
+- **Insufficient Remaining Requests**: Check if your API has enought Remaining requests. 
+
+### What's the difference between payment strategy types?
+- **Type 0 (Sponsorship)**: Gas fees are fully covered by the developer/application
+- **Type 1 (ERC-20 Prepayment)**: Users pay gas in an ERC-20 token before execution
+- **Type 2 (ERC-20 Postpayment)**: Users pay gas in an ERC-20 token after execution
+
+### How do I verify which tokens are supported for gas payment?
+Use the Paymaster API core functions to verify which ERC-20 tokens can be used for gas payment with the paymaster. This is particularly important for Type 1 and Type 2 payment strategies.
+
+## Development Environment
+
+### What networks are available for testing?
+Nerochain provides a testnet environment for development and testing:
+- **Testnet RPC**: https://rpc-testnet.nerochain.io
+- **Testnet Bundler**: https://bundler-testnet.nerochain.io
+- **Testnet Paymaster**: https://paymaster-testnet.nerochain.io
+
+Always test your implementation thoroughly on testnet before deploying to mainnet.
+
+### How do I get testnet tokens?
+You can get testnet NERO tokens from the Nerochain faucet at [app.testnet.nerochain.io/faucet](https://app.testnet.nerochain.io/faucet/).
+
+## Security Best Practices
+
+### What security measures should I implement?
+- **Never store private keys in client-side code**: Use secure key management
+- **Use environment variables for API keys**: Never hardcode API keys in your application
+- **Implement gas limits**: Set appropriate gas limits to prevent excessive costs
+- **Validate user inputs**: Always validate any input that will be used in transactions
+- **Implement proper error handling**: Provide clear feedback to users when operations fail
+
+### How do I protect my Paymaster API key?
+Your Paymaster API key should be treated as a sensitive credential:
+- Store it in environment variables, not in code
+- Implement rate limiting and monitoring to detect abuse
+- Regularly rotate your API keys for enhanced security
+
+## Smart Contract Deployment
+
+### Why is my contract deployment failing?
+Common reasons for deployment failures:
+- **Incorrect network configuration**: Ensure your Hardhat/Remix settings point to the correct Nerochain RPC
+- **Insufficient gas**: Try increasing the gas limit for deployment
+- **Contract size limits**: Very large contracts may exceed size limits
+- **Compilation errors**: Ensure your Solidity compiler version is compatible with Nerochain
+
+### What Solidity version should I use?
+Nerochain supports all Solidity versions that are compatible with the Ethereum London fork. We recommend using Solidity ^0.8.12 for optimal compatibility and security.
+
+## Wallet Integration
+
+### Why can't I generate an AA wallet address?
+Potential issues with AA wallet generation:
+- **Incorrect factory address**: Verify you're using the correct account factory address
+- **Salt collisions**: Try using a different salt value for address derivation
+- **Chain ID mismatch**: Ensure you're using the correct chain ID for Nerochain
+- **Initialization data issues**: Verify your initialization calldata is correctly formatted
+
+### How do I handle wallet recovery?
+For AA wallets, implement recovery mechanisms like:
+- Social recovery through trusted contacts
+- Multi-signature requirements for certain actions
+- Time-locks for security-critical operations
+- Backup signers that can be activated after a delay
+
+## Troubleshooting
+
+### Where can I get help if I'm stuck?
+If you encounter persistent issues, contact Nerochain support through:
+- [Discord Community](https://discord.gg/nerochain)
+- [Support Email](mailto:support@nerochain.io)
+- [GitHub Issues](https://github.com/nerochain)
+
+### How do I see if a UserOperation was processed?
+You can check the status of a UserOperation using:
+- The `client.getUserOperationReceipt(hash)` method in the UserOpSDK
+- The Nerochain Explorer at [neroscan.io](https://neroscan.io)
+- The bundler RPC endpoint with the `eth_getUserOperationReceipt` method
+
+<PageFeedback path="/en/faq" />
