@@ -2,12 +2,6 @@ import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
 import MessageBanner from "./components/MessageBanner";
 import SidebarResources from "./components/SidebarResources";
-import dynamic from "next/dynamic";
-
-// Dynamically import HeaderAskAI component with no SSR to avoid hydration issues
-const HeaderAskAI = dynamic(() => import("./components/HeaderAskAI"), {
-  ssr: false,
-});
 
 const themeConfig: DocsThemeConfig = {
   logo: (
@@ -26,8 +20,6 @@ const themeConfig: DocsThemeConfig = {
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>NERO Chain Docs</title>
-      {/* Add custom CSS */}
-      <link rel="stylesheet" href="/custom.css" />
     </>
   ),
   banner: {
@@ -73,21 +65,6 @@ const themeConfig: DocsThemeConfig = {
   // Add custom components to the right sidebar
   toc: {
     extraContent: <SidebarResources />
-  },
-  
-  // Custom search
-  search: {
-    placeholder: "Search documentation...",
-    emptyResult: "No results found.",
-  },
-  
-  // Add the HeaderAskAI component to the navbar
-  navbar: {
-    extraContent: (
-      <div className="nx-flex nx-items-center nx-gap-4">
-        <HeaderAskAI />
-      </div>
-    )
   }
 };
 
