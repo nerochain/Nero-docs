@@ -2,7 +2,7 @@ import PageFeedback from '../../components/PageFeedback'
 
 # Frequently Asked Questions
 
-This FAQ answers common challenges, pitfalls, and questions that developers may have when building on Nerochain.
+This FAQ answers common challenges, pitfalls, and questions that developers may have when building on NERO Chain.
 
 ## Account Abstraction
 
@@ -46,7 +46,7 @@ Use the Paymaster API core functions to verify which ERC-20 tokens can be used f
 ## Development Environment
 
 ### What networks are available for testing?
-Nerochain provides a testnet environment for development and testing:
+NERO Chain provides a testnet environment for development and testing:
 - **Testnet RPC**: https://rpc-testnet.nerochain.io
 - **Testnet Bundler**: https://bundler-testnet.nerochain.io
 - **Testnet Paymaster**: https://paymaster-testnet.nerochain.io
@@ -54,7 +54,7 @@ Nerochain provides a testnet environment for development and testing:
 Always test your implementation thoroughly on testnet before deploying to mainnet.
 
 ### How do I get testnet tokens?
-You can get testnet NERO tokens from the Nerochain faucet at [app.testnet.nerochain.io/faucet](https://app.testnet.nerochain.io/faucet/).
+You can get testnet NERO tokens from the NERO Chain faucet at [app.testnet.nerochain.io/faucet](https://app.testnet.nerochain.io/faucet/).
 
 ## Security Best Practices
 
@@ -75,13 +75,13 @@ Your Paymaster API key should be treated as a sensitive credential:
 
 ### Why is my contract deployment failing?
 Common reasons for deployment failures:
-- **Incorrect network configuration**: Ensure your Hardhat/Remix settings point to the correct Nerochain RPC
+- **Incorrect network configuration**: Ensure your Hardhat/Remix settings point to the correct NERO Chain RPC
 - **Insufficient gas**: Try increasing the gas limit for deployment
 - **Contract size limits**: Very large contracts may exceed size limits
-- **Compilation errors**: Ensure your Solidity compiler version is compatible with Nerochain
+- **Compilation errors**: Ensure your Solidity compiler version is compatible with NERO Chain
 
 ### What Solidity version should I use?
-Nerochain supports all Solidity versions that are compatible with the Ethereum London fork. We recommend using Solidity ^0.8.12 for optimal compatibility and security.
+NERO Chain supports all Solidity versions that are compatible with the Ethereum London fork. We recommend using Solidity ^0.8.12 for optimal compatibility and security.
 
 ## Wallet Integration
 
@@ -89,7 +89,7 @@ Nerochain supports all Solidity versions that are compatible with the Ethereum L
 Potential issues with AA wallet generation:
 - **Incorrect factory address**: Verify you're using the correct account factory address
 - **Salt collisions**: Try using a different salt value for address derivation
-- **Chain ID mismatch**: Ensure you're using the correct chain ID for Nerochain
+- **Chain ID mismatch**: Ensure you're using the correct chain ID for NERO Chain
 - **Initialization data issues**: Verify your initialization calldata is correctly formatted
 
 ### How do I handle wallet recovery?
@@ -102,7 +102,7 @@ For AA wallets, implement recovery mechanisms like:
 ## Troubleshooting
 
 ### Where can I get help if I'm stuck?
-If you encounter persistent issues, contact Nerochain support through:
+If you encounter persistent issues, contact NERO Chain support through:
 - [Discord Community](https://discord.gg/nerochain)
 - [Support Email](mailto:support@nerochain.io)
 - [GitHub Issues](https://github.com/nerochain)
@@ -110,7 +110,7 @@ If you encounter persistent issues, contact Nerochain support through:
 ### How do I see if a UserOperation was processed?
 You can check the status of a UserOperation using:
 - The `client.getUserOperationReceipt(hash)` method in the UserOpSDK
-- The Nerochain Explorer at [neroscan.io](https://neroscan.io)
+- The NERO Chain Explorer at [neroscan.io](https://neroscan.io)
 - The bundler RPC endpoint with the `eth_getUserOperationReceipt` method
 
 <PageFeedback path="/en/faq" />

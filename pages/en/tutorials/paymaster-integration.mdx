@@ -1,6 +1,6 @@
-# Integrating the Nerochain Paymaster in Your Frontend
+# Integrating the NERO Chain Paymaster in Your Frontend
 
-This tutorial explains how to integrate the Nerochain Paymaster into your React frontend, allowing your users to execute transactions without paying for gas.
+This tutorial explains how to integrate the NERO Chain Paymaster into your React frontend, allowing your users to execute transactions without paying for gas.
 
 ## What is a Paymaster?
 
@@ -22,7 +22,7 @@ export const AA_PLATFORM_CONFIG = {
   paymasterRpc: "https://paymaster-testnet.nerochain.io",
 };
 
-// Your API key from the Nerochain AA Platform
+// Your API key from the NERO Chain AA Platform
 export let API_KEY: string = "your_api_key_here";
 
 // Store and retrieve the API key
@@ -123,7 +123,7 @@ export const setPaymentType = (builder: any, paymentType: number, tokenAddress: 
 
 ## Step 3: Understanding Payment Types
 
-The Nerochain Paymaster supports three payment types:
+The NERO Chain Paymaster supports three payment types:
 
 1. **Free (Type 0)**: The developer sponsors all gas costs for the user
 2. **Prepay ERC20 (Type 1)**: The user pays with ERC20 tokens upfront
@@ -282,7 +282,7 @@ export const approveTokenForPaymaster = async (
 
 ## Testing Your Paymaster Integration
 
-1. Make sure you have a valid API key from the Nerochain AA Platform
+1. Make sure you have a valid API key from the NERO Chain AA Platform
 2. Try executing a transaction with different payment types
 3. For token payments, ensure users have sufficient token balance
 4. Monitor transaction success and costs through the AA Platform dashboard

@@ -1,10 +1,10 @@
 export default {
   index: 'Cookbook',
-  'first-contract': 'Deploying your first contract in Nerochain',
+  'first-contract': 'Deploying your first contract in NERO Chain',
   'aa-wallet-integration': 'AA Wallet Integration',
   'paymaster-integration': 'Paymaster Integration',
-  'sending-ops': 'Sending Operations to Paymaster',
-  'types-payments': 'Types of Payment Methods',
-  'checking-sup-tokens': 'Checking Supported Tokens',
-  'create-first-dapp': 'Creating Your First DApp'
+  'sending-ops': 'Sending UserOperations',
+  'types-payments': 'Payment Methods',
+  'checking-sup-tokens': 'Token Support Check',
+  'create-first-dapp': 'Create Your First dApp'
 } 

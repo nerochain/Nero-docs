@@ -2,7 +2,7 @@ import PageFeedback from '../../../components/PageFeedback'
 
 # Architecture of a dApp
 
-Understanding Nerochain's architecture helps us see how its unique features can be leveraged to build innovative applications with new user experiences. This overview explains how the various components work together to enable account abstraction, paymaster functionality, and other key capabilities.
+Understanding NERO Chain's architecture helps us see how its unique features can be leveraged to build innovative applications with new user experiences. This overview explains how the various components work together to enable account abstraction, paymaster functionality, and other key capabilities.
 
 Multiple components working cohesively within the distributed application (dApp) architecture ensure robust, secure, and efficient blockchain operations. Each component is explained in detail below.
 
@@ -10,11 +10,11 @@ Multiple components working cohesively within the distributed application (dApp)
   <figure className="text-center">
     <img 
       src="/assets/aaPlatform/figure1.png" 
-      alt="Nerochain dApp Architecture"
+      alt="NERO Chain dApp Architecture"
       className="mx-auto rounded-lg shadow-md"
     />
     <figcaption className="mt-2 text-sm italic text-gray-600">
-      Figure 1: Nerochain's dApp Architecture
+      Figure 1: NERO Chain's dApp Architecture
     </figcaption>
   </figure>
 </div>
@@ -23,8 +23,8 @@ Multiple components working cohesively within the distributed application (dApp)
 
 ### User and Authentication Layer
 
-The basis of Nerochain's user experience is a flexible authentication mechanism that fits Web3 users as well as beginners alike.
-Through an **AA Wallet**, a smart contract wallet supporting many simultaneous authentication techniques, the **user** interacts with blockchain functionalities. Unlike conventional wallets that depend only on private keys, Nerochain's AA wallets may be accessible using recognizable **3rd party wallets like MetaMask**, practical **Web2 authentication** mechanisms such as Google or Twitter login, and even conventional password-based security. While keeping security and optionality for expert users, this adaptability eliminates a major obstacle to entrance for ordinary consumers.
+The basis of NERO Chain's user experience is a flexible authentication mechanism that fits Web3 users as well as beginners alike.
+Through an **AA Wallet**, a smart contract wallet supporting many simultaneous authentication techniques, the **user** interacts with blockchain functionalities. Unlike conventional wallets that depend only on private keys, NERO Chain's AA wallets may be accessible using recognizable **3rd party wallets like MetaMask**, practical **Web2 authentication** mechanisms such as Google or Twitter login, and even conventional password-based security. While keeping security and optionality for expert users, this adaptability eliminates a major obstacle to entrance for ordinary consumers.
 
 
 <div className="mt-8 mb-8">
@@ -47,9 +47,9 @@ For both owning the same on-chain identity and assets, a person may set up an AA
 
 The application layer serves as the bridge between users and the blockchain, featuring several integrated components:
 
-The **Wallet SDK** can be the same used in any other web3 application. Handling all the difficult chores of transaction building and submission, it serves as the interface between AA wallets and decentralized apps. It will let you get your AA wallet from the AA Wallet Factory deployed in Nerochain.
+The **Wallet SDK** can be the same used in any other web3 application. Handling all the difficult chores of transaction building and submission, it serves as the interface between AA wallets and decentralized apps. It will let you get your AA wallet from the AA Wallet Factory deployed in NERO Chain.
 
-Decentralized applications built on Nerochain can use this architecture to provide seamless front-end interactions. Your application connects with the Wallet SDK to provide consumers with a flawless experience whether you are developing a DEX, NFT marketplace, or gaming platform.
+Decentralized applications built on NERO Chain can use this architecture to provide seamless front-end interactions. Your application connects with the Wallet SDK to provide consumers with a flawless experience whether you are developing a DEX, NFT marketplace, or gaming platform.
 
 The Developer SDK (in our case, our **UserOpSDK**) provides developers with the tools needed to integrate account abstraction features into their applications. This covers techniques for building UserOperations, liaising with the EntryPoint contract, and using Paymasters.
 
@@ -57,7 +57,7 @@ By letting dApps seek gas sponsorship or alternate payment options, the **Paymas
 
 ### Backend Infrastructure
 
-Behind the user-facing components lies a robust infrastructure that powers Nerochain's unique capabilities:
+Behind the user-facing components lies a robust infrastructure that powers NERO Chain's unique capabilities:
 
 The **AA Platform** serves as a control center for developers, providing a dashboard to configure paymaster settings, monitor quotas, and track usage. Through this platform, developers can define which tokens are accepted for gas payment, set spending limits, and configure other parameters that govern how users interact with their dApps.
 
@@ -118,7 +118,7 @@ Nero operators also have access to platform-level settings, allowing them to man
 
 ## Paymaster Payment Types and User Experience
 
-The Paymaster system is one of Nerochain's most innovative features, enabling flexible gas payment mechanisms that dramatically improve user experience. Let's explore the different payment types and their implications:
+The Paymaster system is one of NERO Chain's most innovative features, enabling flexible gas payment mechanisms that dramatically improve user experience. Let's explore the different payment types and their implications:
 
 ### Type 0: Developer-Sponsored Gas (Free)
 
@@ -150,7 +150,7 @@ This model works best when integrated with applications where users are likely t
 
 ## Building Advanced Applications
 
-The Nerochain architecture enables developers to create applications with capabilities that weren't previously possible or practical. Here are some examples of what you can build:
+The NERO Chain architecture enables developers to create applications with capabilities that weren't previously possible or practical. Here are some examples of what you can build:
 
 **Token-Centric Ecosystems**: By allowing users to pay gas with your application's token, you can create a closed ecosystem where users never need to leave your token economy. This increases the utility and demand for your token while simplifying the user experience.
 
@@ -164,7 +164,7 @@ The Nerochain architecture enables developers to create applications with capabi
 
 **Subscription Models**: Create subscription-based services where users authorize recurring payments, similar to traditional subscription apps. The Paymaster can handle gas costs for these pre-approved transactions.
 
-By understanding and leveraging the full capabilities of Nerochain's architecture, you can build applications that offer the security and ownership benefits of blockchain without the traditional UX limitations.
+By understanding and leveraging the full capabilities of NERO Chain's architecture, you can build applications that offer the security and ownership benefits of blockchain without the traditional UX limitations.
 
 In the following sections, we'll provide detailed guides on implementing each of these components in your application.
 
