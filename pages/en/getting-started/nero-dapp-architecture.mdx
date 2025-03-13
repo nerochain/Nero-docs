@@ -49,9 +49,9 @@ The application layer serves as the bridge between users and the blockchain, fea
 
 The **Wallet SDK** can be the same used in any other Web3 application. Handling all the difficult chores of transaction building and submission, it serves as the interface between AA wallets and decentralized apps. It will let you get your AA wallet from the AA Wallet Factory deployed in NERO Chain.
 
-Decentralized applications built on NERO Chain can use this architecture to provide seamless front-end interactions. Your application connects with the Wallet SDK to provide consumers with a flawless experience whether you are developing a DEX, NFT marketplace, or gaming platform.
+Decentralized applications built on NERO Chain can use this architecture to provide seamless front-end interactions. Your application connects with the Wallet SDK to provide consumers with a flawless experience, whether you are developing a DEX, NFT marketplace, or gaming platform.
 
-The Developer SDK (in our case, our **UserOpSDK**) provides developers with the tools needed to integrate account abstraction features into their applications. This covers techniques for building UserOperations, liaising with the EntryPoint contract, and using Paymasters.
+The Developer SDK (in our case, our **UserOpSDK**) provides developers with the tools needed to integrate account abstraction features into their applications. It covers techniques for building UserOperations, liaising with the EntryPoint contract, and using Paymasters.
 
 By letting dApps seek gas sponsorship or alternate payment options, the **Paymaster API** helps to create gas abstraction. Your application may search the Paymaster API when a user starts a transaction to find suitable payment choices and include the required information in the UserOperation.
 
@@ -140,9 +140,9 @@ This approach provides certainty for both users and developers: users know the m
 
 Implementation requires users to approve the Paymaster contract to spend their tokens, which is typically handled through the Wallet SDK with appropriate UI guidance.
 
-### Type 3: Postpay with ERC20 Tokens
+### Type 2: Postpay with ERC20 Tokens
 
-The Type 2 payment model also uses ERC20 tokens for gas but collects payment after transaction execution. This optimizes the user experience by only charging for the exact gas consumed rather than requiring an upfront estimate with later refund.
+The Type 2 payment model also uses ERC20 tokens for gas but collects payment after transaction execution. This optimizes the user experience by only charging for the exact gas consumed rather than requiring an upfront estimate with a later refund.
 
 Users appreciate paying exactly what's needed, especially for transactions where gas costs might vary significantly based on execution paths in the contract. However, this model introduces a risk of payment failure if the user's token balance or approval is insufficient after the transaction executes.
 
@@ -156,7 +156,7 @@ The NERO Chain architecture enables developers to create applications with capab
 
 **Frictionless Onboarding**: Implement a gradual onboarding process where new users enjoy sponsored transactions initially, then transition to token payments once they're engaged with your platform. This removes the "crypto complexity" that often deters mainstream users.
 
-**Bundled Transactions**: Enable users to perform multiple actions in a single operation, such as approving and swapping tokens, or minting multiple NFTs. This reduces costs and improves the user experience by minimizing the number of confirmations needed.
+**Bundled Transactions**: Enable users to perform multiple actions in a single operation, such as approving and swapping tokens or minting multiple NFTs. This reduces costs and improves the user experience by minimizing the number of confirmations needed.
 
 **Enhanced Security Features**: Build applications with advanced security features like multi-signature requirements, spending limits, or time locks. The smart contract wallet architecture makes these features much easier to implement than with traditional EOAs.
 
