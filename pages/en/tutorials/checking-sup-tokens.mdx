@@ -2,6 +2,19 @@
 
 This tutorial explains how to query and display the tokens that are supported by the NERO Chain Paymaster for gas fee payments.
 
+## What You'll Learn
+- How to fetch the list of tokens supported by the NERO Chain Paymaster
+- How to display token information with appropriate formatting
+- How to create a dropdown selector for payment tokens
+- How to check token balances for user accounts
+- How to handle token approvals for Paymaster interactions
+
+## Prerequisites
+- Completed the [AA Wallet Integration](/en/tutorials/aa-wallet-integration) tutorial
+- Completed the [Paymaster Integration](/en/tutorials/paymaster-integration) tutorial
+- Completed the [Payment Methods](/en/tutorials/types-payments) tutorial
+- Understanding of ERC20 token interactions in Web3
+
 ## Understanding Supported Tokens
 
 The NERO Chain's Paymaster allows users to pay gas fees using various ERC20 tokens. However, not all tokens are supported, and the list may vary depending on:
@@ -366,10 +379,13 @@ The supported tokens response includes these key fields:
 - **type**: The payment type supported (1 for prepay, 2 for postpay)
 - **price**: Optional price information in USD
 
-## Tips for Production Use
+## Best Practices
 
-1. **Caching**: Always cache the token list as shown to minimize API calls
-2. **Error Handling**: Implement proper fallbacks if the token API is unavailable
-3. **Rate Limiting**: Be aware of API rate limits and implement exponential backoff for retries
-4. **Balance Checks**: Always check if the user has sufficient balance before trying to use a token
-5. **UX Design**: Sort tokens by balance or payment type to help users choose the best option
+1. **Cache Token Data**: Store supported token information in local storage to reduce API calls
+2. **Update Regularly**: Refresh token data periodically to ensure accuracy
+3. **Show Token Icons**: Enhance UX by displaying token logos alongside names and symbols
+4. **Display Balances**: Show users their current token balances when selecting payment tokens
+5. **Provide Feedback**: Clearly indicate which tokens are supported and which are not
+
+## Next Steps
+Now that you understand how to check supported tokens and implement various payment methods, you're ready to build a complete dApp that leverages all these features. Continue to the [Create Your First dApp](/en/tutorials/create-first-dapp) tutorial to build a comprehensive application that brings together all the concepts you've learned.

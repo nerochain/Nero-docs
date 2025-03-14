@@ -2,20 +2,22 @@
 
 This recipe will guide you through building your first decentralized application (dApp) on NERO Chain using Account Abstraction. You'll create a simple NFT minting application that allows users to mint NFTs without needing NERO tokens for gas fees.
 
-## What You'll Build
-
-A web application with the following features:
-- Connect to a user's wallet
-- Generate an Account Abstraction wallet 
-- Mint an NFT with gas fees sponsored through a Paymaster
-- Support multiple payment options (free, prepay, postpay)
-- View transaction status and confirmation
+## What You'll Learn
+- How to set up a complete React dApp that uses Account Abstraction
+- How to implement a seamless NFT minting experience with gasless transactions
+- How to provide multiple payment options for transaction gas fees
+- How to handle the full user journey from wallet connection to transaction confirmation
+- How to combine all the concepts from previous tutorials into a cohesive application
 
 ## Prerequisites
-
-Before starting, make sure you have:
+- Completed the following tutorials:
+  - [Deploying your first contract in NERO Chain](/en/tutorials/first-contract)
+  - [AA Wallet Integration](/en/tutorials/aa-wallet-integration)
+  - [Sending UserOperations](/en/tutorials/sending-ops)
+  - [Paymaster Integration](/en/tutorials/paymaster-integration)
+  - [Payment Methods](/en/tutorials/types-payments)
+  - [Token Support Check](/en/tutorials/checking-sup-tokens)
 - Basic knowledge of React and TypeScript
-- Node.js (v16 or later) installed
 - A code editor (VSCode recommended)
 - MetaMask or another Ethereum wallet extension
 - An API key from the [Nero AA Platform](https://aa-platform.nerochain.io)
@@ -822,4 +824,16 @@ This foundation will enable you to build more complex dApps with excellent user 
 
 - [ERC-4337 Specification](https://eips.ethereum.org/EIPS/eip-4337)
 - [AA-UserOp SDK GitHub](https://github.com/nerochain/aa-userop-sdk)
-- [NERO Chain Block Explorer](https://testnet.neroscan.io/) 
+- [NERO Chain Block Explorer](https://testnet.neroscan.io/)
+
+## What We've Built
+
+Congratulations! You've successfully built a complete dApp on NERO Chain that leverages Account Abstraction for a seamless user experience. This application demonstrates:
+
+1. **Smart Contract Wallets**: Creating and managing AA wallets
+2. **Gasless Transactions**: Allowing users to interact without owning native tokens
+3. **Multiple Payment Options**: Supporting various gas payment methods
+4. **Token Integration**: Working with ERC20 tokens for gas payments
+5. **Modern Frontend**: Building a responsive and intuitive UI
+
+These concepts can be extended to create more complex applications for DeFi, gaming, social media, and more. The Account Abstraction capabilities of NERO Chain make it possible to build user-friendly dApps that feel like traditional web applications while maintaining all the benefits of blockchain technology. 

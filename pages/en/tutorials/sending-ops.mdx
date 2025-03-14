@@ -2,6 +2,18 @@
 
 This tutorial explains how to execute transactions using the NERO Chain Paymaster API, focusing on the actual process of building and sending User Operations.
 
+## What You'll Learn
+- What UserOperations are in the ERC-4337 Account Abstraction standard
+- How to create a function that sends transactions through AA wallets
+- How to handle ERC20 token approvals for Paymaster interaction
+- How to create specific functions for common operations like NFT minting
+- How to implement these functions in React components
+
+## Prerequisites
+- Completed the [AA Wallet Integration](/en/tutorials/aa-wallet-integration) tutorial
+- Basic understanding of smart contract interactions with ethers.js
+- Access to an AA wallet configuration as shown in the previous tutorial
+
 ## Understanding UserOperations
 
 In the ERC-4337 Account Abstraction standard, a `UserOperation` replaces traditional Ethereum transactions. It contains:
@@ -249,37 +261,34 @@ const NFTMinterButton: React.FC = () => {
     try {
       setIsLoading(true);
       
-      // Get signer
+      // Get signer from browser wallet
       const signer = await getSigner();
       
-      // Example recipient and metadata
-      const recipientAddress = await signer.getAddress();
-      const metadataUri = 'ipfs://QmYourMetadataHash';
+      // Define NFT metadata (can be fetched from form)
+      const metadataUri = "ipfs://bafkreiabag3ztnhe5pg7js3cokbq3id2b3t6evbncbpzzh2c5sdioxngoe";
       
-      // Choose payment type (0: free, 1: prepay, 2: postpay)
-      const paymentType = 0;
-      
-      // Execute minting
+      // Execute the mint operation
       const result = await mintNFT(
         signer,
-        recipientAddress,
+        await signer.getAddress(), // Mint to the connected wallet
         metadataUri,
-        paymentType
+        0, // Use free/sponsored payment
+        '',
+        { apiKey: 'your_api_key_here' }
       );
       
-      console.log("NFT Minted!", result);
       setTxHash(result.transactionHash);
       toast.success("NFT minted successfully!");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error minting NFT:", error);
-      toast.error(error.message || "Failed to mint NFT");
+      toast.error("Failed to mint NFT: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="minter-container">
       <button 
         onClick={handleMint}
         disabled={isLoading}
@@ -288,13 +297,22 @@ const NFTMinterButton: React.FC = () => {
       </button>
       
       {txHash && (
-        <div>
-          <p>Transaction successful! <a href={`https://testnet.neroscan.io/tx/${txHash}`} target="_blank" rel="noreferrer">View on Explorer</a></p>
+        <div className="tx-info">
+          <p>Transaction successful!</p>
+          <a 
+            href={`${NERO_CHAIN_CONFIG.explorer}/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on Explorer
+          </a>
         </div>
       )}
     </div>
   );
 };
+
+export default NFTMinterButton;
 ```
 
 ## Understanding the Paymaster Flow
@@ -314,3 +332,6 @@ const NFTMinterButton: React.FC = () => {
 3. **API Key Security**: Protect your API key by using backend proxies in production
 4. **Retries**: Implement a retry mechanism for failed operations
 5. **User Feedback**: Show loading states and transaction results clearly
+
+## Next Steps
+Now that you've learned how to send UserOperations with your AA wallet, you might want to explore more advanced Paymaster functionality. Continue to the [Paymaster Integration](/en/tutorials/paymaster-integration) tutorial to learn how to integrate the NERO Chain Paymaster for gas sponsorship and alternative payment methods.

@@ -2,6 +2,18 @@
 
 This tutorial shows how to integrate Account Abstraction (AA) wallet creation and management into a React application using the NERO Chain AA platform.
 
+## What You'll Learn
+- What Account Abstraction wallets are and how they improve user experience
+- How to set up the configuration for NERO Chain AA platform
+- How to create utility functions for AA wallet integration
+- How to build a React component for wallet connection and AA address display
+- How counterfactual deployment works for AA wallets
+
+## Prerequisites
+- Basic knowledge of React and TypeScript
+- Completed the [Deploying your first contract in NERO Chain](/en/tutorials/first-contract) tutorial (recommended)
+- Access to the NERO Chain Testnet
+
 ## Understanding Account Abstraction Wallets
 
 In the traditional Ethereum model, users need to own ETH to pay for gas fees. With Account Abstraction (AA), users can:
@@ -33,6 +45,7 @@ cd my-application
 cd react-ts
 npm install
 ```
+> **_NOTE_**: More components will be available in the template folder.
 
 ## Step 1: Setting Up the Configuration
 
@@ -209,3 +222,6 @@ export default AAWalletConnect;
 - AA wallets are unique per chain, so the same EOA will have different AA addresses on different chains
 - The wallet address is derived from the factory address, EOA address, and a salt value
 - The AA wallet is only deployed on the first transaction to save gas costs
+
+## Next Steps
+Now that you've set up your AA wallet integration, you're ready to learn how to send operations through these wallets. Continue to the next tutorial: [Sending UserOperations](/en/tutorials/sending-ops) to learn how to execute transactions using your AA wallet.

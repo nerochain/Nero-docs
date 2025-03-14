@@ -4,6 +4,18 @@ import PageFeedback from '../../../components/PageFeedback'
 
 Welcome to the NERO Chain Cookbook – your collection of practical, ready-to-use recipes for building on NERO Chain. Each recipe is designed to solve specific development challenges with copy-pastable code and step-by-step instructions.
 
+## Learning Path
+
+Our tutorials are organized in a logical progression to help you build your skills step by step. We recommend following this learning path:
+
+1. **Start with contract deployment** to understand the basics of deploying smart contracts on NERO Chain
+2. **Learn about AA wallet integration** to set up the foundation for account abstraction
+3. **Send your first UserOperations** to interact with the blockchain through AA wallets
+4. **Integrate the Paymaster** to enable gasless transactions and alternative payment methods
+5. **Explore different payment types** to understand how to implement various gas payment options
+6. **Check supported tokens** to work with ERC20 tokens for gas payments
+7. **Build your first complete dApp** to bring everything together in a cohesive application
+
 ## Getting Started
 
 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 mb-6">
@@ -28,7 +40,7 @@ Welcome to the NERO Chain Cookbook – your collection of practical, ready-to-us
       <span className="text-yellow-500 mr-2">⚒️</span>
       <a href= "">Deploy with Foundry</a>
     </h3>
-    <p className="text-gray-600 dark:text-gray-300 text-center">Comming soon!</p>
+    <p className="text-gray-600 dark:text-gray-300 text-center">Coming soon!</p>
   </div>
 </div>
 
@@ -39,55 +51,35 @@ Welcome to the NERO Chain Cookbook – your collection of practical, ready-to-us
     <h3 className="text-lg font-semibold mb-2 text-center">👛 <a href="/en/tutorials/aa-wallet-integration">Integrate AA Wallets</a></h3>
     <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Add smart contract wallets to your React application for seamless UX.</p>
   </div>
-  
+
   <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
-    <h3 className="text-lg font-semibold mb-2 text-center">⛽ <a href="/en/tutorials/paymaster-integration">Integrate Paymaster</a></h3>
-    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Enable gas sponsorship and alternative payment methods.</p>
+    <h3 className="text-lg font-semibold mb-2 text-center">📨 <a href="/en/tutorials/sending-ops">Send UserOperations</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Create and execute transactions through Account Abstraction.</p>
   </div>
-</div>
 
-## Guides & References
-
-<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 mb-10">
-  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
-    <h3 className="text-lg font-semibold mb-2">📤 <a href="/en/tutorials/sending-ops">Sending UserOperations</a></h3>
-    <p className="text-sm text-gray-600 dark:text-gray-400">Learn to construct and send UserOperations.</p>
-  </div>
-  
-  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
-    <h3 className="text-lg font-semibold mb-2">💸 <a href="/en/tutorials/types-payments">Payment Methods</a></h3>
-    <p className="text-sm text-gray-600 dark:text-gray-400">Explore different gas payment strategies.</p>
-  </div>
-  
-  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
-    <h3 className="text-lg font-semibold mb-2">🔍 <a href="/en/tutorials/checking-sup-tokens">Token Support Check</a></h3>
-    <p className="text-sm text-gray-600 dark:text-gray-400">Check tokens supported for gas payment.</p>
-  </div>
-</div>
-
-## dApp development
-
-<div className="grid grid-cols-1 gap-4 mt-6">
   <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
-    <h3 className="text-lg font-semibold mb-2 text-center">🏗️ <a href="/en/tutorials/create-first-dapp">Build Your First dApp</a></h3>
-    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Create an NFT minting dApp with gas-free transactions.</p>
-    <div className="mt-4 text-center">
-      <span className="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs px-2 py-1 rounded mr-2 text-center">Intermediate</span>
-      <span className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs px-2 py-1 rounded text-center">~30 min</span>
-    </div>
+    <h3 className="text-lg font-semibold mb-2 text-center">⛽ <a href="/en/tutorials/paymaster-integration">Paymaster Integration</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Enable gasless transactions with the NERO Chain Paymaster.</p>
   </div>
 </div>
 
-## Coming Soon
+## Advanced Topics
 
-- **Social Login Integration** - Add Web3Auth and other social login providers
-- **ERC-4337 Bundler Implementation** - Run your own bundler on NERO Chain
-- **Advanced Paymaster Strategies** - Create custom verification logic for your paymaster
-- **Web3 Game Integration** - Build games with gasless transactions
+<div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">💲 <a href="/en/tutorials/types-payments">Payment Methods</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Implement different gas payment options in your dApp.</p>
+  </div>
 
-<div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-100 dark:border-blue-800">
-  <h3 className="text-lg font-semibold mb-2 text-center">🤔 Can't find what you need?</h3>
-  <p className="text-sm text-center">Join our <a href="https://discord.gg/CfT3fGx2Ht" className="text-blue-600 dark:text-blue-400 hover:underline">**Discord community**</a> to suggest new recipes or ask for help with your specific use case.</p>
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">🔍 <a href="/en/tutorials/checking-sup-tokens">Token Support Check</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Query and display tokens supported by the NERO Chain Paymaster.</p>
+  </div>
+
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">🚀 <a href="/en/tutorials/create-first-dapp">Create Your First dApp</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Build a complete NFT minting application with gasless transactions.</p>
+  </div>
 </div>
 
-<PageFeedback path="/en/cookbook" /> 
+<PageFeedback /> 

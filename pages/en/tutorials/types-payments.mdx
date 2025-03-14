@@ -2,6 +2,20 @@
 
 This tutorial explains the different types of payment operations supported by the NERO Chain Paymaster, their use cases, and how to implement them in your application.
 
+## What You'll Learn
+- The three payment types supported by the NERO Chain Paymaster
+- When to use each payment type for different use cases
+- How to implement free/sponsored transactions (Type 0)
+- How to implement prepay ERC20 transactions (Type 1)
+- How to implement postpay ERC20 transactions (Type 2)
+- How to build a payment selector interface for your application
+
+## Prerequisites
+- Completed the [AA Wallet Integration](/en/tutorials/aa-wallet-integration) tutorial
+- Completed the [Sending UserOperations](/en/tutorials/sending-ops) tutorial
+- Completed the [Paymaster Integration](/en/tutorials/paymaster-integration) tutorial
+- Understanding of React components and state management
+
 ## Understanding Paymaster Payment Types
 
 The NERO Chain Paymaster supports three payment types for transaction gas fees:
@@ -283,23 +297,21 @@ export default PaymentTypeSelector;
 
 | Feature | Type 0 (Free) | Type 1 (Prepay) | Type 2 (Postpay) |
 |---------|--------------|-----------------|------------------|
-| Who pays gas | Developer | User | User |
-| When payment occurs | N/A | Before execution | After execution |
-| Refunds | N/A | Yes, if over-estimated | N/A |
-| Token approval required | No | Yes | Yes |
+| Who pays gas | Developer | User (ERC20 before) | User (ERC20 after) |
+| User experience | Seamless | Good | Good |
 | Developer costs | High | Low | Low |
-| UX simplicity | Highest | Medium | Medium |
-| Risk to paymaster | High | Low | Medium |
+| Gas estimation | Fixed | Fixed | Dynamic |
+| Best for | Onboarding, NFTs | Regular users | Power users |
+| User needs tokens? | No | Yes (before tx) | Yes (before tx) |
+| Token approval? | Not needed | Required | Required |
 
-## Usage Recommendations
+## Best Practices
 
-1. **Start with Type 0 (Free)** for onboarding and simple applications
-2. **Use Type 1 (Prepay)** for most general-purpose applications
-3. **Use Type 2 (Postpay)** for applications where exact gas costs matter
+1. **Start with Type 0** for new users to provide a seamless onboarding experience
+2. **Transition to Type 1 or 2** for regular users based on your application's needs
+3. **Always handle errors** gracefully, especially for token approval scenarios
+4. **Provide clear feedback** to users about payment types and costs
+5. **Monitor your API usage** to manage costs associated with Type 0 (sponsored) transactions
 
-## Configuration Best Practices
-
-1. **Token Whitelist**: Carefully select which tokens to accept for payment
-2. **Gas Estimation**: Set reasonable gas limits for different transaction types
-3. **Rate Limiting**: Implement user-based rate limiting to prevent abuse
-4. **Monitoring**: Track usage patterns and gas costs in the AA Platform dashboard
+## Next Steps
+Now that you understand the different payment types, you might want to learn how to check which tokens are supported by the NERO Chain Paymaster. Continue to the [Token Support Check](/en/tutorials/checking-sup-tokens) tutorial to learn how to query and display supported tokens for gas fee payments.

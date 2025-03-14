@@ -2,6 +2,18 @@
 
 This tutorial explains how to integrate the NERO Chain Paymaster into your React frontend, allowing your users to execute transactions without paying for gas.
 
+## What You'll Learn
+- What a Paymaster is and how it fits into the Account Abstraction model
+- How to configure your frontend application to use the NERO Chain Paymaster
+- How to implement different payment options for transaction gas
+- How to manage Paymaster API keys securely
+- How to create a PaymasterProvider component for your React application
+
+## Prerequisites
+- Completed the [AA Wallet Integration](/en/tutorials/aa-wallet-integration) tutorial
+- Completed the [Sending UserOperations](/en/tutorials/sending-ops) tutorial
+- An API key from the [NERO Chain AA Platform](https://aa-platform.nerochain.io)
+
 ## What is a Paymaster?
 
 A Paymaster is a service that sponsors transaction gas fees for users. In the Account Abstraction (AA) model, the Paymaster:
@@ -286,3 +298,17 @@ export const approveTokenForPaymaster = async (
 2. Try executing a transaction with different payment types
 3. For token payments, ensure users have sufficient token balance
 4. Monitor transaction success and costs through the AA Platform dashboard
+
+## Conclusion
+
+You've now successfully integrated the NERO Chain Paymaster into your application, enabling:
+
+1. **Gasless transactions** for users without NERO tokens
+2. **Multiple payment methods** for transaction fees
+3. **Better user experience** with AA wallets and sponsored gas
+4. **Secure API key management** using environment variables
+
+This implementation provides a foundation for building feature-rich dApps that can onboard users from all backgrounds, regardless of their familiarity with blockchain gas fees.
+
+## Next Steps
+Now that you understand how to integrate the Paymaster, you may want to learn about the different types of payments it supports. Continue to the [Payment Methods](/en/tutorials/types-payments) tutorial to explore the various payment options available with the NERO Chain Paymaster.
