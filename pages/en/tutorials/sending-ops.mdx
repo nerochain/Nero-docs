@@ -1,20 +1,32 @@
-# How to Send Operations to the NERO Chain Paymaster API
+# How to Send Operations with the NERO Chain Paymaster API
 
-This tutorial explains how to execute transactions using the NERO Chain Paymaster API, focusing on the actual process of building and sending User Operations.
+This tutorial explains how to execute transactions using the NERO Chain Paymaster API, focusing on sponsored gas transactions through Account Abstraction.
 
 ## What You'll Learn
 - What UserOperations are in the ERC-4337 Account Abstraction standard
+- How the NERO Chain Paymaster enables gasless transactions
 - How to create a function that sends transactions through AA wallets
-- How to handle ERC20 token approvals for Paymaster interaction
-- How to create specific functions for common operations like NFT minting
-- How to implement these functions in React components
+- How to execute your first sponsored (free) transaction
+- How to implement proper error handling and transaction monitoring
 
 ## Prerequisites
 - Completed the [AA Wallet Integration](/en/tutorials/aa-wallet-integration) tutorial
 - Basic understanding of smart contract interactions with ethers.js
 - Access to an AA wallet configuration as shown in the previous tutorial
+- An API key from the [NERO Chain AA Platform](https://aa-platform.nerochain.io)
 
-## Understanding UserOperations
+## Understanding Paymasters and UserOperations
+
+### What is a Paymaster?
+
+A Paymaster is a service that sponsors transaction gas fees for users. In the Account Abstraction (AA) model, the Paymaster:
+
+1. Reviews a transaction before it's executed
+2. Determines if it should sponsor the gas fees
+3. Signs the transaction to indicate its willingness to pay
+4. Can accept alternative payment methods (like ERC-20 tokens) instead of the native token
+
+### What is a UserOperation?
 
 In the ERC-4337 Account Abstraction standard, a `UserOperation` replaces traditional Ethereum transactions. It contains:
 
@@ -24,9 +36,33 @@ In the ERC-4337 Account Abstraction standard, a `UserOperation` replaces traditi
 - **Signature**: Proof that the operation is authorized by the wallet owner
 - **PaymasterAndData**: Optional paymaster information for gas sponsorship
 
-## Step 1: Creating a Basic Transaction Function
+## Step 1: Setting Up Paymaster Configuration
 
-Let's create a function that can send a generic transaction through the Paymaster:
+First, update your configuration file to include Paymaster settings:
+
+```typescript
+// src/config.ts
+// Add to existing configuration from AA wallet tutorial
+export const AA_PLATFORM_CONFIG = {
+  bundlerRpc: "https://bundler.service.nerochain.io",
+  paymasterRpc: "https://paymaster-testnet.nerochain.io",
+};
+
+// Your API key from the NERO Chain AA Platform
+export let API_KEY: string = "your_api_key_here";
+
+// Add NFT contract for testing
+export const CONTRACT_ADDRESSES = {
+  entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  accountFactory: "0x9406Cc6185a346906296840746125a0E44976454",
+  tokenPaymaster: "0xA919e465871871F2D1da94BccAF3acaF9609D968",
+  nftContract: "0x63f1f7c6a24294a874d7c8ea289e4624f84b48cb"
+};
+```
+
+## Step 2: Creating a Basic Transaction Function
+
+Let's create a function that can send a transaction with sponsored gas through the Paymaster:
 
 ```typescript
 // src/utils/aaUtils.ts
@@ -39,15 +75,13 @@ import {
   API_KEY 
 } from '../config';
 
-// Function to execute a contract call via AA and paymaster
-export const executeOperation = async (
+// Function to execute a contract call via AA with sponsored gas
+export const executeSponsoredOperation = async (
   accountSigner: ethers.Signer,
   contractAddress: string,
   contractAbi: any,
   functionName: string,
   functionParams: any[],
-  paymentType: number = 0,
-  selectedToken: string = '',
   options?: {
     apiKey?: string;
     gasMultiplier?: number;
@@ -87,17 +121,12 @@ export const executeOperation = async (
     builder.setMaxFeePerGas(gasParams.maxFeePerGas);
     builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
     
-    // Configure paymaster
+    // Configure paymaster for sponsored transactions (free)
     const paymasterOptions = {
       apikey: options?.apiKey || API_KEY,
       rpc: AA_PLATFORM_CONFIG.paymasterRpc,
-      type: paymentType.toString()
+      type: "0" // Type 0 = sponsored/free gas
     };
-    
-    // Add token address for ERC20 payments
-    if (paymentType > 0 && selectedToken) {
-      paymasterOptions.token = selectedToken;
-    }
     
     // Set paymaster options
     builder.setPaymasterOptions(paymasterOptions);
@@ -126,12 +155,15 @@ export const executeOperation = async (
     
     // Wait for the transaction to be included
     const receipt = await res.wait();
-    console.log("Transaction mined in block:", receipt.receipt.blockNumber);
-    
+    if (!receipt) {
+        throw new Error("Transaction receipt is null");
+    }
+    console.log("Transaction mined in block:", receipt.blockNumber);
+
     return {
-      userOpHash: res.userOpHash,
-      transactionHash: receipt.receipt.transactionHash,
-      receipt: receipt.receipt
+        userOpHash: res.userOpHash,
+        transactionHash: receipt.transactionHash,
+        receipt: receipt
     };
   } catch (error) {
     console.error("Error executing operation:", error);
@@ -140,100 +172,37 @@ export const executeOperation = async (
 };
 ```
 
-## Step 2: Handling ERC20 Token Approvals for Paymaster
-
-When using ERC20 tokens to pay for gas (payment types 1 and 2), the user's AA wallet must first approve the token paymaster contract:
-
-```typescript
-// Add to executeOperation function, before creating the UserOperation
-if (paymentType > 0 && selectedToken) {
-  try {
-    // Create token contract instance
-    const erc20Interface = new ethers.Contract(
-      selectedToken,
-      [
-        'function approve(address spender, uint256 amount) returns (bool)',
-        'function allowance(address owner, address spender) view returns (uint256)'
-      ],
-      ethers.getDefaultProvider()
-    );
-    
-    // Get the AA wallet address
-    const aaWalletAddress = await builder.getSender();
-    
-    // Check current allowance
-    const currentAllowance = await erc20Interface.allowance(
-      aaWalletAddress,
-      CONTRACT_ADDRESSES.tokenPaymaster
-    );
-    
-    // If allowance is too low, approve more tokens
-    if (currentAllowance.lt(ethers.utils.parseUnits("100", 18))) {
-      console.log("Approving tokens for paymaster...");
-      
-      // Create the approval call data
-      const approveCallData = erc20Interface.interface.encodeFunctionData(
-        'approve',
-        [CONTRACT_ADDRESSES.tokenPaymaster, ethers.constants.MaxUint256]
-      );
-      
-      // Create a UserOperation just for the approval
-      const approveOp = await builder.execute(selectedToken, 0, approveCallData);
-      
-      // We need to use FREE payment for the approval operation
-      builder.setPaymasterOptions({
-        apikey: options?.apiKey || API_KEY,
-        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
-        type: "0" // Use free for the approval
-      });
-      
-      // Send the approval UserOperation
-      const approveRes = await client.sendUserOperation(approveOp);
-      console.log("Approval transaction sent:", approveRes.userOpHash);
-      
-      // Wait for the approval to be mined
-      await approveRes.wait();
-      console.log("Token approval confirmed");
-      
-      // Reset paymaster options for the main transaction
-      builder.setPaymasterOptions(paymasterOptions);
-    }
-  } catch (error) {
-    console.warn("Error during token approval:", error);
-    // Continue anyway, the main transaction will fail if approval was needed
-  }
-}
-```
-
 ## Step 3: Creating a Specific Function for NFT Minting
 
 Let's implement a specific function for minting an NFT using the generic operation executor:
 
 ```typescript
 // src/utils/aaUtils.ts
-import NeroNFTABI from '../abis/NeroNFT.json';
+
+//Add a generic NFT ABI : This can be changed by creating abi folders, or having your own abis. 
+const NFT_ABI = [
+    "function mint(address to, string memory uri) external",
+    "function tokenURI(uint256 tokenId) external view returns (string memory)",
+    "function balanceOf(address owner) external view returns (uint256)"
+];
 
 export const mintNFT = async (
   accountSigner: ethers.Signer,
   recipientAddress: string,
   metadataUri: string,
-  paymentType: number = 0,
-  selectedToken: string = '',
   options?: {
     apiKey?: string;
     gasMultiplier?: number;
   }
 ) => {
   try {
-    // Execute the mint function
-    return await executeOperation(
+    // Execute the mint function with sponsored gas
+    return await executeSponsoredOperation(
       accountSigner,
       CONTRACT_ADDRESSES.nftContract,
-      NeroNFTABI.abi,
+      NFT_ABI,
       'mint',
       [recipientAddress, metadataUri],
-      paymentType,
-      selectedToken,
       options
     );
   } catch (error) {
@@ -251,6 +220,7 @@ Now, implement the function in a React component:
 // Example usage in a component
 import React, { useState } from 'react';
 import { getSigner, mintNFT } from '../utils/aaUtils';
+import { NERO_CHAIN_CONFIG } from '../config';
 import { toast } from 'react-toastify';
 
 const NFTMinterButton: React.FC = () => {
@@ -267,13 +237,11 @@ const NFTMinterButton: React.FC = () => {
       // Define NFT metadata (can be fetched from form)
       const metadataUri = "ipfs://bafkreiabag3ztnhe5pg7js3cokbq3id2b3t6evbncbpzzh2c5sdioxngoe";
       
-      // Execute the mint operation
+      // Execute the mint operation with sponsored gas
       const result = await mintNFT(
         signer,
         await signer.getAddress(), // Mint to the connected wallet
         metadataUri,
-        0, // Use free/sponsored payment
-        '',
         { apiKey: 'your_api_key_here' }
       );
       
@@ -315,23 +283,33 @@ const NFTMinterButton: React.FC = () => {
 export default NFTMinterButton;
 ```
 
+## Testing
+
+The same as before, add the component to your App.tsx file and run it. 
+
 ## Understanding the Paymaster Flow
 
 1. **Builder Creation**: Initialize the SimpleAccount builder with your signer
-2. **Paymaster Configuration**: Set the API key and payment type
+2. **Paymaster Configuration**: Set the API key and payment type (0 for free/sponsored)
 3. **Operation Preparation**: Create the contract call data for your function
 4. **UserOp Creation**: Build the UserOperation with the builder
-5. **Token Approval**: For ERC20 payments, approve the token paymaster first
-6. **UserOp Submission**: Send the operation to the bundler via the client
-7. **Transaction Tracking**: Wait for the receipt and track the result
+5. **UserOp Submission**: Send the operation to the bundler via the client
+6. **Transaction Tracking**: Wait for the receipt and track the result
 
-## Best Practices
+## Best Practices for Sponsored Transactions
 
 1. **Error Handling**: Always implement proper error handling and provide user feedback
 2. **Gas Parameters**: Adjust gas parameters based on your operation's complexity
-3. **API Key Security**: Protect your API key by using backend proxies in production
-4. **Retries**: Implement a retry mechanism for failed operations
-5. **User Feedback**: Show loading states and transaction results clearly
+3. **API Key Security**: Protect your API key by using environment variables and backend proxies in production
+4. **Cost Monitoring**: Track your sponsored transaction usage through the NERO Chain AA Platform dashboard
+5. **User Feedback**: Show loading states and transaction results clearly to improve user experience
+
+## Key Considerations for Paymaster Usage
+
+1. **API Key Security**: Never expose your Paymaster API key in client-side code in production. Consider using a backend proxy.
+2. **Gas Limits**: The gas parameters should be adjusted based on the complexity of your transactions.
+3. **Error Handling**: Implement robust error handling for Paymaster-related failures.
+4. **Rate Limiting**: Be aware that sponsored transactions may have usage limits based on your account.
 
 ## Next Steps
-Now that you've learned how to send UserOperations with your AA wallet, you might want to explore more advanced Paymaster functionality. Continue to the [Paymaster Integration](/en/tutorials/paymaster-integration) tutorial to learn how to integrate the NERO Chain Paymaster for gas sponsorship and alternative payment methods.
+Now that you've learned how to send sponsored UserOperations with your AA wallet, you might want to explore alternative payment methods. Continue to the [Payment Methods](/en/tutorials/types-payments) tutorial to learn how to implement prepaid and postpaid transactions using ERC20 tokens.

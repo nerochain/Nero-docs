@@ -132,7 +132,20 @@ export const getAAWalletAddress = async (accountSigner: ethers.Signer, apiKey?: 
 };
 ```
 
-## Step 3: Creating a React Component
+## Step 3: Create a types.d.ts file
+
+```
+interface Window {
+    ethereum?: {
+        isMetaMask?: boolean;
+        request: (request: { method: string; params?: any[] }) => Promise<any>;
+        on: (eventName: string, callback: (...args: any[]) => void) => void;
+        removeListener: (eventName: string, callback: (...args: any[]) => void) => void;
+    };
+} 
+```
+
+## Step 4: Creating a React Component
 
 Now, create a React component that allows users to connect their wallet and see their AA wallet address:
 
