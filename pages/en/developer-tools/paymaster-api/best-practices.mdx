@@ -1,36 +1,29 @@
 # Best Practices
 
-## 1. Use the UserOpSDK
+## 1. Make use of UserOpSDK.
+The SDK manages much of the complexity involved in interacting with the Paymaster API and UserOperations. Retries and built-in error handling help to greatly simplify integration.
 
-The SDK handles most of the complexity of working with UserOperations and the Paymaster API. It provides built-in error handling and retries, making integration significantly easier.
 
-## 2. Cache Supported Tokens
+## 2. Cache Tokens Supported
+Periodically update the list of supported tokens to help to prevent frequent API requests. This lightens your servers' burden and enhances performance.
 
-Store the list of supported tokens and refresh it periodically to avoid making frequent calls to the API. This improves performance and reduces the load on your servers.
+## 3. Apply appropriate error handling.
+Depending on the kind of fault, always catch and treat them suitably. While certain mistakes—like network problems—might be retryable, others—like improper parameters—call for human action.
 
-## 3. Implement Proper Error Handling
+## 4. Evaluate Token Approvals
+Verify users' authorized token spending for Type 1 and 2 payments before forwarding the User Operation. This enhances user experience and helps to eliminate pointless failures.
 
-Always catch and handle errors appropriately based on the error types. Some errors (like network issues) might be retryable, while others (like invalid parameters) require user intervention.
+## 5. safely save API keys
+Never show your API key in code written for a client. Keep it always safe on your backend systems.
 
-## 4. Check Token Approvals
+## 6. Track Consumption
+Track your sponsorship use on the AA Platform to prevent unplanned service outages brought on by exceeding quotas.
 
-For Type 1 and 2 payments, verify that users have approved token spending before sending the UserOperation. This prevents unnecessary failures and improves user experience.
+## 7. Establish Appropriate Gas Restraints
+Get precise gas values for your UserOperations using the gas estimating approach. Appropriate restrictions maximize expenses and aid to minimize transaction failures.
 
-## 5. Securely Store API Keys
-
-Never expose your API key in client-side code. Always keep it secure on your backend services.
-
-## 6. Monitor Usage
-
-Keep track of your sponsorship usage through the AA Platform to avoid unexpected service interruptions due to exceeded quotas.
-
-## 7. Set Appropriate Gas Limits
-
-Use the gas estimation method to get accurate gas values for your UserOperations. Setting appropriate limits helps prevent transaction failures and optimize costs.
-
-## 8. Rate Limits and Quotas
-
-Your API usage is subject to the limits configured in your AA Platform account:
+## 8. Rate Limitations and Quotas
+Your use of APIs is limited by the settings found in your AA Platform account:
 
 - Daily gas limits
 - Transaction count limits

@@ -12,7 +12,7 @@
     "next": "^15.0.4",
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",
-    "openai": "^3.3.0",
+    "openai": "latest",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "rehype-katex": "^7.0.1",
