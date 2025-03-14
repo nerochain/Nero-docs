@@ -222,6 +222,9 @@ export const approveTokenForPaymaster = async (
     
     // Wait for the approval to be mined
     const receipt = await res.wait();
+    if (!receipt) {
+            throw new Error("Transaction receipt is null");
+    }
     console.log("Token approval confirmed in block:", receipt.blockNumber);
     
     return true;
