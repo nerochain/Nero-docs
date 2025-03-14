@@ -12,6 +12,11 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       title: "Introduction to Nerochain",
       url: "https://medium.com/@souza.mvsl/d508f827910e"
     }
+  ], '/en/tutorials/aa-wallet-integration': [
+    {
+      title: "Simple Nero Template",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
   ]
 };
 
