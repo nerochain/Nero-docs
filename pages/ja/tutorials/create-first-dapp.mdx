@@ -1,30 +1,30 @@
-# NERO Chainでの初めてのdApp作成
+# NERO Chainでの最初のdApp作成
 
-このレシピでは、アカウントアブストラクションを使用してNERO Chain上で最初の分散型アプリケーション（dApp）を構築する方法を説明します。ユーザーがNEROトークンをガス料金として必要とせずにNFTをミントできるシンプルなNFTミンティングアプリケーションを作成します。
+このレシピでは、アカウント抽象化（Account Abstraction）を使用してNERO Chain上に最初の分散型アプリケーション（dApp）を構築する手順を説明します。ユーザーがガス料金のためのNEROトークンを必要とせずにNFTをミントできる簡単なNFTミンティングアプリケーションを作成します。
 
-## 学ぶこと
-- アカウントアブストラクションを使用した完全なReact dAppのセットアップ方法
+## 学習内容
+- アカウント抽象化を使用した完全なReact dAppのセットアップ方法
 - ガスレストランザクションによるシームレスなNFTミント体験の実装方法
 - トランザクションガス料金の複数の支払いオプションの提供方法
 - ウォレット接続からトランザクション確認までの完全なユーザージャーニーの処理方法
-- 以前のチュートリアルからのすべての概念を一貫性のあるアプリケーションに統合する方法
+- 前回のチュートリアルからすべての概念を組み合わせて一貫したアプリケーションを作成する方法
 
 ## 前提条件
 - 以下のチュートリアルを完了していること：
   - [NERO Chainでの最初のコントラクトのデプロイ](/ja/tutorials/first-contract)
   - [AAウォレット統合](/ja/tutorials/aa-wallet-integration)
   - [UserOperationsの送信](/ja/tutorials/sending-ops)
-  - [Paymasterの統合](/ja/tutorials/paymaster-integration)
+  - [Paymaster統合](/ja/tutorials/paymaster-integration)
   - [支払い方法](/ja/tutorials/types-payments)
   - [トークンサポートの確認](/ja/tutorials/checking-sup-tokens)
 - ReactとTypeScriptの基本知識
-- コードエディタ（VSCode推奨）
-- MetaMaskまたは他のEthereumウォレット拡張機能
-- [Nero AAプラットフォーム](https://aa-platform.nerochain.io)からのAPIキー：[プラットフォームセクション](/ja/developer-tools/aa-platform/managing-api-keys)で方法を確認してください
+- コードエディタ（VSCodeを推奨）
+- MetaMaskまたは他のイーサリアムウォレット拡張機能
+- [Nero AAプラットフォーム](https://aa-platform.nerochain.io)からのAPIキー: 取得方法は[プラットフォームセクション](/ja/developer-tools/aa-platform/managing-api-keys)を確認してください
 
 ## ステップ1：開発環境のセットアップ
 
-開始する最も簡単な方法は、NERO ChainとAccount Abstractionのために事前構成されたテンプレートリポジトリを使用することです。
+開始する最も簡単な方法は、NERO ChainとAccount Abstractionのために事前設定されたテンプレートリポジトリを使用することです。
 
 ```bash
 # テンプレートリポジトリをクローン
@@ -38,18 +38,18 @@ npm install
 cp .env.example .env
 ```
 
->**_注意_**: 一からReactプロジェクトを作成することもできますが、上記のリポジトリをクローンする方が簡単です。
+>**_注意_**: 最初からReactプロジェクトを作成することもできますが、上記のリポジトリをクローンした方が簡単です。
 
 `.env`ファイルを開き、PaymasterのAPIキーを追加します：
 
 ```
-REACT_APP_PAYMASTER_API_KEY=aa_platformからのあなたのapi_key
+REACT_APP_PAYMASTER_API_KEY=aa_platformから取得したAPIキー
 ```
 
-NFTコントラクトアドレスも設定する必要があります。このレシピでは、NERO Chain testnet上の例のNFTコントラクトを使用できます：
+また、NFTコントラクトアドレスも設定する必要があります。このレシピでは、NERO Chainテストネット上の例NFTコントラクトを使用できます：
 
 ```
-REACT_APP_NFT_CONTRACT=0xあなたのNFTコントラクトアドレス
+REACT_APP_NFT_CONTRACT=あなたのNFTコントラクトアドレス
 ```
 
 ## ステップ2：プロジェクト構造の理解
@@ -65,22 +65,22 @@ my-first-dapp/
 │   │   ├── NFTMinter.tsx         # NFTミントコンポーネント
 │   │   └── PaymentTypeSelector.tsx  # 支払い選択コンポーネント
 │   ├── utils/
-│   │   ├── aaUtils.ts       # アカウントアブストラクションユーティリティ
+│   │   ├── aaUtils.ts       # アカウント抽象化ユーティリティ
 │   │   └── errorHandler.ts  # エラー処理ユーティリティ
 │   ├── App.tsx              # メインアプリケーションコンポーネント
-│   ├── config.ts            # 設定設定
-│   └── index.tsx            # アプリケーションエントリーポイント
-└── package.json             # プロジェクト依存関係
+│   ├── config.ts            # 設定
+│   └── index.tsx            # アプリケーションのエントリポイント
+└── package.json             # プロジェクトの依存関係
 ```
 
 ## ステップ3：ウォレット接続の実装
 
-テンプレートにはプレースホルダーの実装が含まれています。まず、ウォレット接続機能を実装しましょう。
+テンプレートにはプレースホルダー実装が含まれています。まず、ウォレット接続機能を実装しましょう。
 
 `src/utils/aaUtils.ts`を開き、`getSigner`関数を更新します：
 
 ```typescript
-// プレースホルダーの実装を置き換える
+// プレースホルダー実装を置き換え
 export const getSigner = async () => {
   if (!window.ethereum) {
     throw new Error("暗号ウォレットが見つかりません。MetaMaskをインストールしてください。");
@@ -94,7 +94,7 @@ export const getSigner = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
 
-    // サイナーのアドレスを取得して検証
+    // アドレスを取得してサイナーを検証
     const address = await signer.getAddress();
     console.log("接続されたウォレットアドレス:", address);
 
@@ -111,9 +111,9 @@ export const getSigner = async () => {
 ```typescript
 export const getAAWalletAddress = async (accountSigner: ethers.Signer) => {
   try {
-    // getAddressメソッドを持つ有効なサイナーがあることを確認
+    // getAddressメソッドを持つ有効なサイナーであることを確認
     if (!accountSigner || typeof accountSigner.getAddress !== 'function') {
-      throw new Error("無効なサイナーオブジェクト：getAddressメソッドが必要です");
+      throw new Error("無効なサイナーオブジェクト: getAddressメソッドが必要です");
     }
     
     // SimpleAccountビルダーを初期化
@@ -127,7 +127,7 @@ export const getAAWalletAddress = async (accountSigner: ethers.Signer) => {
       }
     );
     
-    // AAウォレットのカウンターファクチュアルアドレスを取得
+    // AAウォレットのcounterfactualアドレスを取得
     const address = await simpleAccount.getSender();
     console.log("AAウォレットアドレス:", address);
     
@@ -139,7 +139,7 @@ export const getAAWalletAddress = async (accountSigner: ethers.Signer) => {
 };
 ```
 
-次に、`WalletConnect`コンポーネントでウォレット接続を適切に実装しましょう。`src/components/WalletConnect.tsx`を開き、ウォレットの状態変化を処理するように更新します：
+次に、`WalletConnect`コンポーネントでウォレット接続を適切に実装しましょう。`src/components/WalletConnect.tsx`を開き、ウォレットの状態変更を処理するように更新します：
 
 ```typescript
 import React, { useState, useEffect } from 'react';
@@ -157,7 +157,7 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onWalletConnected }) => {
   const [aaAddress, setAaAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   
-  // コンポーネントマウント時にウォレットが既に接続されているかどうかをチェック
+  // コンポーネントマウント時にウォレットが既に接続されているかチェック
   useEffect(() => {
     const checkWalletConnection = async () => {
       try {
@@ -168,7 +168,7 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onWalletConnected }) => {
           }
         }
       } catch (error) {
-        console.error("ウォレット接続チェックエラー:", error);
+        console.error("ウォレット接続確認エラー:", error);
       }
     };
     
@@ -215,7 +215,7 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onWalletConnected }) => {
       // 状態を更新
       setIsConnected(true);
       
-      // コールバックが提供されている場合は呼び出す
+      // コールバックがあれば呼び出し
       if (onWalletConnected) {
         onWalletConnected(address, aaWalletAddress);
       }
@@ -228,47 +228,8 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onWalletConnected }) => {
     }
   };
   
-  const disconnectWallet = () => {
-    setIsConnected(false);
-    setEoaAddress('');
-    setAaAddress('');
-  };
-  
-  return (
-    <div className="wallet-connect">
-      {!isConnected ? (
-        <button 
-          onClick={connectWallet} 
-          disabled={isLoading}
-          className="connect-button"
-        >
-          {isLoading ? "接続中..." : "ウォレットを接続"}
-        </button>
-      ) : (
-        <div className="wallet-info">
-          <div className="address-container">
-            <div className="address-section">
-              <span className="address-label">EOAアドレス:</span>
-              <span className="address-value">
-                {eoaAddress.substring(0, 6)}...{eoaAddress.substring(eoaAddress.length - 4)}
-              </span>
-            </div>
-            <div className="address-section">
-              <span className="address-label">AAウォレット:</span>
-              <span className="address-value">
-                {aaAddress.substring(0, 6)}...{aaAddress.substring(aaAddress.length - 4)}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {error && <div className="error-message">{error}</div>}
-    </div>
-  );
+  // コンポーネントの残りの部分...
 };
-
-export default WalletConnect;
 ```
 
 次に、`App.tsx`を更新してウォレット接続を適切に処理します：
@@ -288,361 +249,47 @@ const App: React.FC = () => {
   const [signer, setSigner] = useState<ethers.Signer | undefined>(undefined);
   const [eoaAddress, setEoaAddress] = useState<string>('');
   const [aaAddress, setAaAddress] = useState<string>('');
-  const [isConnected, setIsConnected] = useState(false);
   
-  // ウォレット接続ハンドラー
-  const handleWalletConnected = async (eoa: string, aa: string) => {
+  /**
+   * ウォレット接続のハンドル - 本物のサイナーを取得することが重要！
+   */
+  const handleWalletConnected = async (eoaAddr: string, aaAddr: string) => {
     try {
-      const signerInstance = await getSigner();
-      setSigner(signerInstance);
-      setEoaAddress(eoa);
-      setAaAddress(aa);
-      setIsConnected(true);
+      // ウォレットから実際のサイナーを取得 - モックサイナーは使用しないでください！
+      const realSigner = await getSigner();
       
-      toast.success("ウォレットが接続されました！");
-    } catch (error: any) {
-      console.error("サイナーの取得エラー:", error);
-      toast.error("ウォレット接続エラー: " + (error.message || "不明なエラー"));
+      setEoaAddress(eoaAddr);
+      setAaAddress(aaAddr);
+      setSigner(realSigner);
+      
+      toast.success('ウォレットが正常に接続されました！');
+    } catch (error) {
+      console.error("サイナー取得エラー:", error);
+      toast.error('ウォレットサイナーの取得に失敗しました。もう一度お試しください。');
     }
   };
   
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1>NERO Chain NFTミンター</h1>
-        <WalletConnect onWalletConnected={handleWalletConnected} />
-      </header>
-      
-      <main className="app-main">
-        {isConnected ? (
-          <NFTMinter 
-            signer={signer} 
-            aaAddress={aaAddress}
-          />
-        ) : (
-          <div className="connect-prompt">
-            <p>NFTをミントするにはウォレットを接続してください</p>
-          </div>
-        )}
-      </main>
-      
-      <footer className="app-footer">
-        <p>NERO Chain dAppサンプル</p>
-      </footer>
-      
-      <ToastContainer position="bottom-right" />
-    </div>
-  );
+  // コンポーネントの残りの部分...
 };
-
-export default App;
 ```
 
-## ステップ4：支払いタイプセレクターの実装
+## ステップ4：Paymaster統合のセットアップ
 
-次に、ユーザーがトランザクションの支払い方法を選択できるようにします。`src/components/PaymentTypeSelector.tsx`を更新します：
-
-```typescript
-import React, { useState, useEffect } from 'react';
-import { getSupportedTokens } from '../utils/aaUtils';
-import { ethers } from 'ethers';
-
-interface Token {
-  address: string;
-  symbol: string;
-  type?: number;
-}
-
-interface PaymentTypeSelectorProps {
-  onSelectionChange: (paymentType: number, tokenAddress?: string) => void;
-  signer: ethers.Signer;
-  disabled?: boolean;
-}
-
-const PaymentTypeSelector: React.FC<PaymentTypeSelectorProps> = ({ 
-  onSelectionChange, 
-  signer,
-  disabled = false 
-}) => {
-  const [paymentType, setPaymentType] = useState<number>(0); // 0: スポンサード, 1: 前払い, 2: 後払い
-  const [tokens, setTokens] = useState<Token[]>([]);
-  const [selectedToken, setSelectedToken] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // 支払いタイプが変更されたときのハンドラー
-  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newPaymentType = parseInt(e.target.value);
-    setPaymentType(newPaymentType);
-    
-    // スポンサードの場合はトークンアドレスなし
-    if (newPaymentType === 0) {
-      setSelectedToken('');
-      onSelectionChange(newPaymentType);
-    } else if (selectedToken) {
-      // 選択されたトークンがあり、新しい支払いタイプが1または2の場合
-      onSelectionChange(newPaymentType, selectedToken);
-    }
-  };
-  
-  // トークン選択が変更されたときのハンドラー
-  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const tokenAddress = e.target.value;
-    setSelectedToken(tokenAddress);
-    
-    // 有効なトークンが選択されていて、支払いタイプが1または2の場合のみ親に通知
-    if (tokenAddress && paymentType > 0) {
-      onSelectionChange(paymentType, tokenAddress);
-    }
-  };
-  
-  // サポートされているトークンのロード
-  useEffect(() => {
-    const loadTokens = async () => {
-      // 支払いタイプが0（スポンサード）の場合はトークンをロードしない
-      if (paymentType === 0 || !signer) return;
-      
-      try {
-        setIsLoading(true);
-        const supportedTokens = await getSupportedTokens(signer);
-        setTokens(supportedTokens);
-        
-        // トークンがロードされた後に選択されたトークンがない場合、最初のトークンを選択
-        if (supportedTokens.length > 0 && !selectedToken) {
-          setSelectedToken(supportedTokens[0].address);
-          onSelectionChange(paymentType, supportedTokens[0].address);
-        }
-      } catch (error) {
-        console.error("トークンのロードエラー:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadTokens();
-  }, [paymentType, signer]);
-  
-  return (
-    <div className="payment-type-selector">
-      <div className="selector-container">
-        <label htmlFor="payment-type">支払い方法:</label>
-        <select
-          id="payment-type"
-          value={paymentType}
-          onChange={handlePaymentTypeChange}
-          disabled={disabled}
-          className="payment-select"
-        >
-          <option value="0">スポンサード（ガス料金なし）</option>
-          <option value="1">ERC20前払い</option>
-          <option value="2">ERC20後払い</option>
-        </select>
-      </div>
-      
-      {paymentType > 0 && (
-        <div className="selector-container">
-          <label htmlFor="token-select">トークン:</label>
-          <select
-            id="token-select"
-            value={selectedToken}
-            onChange={handleTokenChange}
-            disabled={disabled || isLoading || tokens.length === 0}
-            className="token-select"
-          >
-            {tokens.length === 0 ? (
-              <option value="">利用可能なトークンがありません</option>
-            ) : (
-              <>
-                <option value="">トークンを選択...</option>
-                {tokens.map((token) => (
-                  <option key={token.address} value={token.address}>
-                    {token.symbol}
-                  </option>
-                ))}
-              </>
-            )}
-          </select>
-          {isLoading && <span className="loading-indicator">読み込み中...</span>}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default PaymentTypeSelector;
-```
-
-## ステップ5：NFTミンターコンポーネントの実装
-
-さあ、NFTミントコンポーネントを実装しましょう。これは、支払いタイプセレクターとUserOperation送信ロジックを組み合わせます。`src/components/NFTMinter.tsx`を更新します：
+次に、`initAABuilder`関数を更新してペイマスター統合を実装します：
 
 ```typescript
-import React, { useState } from 'react';
-import { ethers } from 'ethers';
-import { toast } from 'react-toastify';
-import PaymentTypeSelector from './PaymentTypeSelector';
-import { executeOperation } from '../utils/aaUtils';
-import { NFT_CONTRACT } from '../config';
-
-interface NFTMinterProps {
-  signer?: ethers.Signer;
-  aaAddress: string;
-}
-
-const NFTMinter: React.FC<NFTMinterProps> = ({ signer, aaAddress }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [txHash, setTxHash] = useState<string | null>(null);
-  const [tokenId, setTokenId] = useState<string | null>(null);
-  const [paymentType, setPaymentType] = useState(0);
-  const [tokenAddress, setTokenAddress] = useState<string | undefined>(undefined);
-  
-  // NFTコントラクトのABI - 最小限のミント関数のみ
-  const nftAbi = [
-    "function mint(address to) external returns (uint256)"
-  ];
-  
-  // 支払い選択の変更を処理
-  const handlePaymentSelectionChange = (type: number, token?: string) => {
-    setPaymentType(type);
-    setTokenAddress(token);
-  };
-  
-  // NFTミント処理
-  const handleMintNFT = async () => {
-    if (!signer) {
-      toast.error("ウォレットが接続されていません");
-      return;
-    }
-    
-    try {
-      setIsLoading(true);
-      
-      // ミントトランザクションを実行
-      console.log(`NFTミント - 支払いタイプ: ${paymentType}, トークン: ${tokenAddress || "なし"}`);
-      
-      const result = await executeOperation(
-        signer,
-        NFT_CONTRACT,
-        nftAbi,
-        "mint",
-        [aaAddress], // AAウォレットアドレスにミント
-        paymentType,
-        tokenAddress
-      );
-      
-      // トランザクションハッシュを設定
-      setTxHash(result.transactionHash);
-      
-      // トークンIDを設定（実際のアプリケーションではイベントログから取得）
-      setTokenId("1"); // 簡略化のため、実際にはイベントから抽出するべき
-      
-      toast.success("NFTが正常にミントされました！");
-    } catch (error: any) {
-      console.error("NFTミントエラー:", error);
-      toast.error(`ミントエラー: ${error.message || "不明なエラー"}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  return (
-    <div className="nft-minter">
-      <h2>NFTをミント</h2>
-      
-      <div className="minter-content">
-        {/* まだミントしていない場合はミントフォームを表示 */}
-        {!txHash ? (
-          <>
-            <div className="form-section">
-              <p>
-                NERO Chain上で新しいNFTをミントします。
-                ミント先：<strong>{aaAddress.substring(0, 6)}...{aaAddress.substring(aaAddress.length - 4)}</strong>
-              </p>
-              
-              <div className="payment-section">
-                <h3>支払い方法を選択</h3>
-                {signer && (
-                  <PaymentTypeSelector
-                    signer={signer}
-                    onSelectionChange={handlePaymentSelectionChange}
-                    disabled={isLoading}
-                  />
-                )}
-              </div>
-            </div>
-            
-            <div className="action-section">
-              <button
-                onClick={handleMintNFT}
-                disabled={isLoading || !signer}
-                className="mint-button"
-              >
-                {isLoading ? "処理中..." : "NFTをミント"}
-              </button>
-              {isLoading && <p className="loading-message">トランザクションを処理中です。これには数分かかることがあります。</p>}
-            </div>
-          </>
-        ) : (
-          // ミント後は成功メッセージを表示
-          <div className="mint-success">
-            <h3>NFTがミントされました！</h3>
-            {tokenId && <p>トークンID: {tokenId}</p>}
-            <p>
-              <a 
-                href={`https://testnet.neroscan.io/tx/${txHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="explorer-link"
-              >
-                エクスプローラーでトランザクションを表示
-              </a>
-            </p>
-            <button 
-              onClick={() => {
-                setTxHash(null);
-                setTokenId(null);
-              }}
-              className="mint-another"
-            >
-              別のNFTをミント
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default NFTMinter;
-```
-
-## ステップ6：トランザクション実行ユーティリティの実装
-
-さあ、`executeOperation`関数を実装して、ユーザーの選択した支払い方法でUserOperationを作成して送信しましょう。`src/utils/aaUtils.ts`にこの関数を追加：
-
-```typescript
-// スポンサードまたはトークンを使用してオペレーションを実行
-export const executeOperation = async (
-  accountSigner: ethers.Signer,
-  contractAddress: string,
-  contractAbi: any,
-  functionName: string,
-  functionParams: any[],
-  paymentType: number,
-  tokenAddress?: string
-) => {
+export const initAABuilder = async (accountSigner: ethers.Signer, apiKey?: string) => {
   try {
-    console.log("オペレーション実行を開始:");
-    console.log(`- コントラクト: ${contractAddress}`);
-    console.log(`- 関数: ${functionName}`);
-    console.log(`- 支払いタイプ: ${paymentType}`);
+    // getAddressメソッドを持つ有効なサイナーであることを確認
+    if (!accountSigner || typeof accountSigner.getAddress !== 'function') {
+      throw new Error("無効なサイナーオブジェクト: getAddressメソッドが必要です");
+    }
+
+    // サイナーのアドレスを取得して動作していることを確認
+    const signerAddress = await accountSigner.getAddress();
+    console.log("アドレス用のAAビルダーを初期化中:", signerAddress);
     
-    // クライアントを初期化
-    const client = await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
-      overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
-      entryPoint: CONTRACT_ADDRESSES.entryPoint,
-    });
-    
-    // ビルダーを初期化
+    // SimpleAccountビルダーを初期化
     const builder = await Presets.Builder.SimpleAccount.init(
       accountSigner,
       NERO_CHAIN_CONFIG.rpcUrl,
@@ -653,184 +300,542 @@ export const executeOperation = async (
       }
     );
     
-    // コントラクトインスタンスを作成
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      ethers.getDefaultProvider()
-    );
+    // ペイマスター用のAPIキーを設定
+    const currentApiKey = apiKey || API_KEY;
     
-    // 関数呼び出しをエンコード
-    const callData = contract.interface.encodeFunctionData(
-      functionName,
-      functionParams
-    );
-    
-    // paymasterオプションを設定
-    const paymasterOptions: any = {
-      apikey: PAYMASTER_API_KEY,
+    // APIキーでペイマスターオプションを設定
+    builder.setPaymasterOptions({
+      apikey: currentApiKey,
       rpc: AA_PLATFORM_CONFIG.paymasterRpc,
-      type: paymentType.toString(),
-    };
+      type: "0" // デフォルトはフリー（スポンサー付きガス）
+    });
     
-    // ERC20支払いの場合、トークンアドレスを追加
-    if (paymentType > 0 && tokenAddress) {
-      paymasterOptions.token = tokenAddress;
-      
-      // 注：実際のアプリケーションでは、ここでトークン承認を処理する必要があるかもしれません
-      // await approveTokenForPaymaster(accountSigner, tokenAddress);
-    }
+    // UserOperationのガスパラメータを設定
+    builder.setCallGasLimit(300000);
+    builder.setVerificationGasLimit(2000000);
+    builder.setPreVerificationGas(100000);
     
-    // ビルダーにpaymasterオプションを設定
-    console.log("Paymasterオプションを設定:", paymasterOptions);
-    builder.setPaymasterOptions(paymasterOptions);
-    
-    // ガスパラメータを設定
-    const gasParams = {
-      callGasLimit: "0x88b8",
-      verificationGasLimit: "0x33450",
-      preVerificationGas: "0xc350",
-      maxFeePerGas: "0x2162553062",
-      maxPriorityFeePerGas: "0x40dbcf36",
-    };
-    
-    builder.setCallGasLimit(gasParams.callGasLimit);
-    builder.setVerificationGasLimit(gasParams.verificationGasLimit);
-    builder.setPreVerificationGas(gasParams.preVerificationGas);
-    builder.setMaxFeePerGas(gasParams.maxFeePerGas);
-    builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
-    
-    // UserOperationを作成
-    console.log("UserOperationを作成中...");
-    const userOp = await builder.execute(contractAddress, 0, callData);
-    
-    // UserOperationを送信
-    console.log("UserOperationを送信中...");
-    const res = await client.sendUserOperation(userOp);
-    console.log(`UserOperation送信ハッシュ: ${res.userOpHash}`);
-    
-    // トランザクションがマイニングされるのを待つ
-    console.log("トランザクションがマイニングされるのを待機中...");
-    const receipt = await res.wait();
-    if (!receipt) {
-      throw new Error("トランザクションのレシートがnullです");
-    }
-    console.log(`トランザクションがブロック${receipt.blockNumber}でマイニングされました`);
-    
-    return {
-      userOpHash: res.userOpHash,
-      transactionHash: receipt.transactionHash,
-      receipt
-    };
+    return builder;
   } catch (error) {
-    console.error("オペレーション実行エラー:", error);
+    console.error("AAビルダー初期化エラー:", error);
     throw error;
   }
 };
 ```
 
-## ステップ7：アプリケーションの設定
-
-最後に、`src/config.ts`ファイルを更新して必要な設定を含めましょう：
+次に、支払いタイプを設定するユーティリティを実装します：
 
 ```typescript
-// NERO Chain設定
-export const NERO_CHAIN_CONFIG = {
-  networkId: 619,
-  rpcUrl: "https://testnet.neroscan.io/",
-  name: "NERO Chain Testnet",
-  blockExplorerUrl: "https://testnet.neroscan.io",
+export const setPaymentType = (builder: any, paymentType: number, tokenAddress: string = '') => {
+  const paymasterOptions: any = { 
+    type: paymentType.toString(),
+    apikey: API_KEY,
+    rpc: AA_PLATFORM_CONFIG.paymasterRpc
+  };
+  
+  // ERC20支払いが選択されている場合、トークンアドレスを追加
+  if (paymentType > 0 && tokenAddress) {
+    paymasterOptions.token = tokenAddress;
+  }
+  
+  builder.setPaymasterOptions(paymasterOptions);
+  return builder;
 };
-
-// AAプラットフォーム設定
-export const AA_PLATFORM_CONFIG = {
-  bundlerRpc: "https://aa-bundler.testnet.nerochain.io/rpc",
-  paymasterRpc: "https://aa-paymaster.testnet.nerochain.io/rpc",
-};
-
-// コントラクトアドレス
-export const CONTRACT_ADDRESSES = {
-  entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-  accountFactory: "0x9406Cc6185a346906296840746125a0E44976454",
-  tokenPaymaster: "0xc3eDf18CCdFF430AD5fb9466b13aA32d995e1B9C",
-};
-
-// NFTコントラクトアドレス - 環境変数から取得
-export const NFT_CONTRACT = process.env.REACT_APP_NFT_CONTRACT || "";
-
-// Paymaster APIキー - 環境変数から取得
-export const PAYMASTER_API_KEY = process.env.REACT_APP_PAYMASTER_API_KEY || "";
 ```
 
-## ステップ8：アプリケーションの実行とテスト
+## ステップ5：NFTミントロジックの実装
 
-これですべての実装が完了しました。次のコマンドを実行してアプリケーションをテストしましょう：
+NFTミント機能を実装しましょう。まず、操作を実行するための関数で`aaUtils.ts`ファイルを更新します：
+
+```typescript
+export const executeOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  paymentType: number = 0,
+  selectedToken: string = '',
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // サイナーを検証
+    if (!accountSigner || typeof accountSigner.getAddress !== 'function') {
+      throw new Error("無効なサイナー: getAddressメソッドがありません");
+    }
+    
+    // クライアントを初期化
+    const client = await initAAClient(accountSigner);
+
+    // ペイマスターでビルダーを初期化
+    const builder = await initAABuilder(accountSigner, options?.apiKey);
+
+    // 支払いタイプとトークンが指定されている場合は設定
+    if (paymentType > 0 && selectedToken) {
+      // ERC20トークンの支払いオプションを設定
+      builder.setPaymasterOptions({
+        apikey: options?.apiKey || API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: paymentType.toString(),
+        token: selectedToken
+      });
+    } else {
+      // デフォルトの支払いオプション（スポンサー付き）を設定
+      builder.setPaymasterOptions({
+        apikey: options?.apiKey || API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: paymentType.toString()
+      });
+    }
+
+    // コントラクトインスタンスを作成
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      getProvider()
+    );
+
+    // 関数呼び出しデータをエンコード
+    const callData = contract.interface.encodeFunctionData(
+      functionName,
+      functionParams
+    );
+
+    // ビルダーにトランザクションデータを設定
+    const userOp = await builder.execute(contractAddress, 0, callData);
+
+    // ユーザーオペレーションをバンドラーに送信
+    console.log("UserOperationをバンドラーに送信");
+    const res = await client.sendUserOperation(userOp);
+
+    console.log("UserOperationがハッシュで送信されました:", res.userOpHash);
+
+    // トランザクションが含まれるのを待つ
+    const receipt = await res.wait();
+
+    // 利用可能な場合はトランザクションハッシュをログに記録
+    if (receipt && receipt.transactionHash) {
+      console.log("トランザクションがマイニングされました:", receipt.transactionHash);
+    }
+
+    // 操作結果を返す
+    return {
+      userOpHash: res.userOpHash,
+      transactionHash: receipt?.transactionHash || '',
+      receipt: receipt
+    };
+  } catch (error) {
+    console.error("操作実行エラー:", error);
+    throw error;
+  }
+};
+```
+
+次に、NFTミント関数を追加します：
+
+```typescript
+// ファイルの先頭にNFT ABIの定義を追加
+const NFT_ABI = [
+  "function mint(address to, string memory uri) external",
+  "function tokenURI(uint256 tokenId) external view returns (string memory)",
+  "function balanceOf(address owner) external view returns (uint256)"
+];
+
+export const mintNFT = async (
+  accountSigner: ethers.Signer,
+  recipientAddress: string,
+  metadataUri: string,
+  paymentType: number = 0,
+  selectedToken: string = '',
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // ミント関数を実行
+    return await executeOperation(
+      accountSigner,
+      CONTRACT_ADDRESSES.nftContract,
+      NFT_ABI,
+      'mint',
+      [recipientAddress, metadataUri],
+      paymentType,
+      selectedToken,
+      options
+    );
+  } catch (error) {
+    console.error("NFTミントエラー:", error);
+    throw error;
+  }
+};
+```
+
+## ステップ6：ガス料金のトークンサポートの追加
+
+前払いおよび後払いオプションでは、Paymasterからサポートされているトークンを取得する必要があります。ここでは、異なるペイマスター実装が異なる形式でトークンを返す可能性があるため、問題が発生しやすい点です。以下は堅牢な実装です：
+
+```typescript
+export const getSupportedTokens = async (client: any, builder: any) => {
+  try {
+    // ビルダーが初期化されていることを確認
+    if (!builder) {
+      throw new Error("ビルダーが初期化されていません");
+    }
+
+    // AAウォレットアドレスを取得
+    const sender = await builder.getSender();
+    console.log("ウォレット用のサポートされているトークンを取得:", sender);
+
+    // トークン照会用の最小限のUserOpを作成
+    const minimalUserOp = {
+      sender,
+      nonce: "0x0",
+      initCode: "0x",
+      callData: "0x",
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+      paymasterAndData: "0x",
+      signature: "0x"
+    };
+
+    // ペイマスターAPI呼び出し用のプロバイダーを設定
+    const provider = new ethers.providers.JsonRpcProvider(AA_PLATFORM_CONFIG.paymasterRpc);
+    console.log("ペイマスターRPCに接続:", AA_PLATFORM_CONFIG.paymasterRpc);
+
+    // APIキーをログに記録（セキュリティのために一部を隠す）
+    const maskedApiKey = API_KEY ? `${API_KEY.substring(0, 4)}...${API_KEY.substring(API_KEY.length - 4)}` : '未定義';
+    console.log(`APIキーを使用: ${maskedApiKey}`);
+    
+    // ペイマスターAPIに対してさまざまなパラメータ形式を試す
+    let tokensResponse;
+    
+    try {
+      // 最初の形式の試み: [userOp, apiKey, entryPoint]
+      console.log("pm_supported_tokensの最初のパラメータ形式を試行");
+      tokensResponse = await provider.send("pm_supported_tokens", [
+        minimalUserOp,
+        API_KEY,
+        CONTRACT_ADDRESSES.entryPoint
+      ]);
+    } catch (formatError) {
+      console.warn("最初のパラメータ形式が失敗:", formatError);
+      
+      try {
+        // 二番目の形式の試み: { userOp, entryPoint, apiKey }
+        console.log("pm_supported_tokensの二番目のパラメータ形式を試行");
+        tokensResponse = await provider.send("pm_supported_tokens", [{
+          userOp: minimalUserOp,
+          entryPoint: CONTRACT_ADDRESSES.entryPoint,
+          apiKey: API_KEY
+        }]);
+      } catch (format2Error) {
+        console.warn("二番目のパラメータ形式が失敗:", format2Error);
+        
+        // 三番目の形式の試み: { op, entryPoint }
+        console.log("pm_supported_tokensの三番目のパラメータ形式を試行");
+        tokensResponse = await provider.send("pm_supported_tokens", [{
+          op: minimalUserOp,
+          entryPoint: CONTRACT_ADDRESSES.entryPoint
+        }]);
+      }
+    }
+
+    console.log("トークンレスポンス:", tokensResponse);
+
+    // 結果を変換して返す
+    if (!tokensResponse) {
+      console.log("トークンレスポンスが受信されませんでした");
+      return [];
+    }
+    
+    // 異なるレスポンス形式を処理
+    let tokens = [];
+    if (tokensResponse.tokens) {
+      tokens = tokensResponse.tokens;
+    } else if (Array.isArray(tokensResponse)) {
+      tokens = tokensResponse;
+    } else if (typeof tokensResponse === 'object') {
+      // レスポンスオブジェクト内でトークンを見つける
+      const possibleTokensArray = Object.values(tokensResponse).find(val => Array.isArray(val));
+      if (possibleTokensArray && Array.isArray(possibleTokensArray)) {
+        tokens = possibleTokensArray as any[];
+      }
+    }
+    
+    if (tokens.length === 0) {
+      console.log("レスポンス内にトークンが見つかりません");
+      return [];
+    }
+    
+    // デバッグ用に生のトークンレスポンスをログに記録
+    console.log("トークンレスポンスの生データ:", JSON.stringify(tokensResponse));
+    
+    // トークンタイプを示すレスポンス内のフラグを探す
+    const isArrayWithFreepayFlag = tokens.some((t: any) => 
+      'freepay' in t || 'prepay' in t || 'postpay' in t
+    );
+      
+    if (isArrayWithFreepayFlag) {
+      console.log("トークンレスポンスに支払いタイプフラグを検出");
+    }
+
+    const mappedTokens = tokens.map((token: any) => {
+      // トークンタイプが有効な数値であることを確認
+      let tokenType = 1; // デフォルトはタイプ1（前払い）
+      
+      // これがprepay/postpayフラグを持つレスポンスからのものかどうかを確認
+      if ('freepay' in token || 'prepay' in token || 'postpay' in token) {
+        if (token.freepay === true) {
+          tokenType = 0; // スポンサー
+        } else if (token.prepay === true) {
+          tokenType = 1; // 前払い
+        } else if (token.postpay === true) {
+          tokenType = 2; // 後払い
+        }
+      } 
+      // タイプが存在する場合は解析を試みる
+      else if (token.type !== undefined) {
+        if (typeof token.type === 'number' && !isNaN(token.type)) {
+          tokenType = token.type;
+        } else if (typeof token.type === 'string') {
+          const parsedType = parseInt(token.type);
+          if (!isNaN(parsedType)) {
+            tokenType = parsedType;
+          }
+        }
+      }
+      
+      // 標準化されたプロパティを持つトークンオブジェクトを作成
+      return {
+        address: token.token || token.address,
+        decimal: parseInt(token.decimal || token.decimals || "18"),
+        symbol: token.symbol,
+        type: tokenType,
+        price: token.price ? parseFloat(token.price) : undefined,
+        // デバッグと代替フィルタリングのために元のフラグを追加
+        prepay: token.prepay === true,
+        postpay: token.postpay === true,
+        freepay: token.freepay === true
+      };
+    });
+
+    console.log("マッピングされたトークン:", mappedTokens);
+    return mappedTokens;
+  } catch (error) {
+    console.error("サポートされているトークンの取得エラー:", error);
+    // デバッグ用のペイマスターURLを含める
+    console.error("ペイマスターURL:", AA_PLATFORM_CONFIG.paymasterRpc);
+    return [];
+  }
+};
+```
+
+## ステップ7：UIでのトークンフィルタリングの強化
+
+次に、`PaymentTypeSelector`コンポーネントを更新して、トークンを適切にフィルタリングして表示しましょう：
+
+```typescript
+// src/components/PaymentTypeSelector.tsx
+// 支払いタイプに基づいてトークンをフィルタリング
+const getFilteredTokens = () => {
+  if (paymentType === 0) return [];
+
+  console.log("支払いタイプ:", paymentType);
+  console.log("すべてのサポートされているトークン:", supportedTokens);
+  
+  // 各トークンが支払いタイプと一致するかどうかを確認
+  // タイプを判断できない場合は、デフォルトですべてのトークンを返す
+  const filtered = supportedTokens.filter(token => {
+    // 正しいタイプのトークンがない場合、選択された支払いタイプのすべてのトークンを返す
+    if (token.type === undefined) return true;
+    
+    // 数値型を一致させるために緩い等価性（==）を使用する
+    return token.type == paymentType ||
+      // 前払い（1）の場合、prepay=trueのトークンも含める
+      (paymentType === 1 && token.prepay === true) ||
+      // 後払い（2）の場合、postpay=trueのトークンも含める
+      (paymentType === 2 && token.postpay === true);
+  });
+  
+  console.log("支払いタイプ", paymentType, "に対するフィルタリングされたトークン:", filtered);
+  return filtered;
+};
+```
+
+## ステップ8：エラー処理
+
+基本的なエラー処理関数を実装するために`errorHandler.ts`ファイルを更新しましょう：
+
+```typescript
+export const extractErrorCode = (error: any): string | null => {
+  if (!error) return null;
+  
+  // エラーメッセージの文字列を取得
+  const errorMessage = error.message || error.toString();
+  
+  // AAエラーコードを抽出（形式：AA##またはFailedOp(##, "...")）
+  const aaMatch = errorMessage.match(/AA(\d\d)/);
+  if (aaMatch) return `AA${aaMatch[1]}`;
+  
+  // Paymasterエラーコードを抽出
+  const pmMatch = errorMessage.match(/PM(\d\d)/);
+  if (pmMatch) return `PM${pmMatch[1]}`;
+  
+  // FailedOp形式からエラーを抽出
+  const failedOpMatch = errorMessage.match(/FailedOp\((\d+),\s*"([^"]*)"/);
+  if (failedOpMatch) {
+    const code = parseInt(failedOpMatch[1]);
+    // コードをAAエラー形式にマッピング
+    if (code >= 0 && code <= 99) {
+      return `AA${code.toString().padStart(2, '0')}`;
+    }
+  }
+  
+  return null;
+};
+
+export const getReadableErrorMessage = (error: any): string => {
+  // エラーコードを抽出
+  const errorCode = extractErrorCode(error);
+  
+  // コードが存在する場合、マップからエラーメッセージを取得
+  if (errorCode && AA_ERROR_CODES[errorCode]) {
+    return `${AA_ERROR_CODES[errorCode]} (${errorCode})`;
+  }
+  
+  // その他の一般的なイーサリアムエラーを処理
+  const errorMessage = error.message || error.toString();
+  
+  if (errorMessage.includes("insufficient funds")) {
+    return "このトランザクションを実行するための資金が不足しています";
+  }
+  
+  if (errorMessage.includes("execution reverted")) {
+    // リバート理由の抽出を試みる
+    const revertMatch = errorMessage.match(/execution reverted: (.*?)($|")/);
+    if (revertMatch) {
+      return `トランザクションがリバートしました: ${revertMatch[1]}`;
+    }
+    return "トランザクションがリバートしました - ターゲットコントラクトを確認してください";
+  }
+  
+  // 特定のエラーが特定されない場合は、元のメッセージを返す
+  return errorMessage;
+};
+```
+
+## ステップ9：堅牢なサイナー処理でNFTMinterコンポーネントを実装
+
+サイナーを適切に検証してトークン取得を処理するようにNFTMinterコンポーネントを更新します：
+
+```typescript
+// src/components/NFTMinter.tsx
+// コンポーネントがマウントされ、サイナーが利用可能な場合にサポートされているトークンをロード
+useEffect(() => {
+  const loadTokens = async () => {
+    // サイナーが定義されている場合にのみ実行
+    if (signer) {
+      try {
+        // サイナーにgetAddressメソッドがあるかどうかを確認
+        if (typeof signer.getAddress !== 'function') {
+          console.error("無効なサイナー: getAddressメソッドがありません");
+          setError("ウォレット接続の問題: ウォレットを再接続してください");
+          return;
+        }
+        
+        // サイナーがまだ接続されているかをgetAddressを呼び出して確認
+        await signer.getAddress();
+        
+        // 接続されている場合、トークンを取得
+        fetchSupportedTokens();
+      } catch (error) {
+        console.error("サイナー検証エラー:", error);
+        setError("ウォレット接続の問題: ウォレットを再接続してください");
+      }
+    } else {
+      // サイナーが利用できない場合はトークンをリセット
+      setSupportedTokens([]);
+      console.log("サイナーが利用できないため、トークンをリセットしました");
+    }
+  };
+  
+  loadTokens();
+}, [signer]);
+```
+
+## ステップ10：dAppの実行とテスト
+
+開発サーバーを起動します：
 
 ```bash
 npm start
 ```
 
-ブラウザが開き、アプリケーションが表示されます。次のワークフローをテストします：
+これにより、アプリケーションが http://localhost:3000 で開きます。dAppをテストするには：
 
-1. MetaMaskウォレットを接続
-2. AAウォレットアドレスが正しく表示されることを確認
-3. 支払い方法を選択（スポンサード、前払い、または後払い）
-4. トークン支払いを選択した場合、サポートされているトークンを選択
-5. NFTのミント
-6. トランザクション結果の確認
+1. 「ウォレットを接続」ボタンを使用してウォレットを接続します
+2. NFTの名前と説明を入力します
+3. 支払いタイプを選択します：
+   - 「スポンサー付き」で無料ミント
+   - 「ERC20トークンで前払い」でガスを前払い
+   - 「ERC20トークンで後払い」でトランザクション後にガスを支払う
+4. 前払いまたは後払いを選択した場合は、ドロップダウンからトークンを選択します
+5. 「NFTをミント」ボタンをクリックします
+6. ウォレットでトランザクションを承認します
+7. 確認を待ち、トランザクションハッシュを確認します
 
-## パフォーマンス最適化とエラー処理
+### トークン取得の問題のトラブルシューティング
 
-実際のアプリケーションでは、以下の最適化を考慮してください：
+前払いまたは後払いオプションを選択したときにトークンがドロップダウンに表示されない場合：
 
-1. **トークンリストのキャッシング**：サポートされているトークンのリストをキャッシュして、API呼び出しを減らす
-2. **エラー処理の強化**：より詳細なエラーメッセージとリカバリーオプションを提供
-3. **トランザクション状態の永続化**：ユーザーがページをリロードした場合でもトランザクション状態を保持
+1. **ブラウザコンソールを確認**: エラーメッセージやトークンレスポンスのログを探します
+2. **APIキーの確認**: APIキーが有効で、トークンにアクセスする権限があることを確認します
+3. **ペイマスターURLの確認**: 設定ファイル内のペイマスターURLが正しいことを確認します
+4. **トークンタイプの処理**: `getSupportedTokens`関数には、さまざまなトークン形式に対する堅牢な処理が含まれています
 
-以下は、エラー処理を強化した`errorHandler.ts`の例です：
+## さらに進む
 
-```typescript
-// src/utils/errorHandler.ts
-export const handleAAError = (error: any) => {
-  // 一般的なエラーメッセージ
-  let userMessage = "トランザクションの処理中にエラーが発生しました";
-  
-  // エラーオブジェクトからより詳細なメッセージを抽出
-  if (error && error.message) {
-    if (error.message.includes("paymaster validation failed")) {
-      userMessage = "Paymasterの検証に失敗しました。APIキーが有効であることを確認してください";
-    } else if (error.message.includes("insufficient funds")) {
-      userMessage = "アカウントに十分な資金がありません";
-    } else if (error.message.includes("user rejected")) {
-      userMessage = "ユーザーがトランザクションを拒否しました";
-    } else if (error.message.includes("execution reverted")) {
-      userMessage = "コントラクト実行が失敗しました。入力値を確認してください";
-    }
-  }
-  
-  // デバッグ用にコンソールに元のエラーを記録
-  console.error("Original error:", error);
-  
-  return userMessage;
-};
-```
+この拡張されたdAppは、特にトークン取得とウォレット統合の適切な処理に注目して、NERO Chain上でのアカウント抽象化を使用した構築の重要な概念を示しています。さらに強化するために、以下のことができます：
 
-## 次のステップ
+1. **NFT表示の追加**: ミントされたNFTを表示する機能を実装する
+2. **トークン処理の改善**: トークンの残高チェックを追加する
+3. **エラー処理の強化**: 再試行を含むより堅牢なエラー処理を実装する
+4. **バッチトランザクションの追加**: 一つのUserOperationで複数の操作をバッチ処理する実装
+5. **ガス使用量の最適化**: さまざまな操作のガスパラメータを微調整する
 
-dAppを拡張するための次のステップとして、以下を検討してください：
+## 結論
 
-1. **バッチトランザクションのサポート**: 複数のアクションを1つのUserOperationにまとめる
-2. **ハードウェアウォレットのサポート**: Ledgerなどのハードウェアウォレットのサポートを追加
-3. **多言語サポート**: アプリケーションに多言語サポートを追加
-4. **高度なNFT機能**: メタデータのアップロード、コレクションの表示、NFT取引などの機能を追加
+おめでとうございます！アカウント抽象化を使用してNERO Chain上で最初のdAppを構築しました。学んだことは以下の通りです：
 
-## まとめ
+- ユーザーのウォレットに接続し、AAウォレットを生成する方法
+- ガス料金スポンサーシップのためにNERO Chain Paymasterを統合する方法
+- UserOperationsを通じてスマートコントラクト呼び出しを実行する方法
+- ユーザーに複数の支払いオプションを提供する方法
+- トークンの取得と表示を適切に処理する方法
 
-おめでとうございます！NERO Chain上にアカウントアブストラクションを使用した完全なdAppを構築しました。このアプリケーションは：
+この基礎によって、ブロックチェーンアプリケーションにおけるガス料金の従来の障壁を取り除き、優れたユーザー体験を持つより複雑なdAppを構築できるようになります。
 
-- ユーザーが複数の支払い方法からトランザクション手数料を選択できるようにしました
-- ユーザーの通常のウォレットを安全にAAウォレットにリンクしました
-- シームレスなNFTミント体験を提供しました
-- ユーザーがネイティブトークンを持っていなくてもブロックチェーンと対話できるようにしました
+## リソース
 
-このチュートリアルで学んだ概念は、NERO Chain上の独自のdAppを構築するための強固な基盤として機能します。様々な方法でこの基本的なアプリケーションを拡張し、ユーザーに素晴らしいWeb3体験を提供しましょう！ 
+- [ERC-4337仕様](https://eips.ethereum.org/EIPS/eip-4337)
+- [AA-UserOp SDK GitHub](https://github.com/nerochain/aa-userop-sdk)
+- [NERO Chainブロックエクスプローラー](https://testnet.neroscan.io/)
+
+## 構築したもの
+
+おめでとうございます！シームレスなユーザー体験のためにアカウント抽象化を活用するNERO Chain上の完全なdAppを正常に構築しました。このアプリケーションは以下を実証しています：
+
+1. **スマートコントラクトウォレット**: AAウォレットの作成と管理
+2. **ガスレストランザクション**: ユーザーがネイティブトークンを所有せずに操作できるようにする
+3. **複数の支払いオプション**: さまざまなガス支払い方法をサポート
+4. **トークン統合**: ガス支払いのためのERC20トークンの使用
+5. **モダンなフロントエンド**: レスポンシブで直感的なUIの構築
+
+これらの概念は、DeFi、ゲーム、ソーシャルメディアなどのより複雑なアプリケーションを作成するために拡張できます。NERO Chainのアカウント抽象化機能により、ブロックチェーン技術のすべての利点を維持しながら、従来のWebアプリケーションのように感じるユーザーフレンドリーなdAppを構築することが可能になります。

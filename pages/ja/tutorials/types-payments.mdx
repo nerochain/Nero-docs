@@ -1,24 +1,24 @@
 # NERO Chainトランザクションの支払い方法
 
-このチュートリアルでは、NERO Chain Paymasterを使用してトランザクションのガス料金のための異なる支払い方法を実装する方法を説明し、スポンサード型トランザクションの代替としてのERC20トークン支払いに焦点を当てます。
+このチュートリアルでは、NERO Chain Paymasterを使用してトランザクションのガス料金に異なる支払い方法を実装する方法を説明します。スポンサー付きトランザクションの代替としてERC20トークン支払いに焦点を当てています。
 
-## 学ぶこと
+## 学習内容
 - NERO Chain Paymasterがサポートするトークンのリストを取得する方法
-- トランザクションのさまざまな支払いタイプ（スポンサード、前払い、後払い）を実装する方法
-- Paymasterインタラクションのためのトークン承認を処理する方法
-- アプリケーション用の支払い選択インターフェースを構築する方法
+- トランザクションに異なる支払いタイプ（スポンサー付き、前払い、後払い）を実装する方法
+- Paymasterの操作のためのトークン承認を処理する方法
+- アプリケーションの支払い選択インターフェースを構築する方法
 
 ## 前提条件
 - [AAウォレット統合](/ja/tutorials/aa-wallet-integration)チュートリアルを完了していること
-- [UserOperationsの送信](/ja/tutorials/sending-ops)チュートリアル（スポンサード型トランザクション付き）を完了していること
+- [UserOperationsの送信](/ja/tutorials/sending-ops)チュートリアル（スポンサー付きトランザクション）を完了していること
 - [NERO Chain AAプラットフォーム](https://aa-platform.nerochain.io)からのAPIキー
 
 ## Paymaster支払いタイプの理解
 
-前回のチュートリアルでは、開発者がすべてのガスコストをカバーするスポンサード型トランザクション（タイプ0）の使用方法を学びました。NERO Chain Paymasterは、さらに2つの追加支払いタイプをサポートしています：
+前回のチュートリアルでは、開発者がすべてのガスコストを負担するスポンサー付きトランザクション（タイプ0）の使用方法を学びました。NERO Chain Paymasterは、さらに2つの支払いタイプをサポートしています：
 
-1. **ERC20前払い（タイプ1）**: ユーザーはERC20トークンでガスコストを前払いします
-2. **ERC20後払い（タイプ2）**: ユーザーはトランザクション実行後にERC20トークンでガスコストを支払います
+1. **ERC20前払い（タイプ1）**：ユーザーはERC20トークンでガスコストを前払いします
+2. **ERC20後払い（タイプ2）**：ユーザーはトランザクション実行後にERC20トークンでガスコストを支払います
 
 これらの支払いタイプを実装する前に、まずPaymaster APIからサポートされているトークンを取得する必要があります。
 
@@ -79,7 +79,7 @@ export const getSupportedTokens = async (accountSigner: ethers.Signer) => {
     // AAウォレットアドレスを取得
     const sender = await builder.getSender();
     
-    // トークンの照会用の最小UserOpを作成
+    // トークンを照会するための最小限のUserOp
     const minimalUserOp = {
       sender,
       nonce: "0x0",
@@ -114,7 +114,7 @@ export const getSupportedTokens = async (accountSigner: ethers.Signer) => {
   } catch (error) {
     console.error("サポートされているトークンの取得エラー:", error);
     
-    // 利用可能な場合はキャッシュされたデータを返し、そうでない場合は空の配列を返す
+    // 利用可能な場合はキャッシュデータを返し、それ以外は空の配列
     return tokenCache.length > 0 ? tokenCache : [];
   }
 };
@@ -122,13 +122,13 @@ export const getSupportedTokens = async (accountSigner: ethers.Signer) => {
 
 ## ステップ2：ERC20トークン承認の処理
 
-ERC20トークンをガスに使用する場合（支払いタイプ1と2）、ユーザーのAAウォレットはまずトークンペイマスターコントラクトを承認する必要があります：
+ERC20トークンをガスに使用する場合（支払いタイプ1と2）、ユーザーのAAウォレットは最初にトークンペイマスターコントラクトを承認する必要があります：
 
 ```typescript
 // src/utils/aaUtils.ts
-// 既存のユーティリティ関数に追加
+// 既存のユーティリティ関数に以下を追加
 
-// paymasterのトークン承認を処理
+// ペイマスターのトークン承認を処理
 export const approveTokenForPaymaster = async (
   accountSigner: ethers.Signer,
   tokenAddress: string,
@@ -176,21 +176,21 @@ export const approveTokenForPaymaster = async (
       CONTRACT_ADDRESSES.tokenPaymaster
     );
     
-    // 許可額が十分な場合は早期リターン
+    // 許可額が十分な場合は早期に戻る
     if (!currentAllowance.lt(ethers.utils.parseUnits("100", 18))) {
-      console.log("トークンは既に承認済み");
+      console.log("トークンは既に承認されています");
       return true;
     }
     
-    console.log("paymasterのためのトークンを承認中...");
+    console.log("ペイマスターのトークンを承認中...");
     
-    // 承認コールデータを作成
+    // 承認のコールデータを作成
     const approveCallData = erc20Interface.encodeFunctionData(
       'approve',
       [CONTRACT_ADDRESSES.tokenPaymaster, amount]
     );
     
-    // 無料ガス用のpaymasterを設定（承認トランザクション用）
+    // 無料ガス用のペイマスターを設定（承認トランザクション用）
     builder.setPaymasterOptions({
       apikey: API_KEY,
       rpc: AA_PLATFORM_CONFIG.paymasterRpc,
@@ -218,18 +218,18 @@ export const approveTokenForPaymaster = async (
     // 承認UserOperationを送信
     console.log("承認トランザクションを送信中...");
     const res = await client.sendUserOperation(userOp);
-    console.log("承認トランザクションがハッシュで送信されました:", res.userOpHash);
+    console.log("承認トランザクションが送信されました。ハッシュ:", res.userOpHash);
     
     // 承認がマイニングされるのを待つ
     const receipt = await res.wait();
     if (!receipt) {
-            throw new Error("トランザクションのレシートがnullです");
+            throw new Error("トランザクションレシートがnullです");
     }
     console.log("トークン承認がブロックで確認されました:", receipt.blockNumber);
     
     return true;
   } catch (error) {
-    console.error("paymasterのためのトークン承認エラー:", error);
+    console.error("ペイマスターのトークン承認エラー:", error);
     throw error;
   }
 };
@@ -237,31 +237,28 @@ export const approveTokenForPaymaster = async (
 
 ## ステップ3：統一されたトランザクション関数の実装
 
-各支払いタイプに別々の関数を作成する代わりに、すべてのタイプを処理できる単一の関数を作成しましょう：
+各支払いタイプに対して別々の関数を作成する代わりに、すべてのタイプを処理できる単一の関数を作成しましょう：
 
 ```typescript
 // src/utils/aaUtils.ts
 /**
- * 設定可能な支払いタイプでオペレーションを実行
- * @param accountSigner ユーザーのサイナー
+ * 設定可能な支払いタイプで操作を実行
+ * @param accountSigner ユーザーの署名者
  * @param contractAddress ターゲットコントラクトアドレス
  * @param contractAbi コントラクトABI
  * @param functionName 呼び出す関数
  * @param functionParams 関数のパラメータ
- * @param options 支払いオプション
+ * @param paymentType 支払いタイプ（0:スポンサー付き、1:前払い、2:後払い）
+ * @param tokenAddress ERC20トークンアドレス（タイプ1と2に必要）
  */
 export const executeOperation = async (
   accountSigner: ethers.Signer,
   contractAddress: string,
-  contractAbi: any,
+  contractAbi: string[] | string,
   functionName: string,
   functionParams: any[],
-  options: {
-    paymentType: "0" | "1" | "2"; // 0=スポンサード, 1=ERC20前払い, 2=ERC20後払い
-    tokenAddress?: string; // タイプ1または2用
-    apiKey?: string;
-    gasMultiplier?: number;
-  }
+  paymentType: number = 0,
+  tokenAddress?: string
 ) => {
   try {
     // クライアントを初期化
@@ -281,7 +278,55 @@ export const executeOperation = async (
       }
     );
     
+    // コントラクトインターフェースを作成
+    const contractInterface = new ethers.utils.Interface(contractAbi);
+    
+    // 関数呼び出しのコールデータをエンコード
+    const callData = contractInterface.encodeFunctionData(
+      functionName,
+      functionParams
+    );
+    
+    // トークン支払いタイプの場合、トークン承認を確認
+    if (paymentType > 0) {
+      if (!tokenAddress) {
+        throw new Error("トークンアドレスが支払いタイプに必要です " + paymentType);
+      }
+      
+      // トークン承認を確認
+      await approveTokenForPaymaster(accountSigner, tokenAddress);
+    }
+    
+    // 支払いタイプに基づいてペイマスターオプションを設定
+    if (paymentType === 0) {
+      // タイプ0：スポンサー付き（開発者がガスを負担）
+      builder.setPaymasterOptions({
+        apikey: API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: "0"
+      });
+    } else if (paymentType === 1) {
+      // タイプ1：ERC20トークンによる前払い
+      builder.setPaymasterOptions({
+        apikey: API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: "1",
+        token: tokenAddress
+      });
+    } else if (paymentType === 2) {
+      // タイプ2：ERC20トークンによる後払い
+      builder.setPaymasterOptions({
+        apikey: API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: "2",
+        token: tokenAddress
+      });
+    } else {
+      throw new Error("サポートされていない支払いタイプ: " + paymentType);
+    }
+    
     // ガスパラメータを設定
+    // 実際のアプリではガス見積もりを使用するべき
     const gasParams = {
       callGasLimit: "0x88b8",
       verificationGasLimit: "0x33450",
@@ -296,362 +341,277 @@ export const executeOperation = async (
     builder.setMaxFeePerGas(gasParams.maxFeePerGas);
     builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
     
-    // 基本的なpaymasterオプションを設定
-    const paymasterOptions: any = {
-      apikey: options.apiKey || API_KEY,
-      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
-      type: options.paymentType,
-    };
-    
-    // ERC20支払いの場合（タイプ1または2）、トークンアドレスを追加
-    if (options.paymentType !== "0") {
-      if (!options.tokenAddress) {
-        throw new Error("トークン支払いにはtokenAddressが必要です");
-      }
-      
-      // paymasterオプションにtokenを追加
-      paymasterOptions.token = options.tokenAddress;
-      
-      // ユーザーのAAウォレットが支払い用にトークンを承認していることを確認
-      console.log(`${options.tokenAddress}の承認を確認中...`);
-      await approveTokenForPaymaster(accountSigner, options.tokenAddress);
-    }
-    
-    // paymasterオプションを設定
-    builder.setPaymasterOptions(paymasterOptions);
-    
-    // コントラクトインスタンスを作成
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      ethers.getDefaultProvider()
-    );
-    
-    // 関数呼び出しをエンコード
-    const callData = contract.interface.encodeFunctionData(
-      functionName,
-      functionParams
-    );
-    
-    // UserOperationを作成
-    console.log("UserOperationを作成中...");
+    // 操作の実行
+    console.log(`コントラクト ${contractAddress} の ${functionName} を呼び出し中...`);
     const userOp = await builder.execute(contractAddress, 0, callData);
     
-    console.log("UserOperationを送信中...");
     // UserOperationを送信
+    console.log("UserOperationを送信中...");
     const res = await client.sendUserOperation(userOp);
-    console.log(`UserOperationが送信されました。ハッシュ: ${res.userOpHash}`);
+    console.log("UserOperation送信されました。ハッシュ:", res.userOpHash);
     
-    // トランザクションを待つ
-    console.log("トランザクションがマイニングされるのを待機中...");
+    // トランザクションがマイニングされるのを待つ
     const receipt = await res.wait();
     if (!receipt) {
-      throw new Error("トランザクションのレシートがnullです");
+      throw new Error("トランザクションレシートがnullです");
     }
-    console.log(`トランザクションがブロック${receipt.blockNumber}でマイニングされました`);
     
-    return {
-      userOpHash: res.userOpHash,
-      transactionHash: receipt.transactionHash,
-      receipt
-    };
+    console.log("トランザクションが確認されました:", receipt.transactionHash);
+    return receipt;
   } catch (error) {
-    console.error("オペレーションの実行エラー:", error);
+    console.error("操作実行エラー:", error);
     throw error;
   }
 };
 ```
 
-## ステップ4：支払い方法選択UIの作成
+## ステップ4：支払い選択コンポーネントの作成
 
-最後に、ユーザーがトランザクションの支払い方法を選択できるReactコンポーネントを作成しましょう：
+ユーザーがトランザクションの支払い方法を選択できるコンポーネントを作成しましょう：
 
 ```typescript
-// src/components/PaymentSelector.tsx
+// src/components/PaymentTypeSelector.tsx
 import React, { useState, useEffect } from 'react';
 import { getSupportedTokens, executeOperation } from '../utils/aaUtils';
 import { ethers } from 'ethers';
-import { getSigner } from '../utils/aaUtils';
 
-interface SupportedToken {
-  address: string;
-  symbol: string;
-  decimal: number;
-  type: number;
-  price?: number;
+interface PaymentTypeSelectorProps {
+  accountSigner: ethers.Signer;
+  contractAddress: string;
+  contractAbi: string[];
+  functionName: string;
+  functionParams: any[];
+  onSuccess?: (receipt: any) => void;
+  onError?: (error: any) => void;
 }
 
-interface PaymentSelectorProps {
-  onExecute: (
-    contractAddress: string,
-    contractAbi: any,
-    functionName: string,
-    functionParams: any[],
-    paymentOptions: {
-      paymentType: "0" | "1" | "2";
-      tokenAddress?: string;
-    }
-  ) => Promise<void>;
-}
-
-const PaymentSelector: React.FC<PaymentSelectorProps> = ({ onExecute }) => {
-  const [tokens, setTokens] = useState<SupportedToken[]>([]);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<"0" | "1" | "2">("0");
-  const [selectedToken, setSelectedToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+const PaymentTypeSelector: React.FC<PaymentTypeSelectorProps> = ({
+  accountSigner,
+  contractAddress,
+  contractAbi,
+  functionName,
+  functionParams,
+  onSuccess,
+  onError
+}) => {
+  const [paymentType, setPaymentType] = useState<number>(0);
+  const [tokens, setTokens] = useState<any[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   
-  // 利用可能なトークンを取得
+  // コンポーネントマウント時にトークンをロード
   useEffect(() => {
-    const fetchTokens = async () => {
+    const loadTokens = async () => {
       try {
         setIsLoading(true);
-        const signer = await getSigner();
-        const supportedTokens = await getSupportedTokens(signer);
+        const supportedTokens = await getSupportedTokens(accountSigner);
         setTokens(supportedTokens);
-        
-        // 最初のトークンを選択
-        if (supportedTokens.length > 0) {
-          setSelectedToken(supportedTokens[0].address);
-        }
       } catch (error) {
-        console.error("トークンの取得エラー:", error);
+        console.error("トークン取得エラー:", error);
       } finally {
         setIsLoading(false);
       }
     };
     
-    fetchTokens();
-  }, []);
+    loadTokens();
+  }, [accountSigner]);
   
-  // サンプルトランザクションを実行
-  const handleExecuteSampleTransaction = async () => {
+  // 支払いタイプ変更ハンドラー
+  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const type = parseInt(e.target.value);
+    setPaymentType(type);
+    setSelectedToken(''); // タイプが変わったらトークン選択をリセット
+  };
+  
+  // トークン選択ハンドラー
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedToken(e.target.value);
+  };
+  
+  // 送信ハンドラー
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // 支払いタイプとトークンの検証
+    if (paymentType > 0 && !selectedToken) {
+      alert("トークンを選択してください");
+      return;
+    }
+    
     try {
-      setIsLoading(true);
+      setIsSubmitting(true);
       
-      const signer = await getSigner();
-      
-      // サンプルコントラクトのアドレスとABI（実際のアプリケーションでは変更）
-      const contractAddress = "0xSampleContractAddress";
-      const contractAbi = ["function exampleFunction(string memory value) external"];
-      const functionName = "exampleFunction";
-      const functionParams = ["テスト値"];
-      
-      // 選択された支払いオプション
-      const paymentOptions = {
-        paymentType: selectedPaymentType,
-        tokenAddress: selectedPaymentType !== "0" ? selectedToken || undefined : undefined
-      };
-      
-      // オペレーションを実行
-      await onExecute(
+      // トランザクションを実行
+      const receipt = await executeOperation(
+        accountSigner,
         contractAddress,
         contractAbi,
         functionName,
         functionParams,
-        paymentOptions
+        paymentType,
+        selectedToken
       );
       
-      alert("トランザクションが成功しました！");
-    } catch (error: any) {
-      console.error("トランザクション実行エラー:", error);
-      alert(`エラー: ${error.message || "未知のエラー"}`);
+      // 成功コールバックを呼び出し
+      if (onSuccess) {
+        onSuccess(receipt);
+      }
+      
+    } catch (error) {
+      console.error("トランザクション失敗:", error);
+      
+      // エラーコールバックを呼び出し
+      if (onError) {
+        onError(error);
+      }
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
   
+  // ユーザーがトランザクションを送信できるかどうかを判断
+  const canSubmit = paymentType === 0 || (paymentType > 0 && selectedToken);
+  
   return (
-    <div className="payment-selector">
-      <h3>支払い方法を選択</h3>
+    <div className="payment-type-selector">
+      <h3>トランザクションの支払い方法を選択</h3>
       
-      <div className="payment-options">
-        <div className="radio-group">
-          <label>
-            <input
-              type="radio"
-              name="paymentType"
-              value="0"
-              checked={selectedPaymentType === "0"}
-              onChange={() => setSelectedPaymentType("0")}
-            />
-            スポンサード（無料ガス）
-          </label>
-          
-          <label>
-            <input
-              type="radio"
-              name="paymentType"
-              value="1"
-              checked={selectedPaymentType === "1"}
-              onChange={() => setSelectedPaymentType("1")}
-            />
-            ERC20前払い
-          </label>
-          
-          <label>
-            <input
-              type="radio"
-              name="paymentType"
-              value="2"
-              checked={selectedPaymentType === "2"}
-              onChange={() => setSelectedPaymentType("2")}
-            />
-            ERC20後払い
-          </label>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="payment-type">支払いタイプ：</label>
+          <select
+            id="payment-type"
+            value={paymentType}
+            onChange={handlePaymentTypeChange}
+            disabled={isSubmitting}
+          >
+            <option value={0}>スポンサー付き (開発者が支払い)</option>
+            <option value={1}>ERC20トークンで前払い</option>
+            <option value={2}>ERC20トークンで後払い</option>
+          </select>
         </div>
         
-        {selectedPaymentType !== "0" && (
-          <div className="token-selector">
-            <label>トークンを選択：</label>
-            <select
-              value={selectedToken || ""}
-              onChange={(e) => setSelectedToken(e.target.value)}
-            >
-              {tokens.map((token) => (
-                <option key={token.address} value={token.address}>
-                  {token.symbol}
-                </option>
-              ))}
-            </select>
+        {paymentType > 0 && (
+          <div className="form-group">
+            <label htmlFor="token-select">トークン：</label>
+            {isLoading ? (
+              <p>トークンを読み込み中...</p>
+            ) : (
+              <select
+                id="token-select"
+                value={selectedToken}
+                onChange={handleTokenChange}
+                disabled={isSubmitting}
+              >
+                <option value="">トークンを選択してください</option>
+                {tokens.map((token) => (
+                  <option key={token.address} value={token.address}>
+                    {token.symbol || "不明"}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         )}
-      </div>
-      
-      <button
-        onClick={handleExecuteSampleTransaction}
-        disabled={isLoading || (selectedPaymentType !== "0" && !selectedToken)}
-      >
-        {isLoading ? "処理中..." : "トランザクションを実行"}
-      </button>
+        
+        <button 
+          type="submit" 
+          disabled={isSubmitting || !canSubmit}
+          className="submit-button"
+        >
+          {isSubmitting ? "送信中..." : "トランザクションを送信"}
+        </button>
+      </form>
     </div>
   );
 };
 
-export default PaymentSelector;
+export default PaymentTypeSelector;
 ```
 
-## ステップ5：アプリケーションへの統合
+## ステップ5：コンポーネントの使用
 
-支払い選択コンポーネントをアプリケーションに統合します：
+支払い選択コンポーネントを親コンポーネントで使用する方法をお見せします：
 
 ```typescript
-// src/App.tsx
-import React from 'react';
-import PaymentSelector from './components/PaymentSelector';
-import { executeOperation } from './utils/aaUtils';
-import { getSigner } from './utils/aaUtils';
+// src/components/ExampleUsage.tsx
+import React, { useState } from 'react';
+import { ethers } from 'ethers';
+import { getSigner } from '../utils/aaUtils';
+import PaymentTypeSelector from './PaymentTypeSelector';
 
-function App() {
-  const handleExecuteTransaction = async (
-    contractAddress: string,
-    contractAbi: any,
-    functionName: string,
-    functionParams: any[],
-    paymentOptions: {
-      paymentType: "0" | "1" | "2";
-      tokenAddress?: string;
-    }
-  ) => {
-    try {
-      const signer = await getSigner();
-      
-      const result = await executeOperation(
-        signer,
-        contractAddress,
-        contractAbi,
-        functionName,
-        functionParams,
-        {
-          paymentType: paymentOptions.paymentType,
-          tokenAddress: paymentOptions.tokenAddress,
-          // 必要に応じて他のオプション
-        }
-      );
-      
-      console.log("トランザクションの結果:", result);
-      return result;
-    } catch (error) {
-      console.error("トランザクション実行エラー:", error);
-      throw error;
-    }
+const ExampleUsage: React.FC = () => {
+  const [txHash, setTxHash] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  
+  // 例としてのERC721コントラクト
+  const nftContractAddress = "0x1234567890123456789012345678901234567890"; // 実際のアドレスに置き換え
+  const nftAbi = [
+    "function mint(address to) external returns (uint256)"
+  ];
+  
+  // トランザクション成功ハンドラー
+  const handleSuccess = (receipt: any) => {
+    setTxHash(receipt.transactionHash);
+    setError('');
   };
-
+  
+  // トランザクションエラーハンドラー
+  const handleError = (err: any) => {
+    setError(err.message || "不明なエラー");
+    setTxHash('');
+  };
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>NERO Chain支払いデモ</h1>
-      </header>
+    <div className="example-usage">
+      <h2>NFTをミント</h2>
       
-      <main>
-        <PaymentSelector onExecute={handleExecuteTransaction} />
-      </main>
+      {/* PaymentTypeSelectorを使用 */}
+      <PaymentTypeSelector
+        accountSigner={/* 署名者 */}
+        contractAddress={nftContractAddress}
+        contractAbi={nftAbi}
+        functionName="mint"
+        functionParams={[/* ユーザーのアドレス */]}
+        onSuccess={handleSuccess}
+        onError={handleError}
+      />
+      
+      {txHash && (
+        <div className="success">
+          <p>ミント成功！</p>
+          <a
+            href={`https://testnet.neroscan.io/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            エクスプローラーで表示
+          </a>
+        </div>
+      )}
+      
+      {error && (
+        <div className="error">
+          <p>エラー: {error}</p>
+        </div>
+      )}
     </div>
   );
-}
-
-export default App;
-```
-
-## 支払いタイプの詳細
-
-### タイプ0：スポンサードガス（開発者が支払い）
-
-- **ユースケース**: 無摩擦のオンボーディング、プロモーション、キャンペーン
-- **長所**: ユーザーはネイティブトークンを必要とせず、最高のUX
-- **短所**: すべてのガスコストはアプリケーション/開発者が負担
-
-### タイプ1：ERC20前払い（ユーザーが前払い）
-
-- **ユースケース**: ユーザーは代替トークンを持っているが、チェーンのネイティブトークンは持っていない
-- **長所**: ユーザーは保有するERC20トークンを使用
-- **短所**: 未使用のガス料金の返金プロセスが必要
-
-### タイプ2：ERC20後払い（ユーザーが使用分を支払い）
-
-- **ユースケース**: ユーザーがガスを過剰に支払いたくない場合
-- **長所**: 実際に使用したガスの分だけ正確に支払い
-- **短所**: トランザクションが高価であれば後で驚くことになりうる
-
-## トラブルシューティングとヒント
-
-### ERC20承認エラー
-トークン支払いは、AAウォレットからpaymasterへの十分なトークン許可が必要です。承認に失敗した場合：
-
-1. `approveTokenForPaymaster`関数が正しいトークンアドレスとpaymasterアドレスを使用していることを確認
-2. 承認トランザクションのガス設定が適切であることを確認
-3. ネットワークまたはpaymasterの問題の場合は、再試行メカニズムを実装
-
-### ガス見積もりの最適化
-ERC20支払いでは、正確なガス見積もりがユーザーの出費に直接影響します：
-
-```typescript
-// より動的なガス見積もりを取得する例
-const estimateGas = async (contract, methodName, methodParams, userAddress) => {
-  try {
-    // 標準推定を取得
-    const estimate = await contract.estimateGas[methodName](...methodParams, { from: userAddress });
-    
-    // バッファーを追加（例：20%）
-    const buffer = estimate.mul(ethers.BigNumber.from(20)).div(ethers.BigNumber.from(100));
-    const bufferedEstimate = estimate.add(buffer);
-    
-    return bufferedEstimate.toHexString();
-  } catch (error) {
-    console.error("ガス見積もりエラー:", error);
-    // 失敗した場合はデフォルト値を使用
-    return "0x88b8";
-  }
 };
+
+export default ExampleUsage;
 ```
-
-## 次のステップ
-
-これで、AAウォレットを通じてさまざまな支払い方法でトランザクションを送信する方法を学びました。次に考慮すべきこと：
-
-1. [トークンサポートの確認](/ja/tutorials/checking-sup-tokens)に進んで、特定の支払いタイプでサポートされているトークンを検出する方法をさらに学ぶ
-2. [AAウォレット用の完全なdApp](/ja/tutorials/create-first-dapp)を作成して、すべての概念をまとめる
-3. トークン価格サービスを統合して、ERC20ガス支払いのリアルタイム見積もりを提供
 
 ## まとめ
 
-NERO Chain Paymasterは、アプリケーションにさまざまな支払い方法を実装するための柔軟で強力なオプションを提供します。これにより、ユーザーはネイティブチェーントークンを持っていなくても、好みのERC20トークンを使用してトランザクションに支払うことができます。適切な支払い方法を実装することで、ユーザーエクスペリエンスを向上させ、dAppの採用障壁を下げることができます。 
+お疲れ様でした！このチュートリアルでは以下を実装しました：
+
+1. NERO Chain Paymasterがサポートするトークンを取得する関数
+2. 異なる支払いタイプでトランザクションを実行する統一された関数
+3. ERC20トークン承認処理のロジック
+4. ユーザーが支払い方法を選択できるUIコンポーネント
+
+これらの実装により、アプリケーションはより多くの支払いオプションを提供でき、ユーザーがNEROトークンを持っていない場合でもトランザクションを実行できるようになりました。
+
+次のチュートリアルでは、これらの概念を組み合わせてより洗練された[支払いトークン選択UI](/ja/tutorials/checking-sup-tokens)を構築します。
