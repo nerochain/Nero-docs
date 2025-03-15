@@ -19,7 +19,7 @@ To use this type, set `type: 0` in your context object when calling `pm_sponsor_
 
 Users pay for gas with ERC20 tokens before transaction execution:
 
-1. Full estimated amount is collected upfront during the verification phase
+1. The full estimated amount is collected upfront during the verification phase
 2. Excess is refunded after execution
 3. Requires token approval before transaction
 
@@ -32,7 +32,7 @@ To use this type:
 
 Users pay for gas with ERC20 tokens after transaction execution:
 
-1. Only exact gas cost is collected after the transaction completes
+1. Only the exact gas cost is collected after the transaction completes
 2. Requires token approval before execution
 3. Better UX as users only pay what's needed
 4. Has a risk of payment failure after execution if the UserOperation depletes tokens
@@ -50,6 +50,6 @@ When deciding which payment type to use, consider these factors:
 - **Type 1 (Prepay)**: More reliable but requires users to have slightly more tokens than needed
 - **Type 2 (Postpay)**: Best user experience but comes with failure risk
 
-Most applications use a combination of payment types - offering free gas for first-time users or specific actions, while using token payments for regular operations.
+Most applications use a combination of payment types - offering free gas for first-time users or specific actions while using token payments for regular operations.
 
 <PageFeedback path="/en/developer-tools/paymaster-api/payment-types" /> 

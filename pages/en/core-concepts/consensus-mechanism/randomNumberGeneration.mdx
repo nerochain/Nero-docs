@@ -5,7 +5,7 @@ Considering the security of random selection above, the generation of random num
 The random numbers in NERO are generated through the MPC (Multiparty Computation) approach. Each participating node initially generates its own random numbers locally. Subsequently, the system utilizes specific operations to produce a public random number derived from the contributions of all nodes. To prevent any node from accessing the random numbers of others prior to generating its own, NERO employs the cryptographic PVSS (Publicly Verifiable Secret Sharing) scheme, based on Shamir Secret Sharing, during the random number generation process. This scheme enables the current set of validators to collaboratively generate a random number while employing cryptographic techniques to safeguard against manipulation of the process. The process is as follows:
 
 * Validator $D$ partitions its secret $S$ into n fragments$(S1,...,Sn)$based on the threshold t. Then it encrypts each fragment using the public keys$(Px,...,PN)$ of the n participants, generates the corresponding commitment (by zero-knowledge proof), and shares all this information.
-* It can be verified that all the n value from validator $D$ are valid without obtaining additional information;
+* It can be verified that all the n values from validator $D$ are valid without obtaining additional information;
 * If necessary, participants can decrypt the share with their private key, and then share it with others;
 * Anyone can reconstruct the secret $S$ after obtaining $≥ t$ decrypted shares.
 
