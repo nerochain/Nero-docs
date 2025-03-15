@@ -1,0 +1,35 @@
+# 支払いタイプ
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/paymaster-api/payment-types)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/payment-types.png" alt="Payment Types" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## サポートされている支払いタイプ
+
+- **ガススポンサー** - 運営者がすべてのガス費用を負担
+- **ERC-20支払い** - ユーザーが特定のERC-20トークンでガス料金を支払い
+- **ハイブリッド** - 一部をスポンサー、残りをユーザーが支払い
+
+```javascript
+// 支払いタイプの指定例
+const sponsorshipContext = {
+  type: 'sponsor',
+  policy: 'default'
+};
+
+const erc20PaymentContext = {
+  type: 'erc20',
+  token: '0xTokenAddress',
+  priceMarkup: 1.1 // 10%のマークアップ
+};
+
+const hybridContext = {
+  type: 'hybrid',
+  sponsorPercentage: 50, // 50%スポンサー
+  token: '0xTokenAddress'
+};
+``` 

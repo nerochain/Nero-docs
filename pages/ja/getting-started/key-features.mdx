@@ -1,28 +1,87 @@
-# 主な特徴
+import PageFeedback from '../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# 開発者向けの主な特徴
 
-英語版のドキュメントは[こちら](/en/getting-started/key-features)でご覧いただけます。
+このセクションでは、開発者にとって理想的なプラットフォームであるNEROチェーンの主な機能について、高レベルで概要を説明します。これらの特性を理解することで、NEROチェーンを活用したアプリ開発を最大限に行えます。
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-    <h3 className="flex items-center text-lg font-semibold mb-2">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M4.649 3.084A1 1 0 015.163 4.4 13.95 13.95 0 004 10c0 1.993.416 3.886 1.164 5.6a1 1 0 01-1.832.8A15.95 15.95 0 012 10c0-2.274.475-4.44 1.332-6.4a1 1 0 011.317-.516zM12.96 7a3 3 0 00-2.342 1.126l-.328.41-.111-.279A2 2 0 008.323 7H8a1 1 0 000 2h.323l.532 1.33-1.035 1.295a1 1 0 01-.781.375H7a1 1 0 100 2h.039a3 3 0 002.342-1.126l.328-.41.111.279A2 2 0 0011.677 14H12a1 1 0 100-2h-.323l-.532-1.33 1.035-1.295A1 1 0 0112.961 9H13a1 1 0 100-2h-.039zm1.874-2.6a1 1 0 011.833-.8A15.95 15.95 0 0118 10c0 2.274-.475 4.44-1.332 6.4a1 1 0 11-1.832-.8A13.949 13.949 0 0016 10c0-1.993-.416-3.886-1.165-5.6z" clipRule="evenodd" />
-      </svg>
-      モジュラリティ
-    </h3>
-    <p className="text-gray-600 dark:text-gray-300">コンセンサス、実行、データの可用性を分離し、各コンポーネントを個別に最適化します。</p>
-  </div>
-  
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-    <h3 className="flex items-center text-lg font-semibold mb-2">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M13 7H7v6h6V7z" />
-        <path fillRule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clipRule="evenodd" />
-      </svg>
-      EVM互換性
-    </h3>
-    <p className="text-gray-600 dark:text-gray-300">既存のEthereumツールやインフラストラクチャをシームレスに活用して最小限の変更で開発を容易にします。</p>
-  </div>
-</div> 
+## ネイティブアカウント抽象化
+
+ネイティブのERC-4337アカウント抽象化実装を利用することで、NEROチェーンは開発者が高度なツールを使い、より良いユーザー体験を構築できるようサポートします。
+
+#### スマートコントラクトウォレット
+
+従来の外部所有アカウント（EOA）とは異なり、NEROチェーン上のスマートコントラクトウォレットは以下の特長を提供します。
+
+- **プログラム可能な認証**：任意の検証ロジックをトランザクション承認に適用できます。
+- **マルチシグサポート**：トランザクション承認に複数の署名者を要求可能です。
+- **ソーシャルリカバリー**：信頼できる友人やサービスを通じてアカウントの復元が可能。
+- **セッションキー**：特定のアプリケーションや期間限定で使える一時的なキーを発行可能です。
+
+#### UserOperationとBundlers
+
+アカウント抽象化の中心にあるのが、`UserOperation`オブジェクトです。
+
+- **柔軟なトランザクション形式**：ユーザーの意図とトランザクション実行を完全に分離します。
+- **Bundlers**：複数のUserOperationをまとめて単一のトランザクションにパッケージ化する専用ノード。
+- **メンプール管理**：UserOperation専用のメンプールにより、予測可能性を高めます。
+
+## Paymasterシステム
+
+Paymasterは、柔軟なガス支払いメカニズムを可能にする中心的な要素です。また、AAプラットフォームを通じて、開発者は設定を簡単に行えます。
+
+#### 支払いオプション
+
+- **スポンサードトランザクション（無料）**：開発者がユーザーのガス代を完全にカバーできます。
+- **ERC20トークンでの支払い**：ユーザーはNEROではなく、サポートされたERC20トークンを使ってガス料金を支払うことができます。
+- **プリファンド／ポストファンドモデル**：トランザクションの前払いまたは実行後精算のどちらかを選択可能です。
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/erc20config.gif" 
+      alt="Configuring a Gas Policy"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      図1：AAプラットフォームでのガス料金用トークンの設定
+    </figcaption>
+  </figure>
+</div>
+
+#### 統合のメリット
+
+- **トークンの有用性向上**：トークンをガス支払いに使用可能にすることでトークンの実用性を向上。
+- **ユーザー体験の向上**：ユーザーがNEROトークンを持たなくてもdAppとやり取りできるようにします。
+- **柔軟な価格設定モデル**：サブスクリプションモデル、無料トライアル、アクション毎の料金設定などが可能。
+
+## Blockspace 2.0
+
+従来のブロックチェーンシステムではすべてのトランザクションを一律に処理していましたが、Blockspace 2.0は取引コストやリソース管理に革新的なアプローチを導入し、柔軟性・効率性・公平性を実現しています。
+
+#### スマートな料金体系による独自UX
+
+- **カスタム価格モデル**：開発者は特定のニーズに合った独自の価格モデルを作成可能。
+- **料金シェアリング**：あなたのdAppがトランザクションを生成すると、ユーザーと開発者の双方がネットワーク手数料をシェアできます。
+- **安定した価格設定**：従来の変動の激しいガス価格に比べ、より予測可能な料金体系を提供します。
+
+#### リソースの有効活用
+- バンドル化されたトランザクション - トランザクションを効率的にまとめ、不必要なコストを削減します。
+- 高速レーンのように、緊急のトランザクションを優先的に処理します。
+- 効率的なリソース配分により、開発者は必要な処理能力をより正確に見積もれるため、予期せぬ負担を軽減できます。
+
+Blockspace 2.0により、NEROチェーンは単にコスト削減を目指すのではなく、よりスマートで持続可能なプラットフォームを実現します。
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/block2.png" 
+      alt="Blockspace 2.0 concept diagram"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      図2：Blockspace 2.0のアーキテクチャ
+    </figcaption>
+  </figure>
+</div>
+
+<PageFeedback path="/ja/getting-started/key-features" />

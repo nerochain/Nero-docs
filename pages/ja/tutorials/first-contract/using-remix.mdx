@@ -1,9 +1,34 @@
-# Remixを使用した最初のコントラクト
+# Remixを使用
 
 このページは現在準備中です。翻訳は後日提供されます。
 
 英語版のドキュメントは[こちら](/en/tutorials/first-contract/using-remix)でご覧いただけます。
 
 <div className="flex justify-center my-8">
-  <img src="/assets/remix-deploy.png" alt="Deploy with Remix" className="rounded-lg shadow-md max-w-full" />
-</div> 
+  <img src="/assets/remix-interface.png" alt="Remix Interface" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## Remixを使用したスマートコントラクトのデプロイ手順
+
+1. **Remixを開く** - [Remix IDE](https://remix.ethereum.org/)にアクセス
+2. **新しいファイルを作成** - `.sol`拡張子でSolidityファイルを作成
+3. **コントラクトを記述** - 以下のサンプルコードを使用
+4. **コンパイル** - Solidityコンパイラでコントラクトをコンパイル
+5. **デプロイ** - NERO Chainネットワークにデプロイ
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+    uint256 private storedData;
+    
+    function set(uint256 x) public {
+        storedData = x;
+    }
+    
+    function get() public view returns (uint256) {
+        return storedData;
+    }
+}
+``` 

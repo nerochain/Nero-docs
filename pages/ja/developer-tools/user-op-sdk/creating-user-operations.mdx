@@ -1,0 +1,32 @@
+# UserOperationの作成
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/creating-user-operations)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/creating-user-ops.png" alt="Creating UserOperations" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+```javascript
+// UserOperationの作成例
+import { NeroUserOpSDK } from '@nerochain/user-op-sdk';
+
+// SDKの初期化
+const userOpSDK = new NeroUserOpSDK({
+  rpcUrl: 'https://testnet-rpc.nerochain.io',
+  entryPointAddress: '0x...',
+});
+
+// UserOperationの作成
+async function createUserOperation() {
+  const userOp = await userOpSDK.createUserOp({
+    target: '0xTargetAddress',
+    data: '0xCallData',
+    value: '0',
+    // その他のパラメータ...
+  });
+  
+  return userOp;
+}
+``` 

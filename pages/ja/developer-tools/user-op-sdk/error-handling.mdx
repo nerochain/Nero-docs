@@ -1,0 +1,37 @@
+# エラー処理
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/error-handling)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/error-handling.png" alt="Error Handling" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+```javascript
+// エラー処理の例
+import { NeroUserOpSDK, UserOpError } from '@nerochain/user-op-sdk';
+
+// SDKの初期化
+const userOpSDK = new NeroUserOpSDK({
+  rpcUrl: 'https://testnet-rpc.nerochain.io',
+  entryPointAddress: '0x...',
+});
+
+// エラー処理を含むUserOperationの送信
+async function sendUserOpWithErrorHandling(userOp) {
+  try {
+    const txHash = await userOpSDK.sendUserOp(userOp);
+    console.log('Transaction Hash:', txHash);
+    return txHash;
+  } catch (error) {
+    if (error instanceof UserOpError) {
+      // UserOp固有のエラー処理
+      console.error('UserOp Error:', error.code, error.message);
+    } else {
+      // その他のエラー処理
+      console.error('Unexpected Error:', error);
+    }
+    throw error;
+  }
+} 

@@ -1,0 +1,43 @@
+# APIキーの管理
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/managing-api-keys)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/api-key-management.png" alt="API Key Management" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## APIキー管理の機能
+
+- **APIキーの作成** - 新しいAPIキーの生成
+- **APIキーの権限設定** - 特定の操作に制限
+- **APIキーの無効化** - 不要になったキーの無効化
+- **使用状況の監視** - キーごとの使用状況の追跡
+
+```javascript
+// APIキー管理の例
+import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
+
+// 管理者クライアントの初期化
+const adminClient = new AAPlatformClient({
+  apiKey: 'YOUR_ADMIN_API_KEY',
+  projectId: 'YOUR_PROJECT_ID'
+});
+
+// 新しいAPIキーの作成
+const newApiKey = await adminClient.createApiKey({
+  name: 'Development API Key',
+  permissions: ['READ', 'WRITE'],
+  expiresAt: '2023-12-31T23:59:59Z'
+});
+console.log('New API Key:', newApiKey);
+
+// APIキーの一覧取得
+const apiKeys = await adminClient.listApiKeys();
+console.log('API Keys:', apiKeys);
+
+// APIキーの無効化
+await adminClient.revokeApiKey(apiKeys[0].id);
+console.log('API Key Revoked');
+``` 

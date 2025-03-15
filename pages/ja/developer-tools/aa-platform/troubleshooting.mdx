@@ -1,0 +1,63 @@
+# トラブルシューティング
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/troubleshooting)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/troubleshooting.png" alt="Troubleshooting" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## 一般的な問題と解決策
+
+### APIキーエラー
+
+- **問題**: `INVALID_API_KEY` または `UNAUTHORIZED` エラー
+- **解決策**: APIキーが有効であること、正しく設定されていることを確認
+
+### ポリシー違反
+
+- **問題**: `POLICY_VIOLATION` エラー
+- **解決策**: リクエストがポリシー制限内に収まっているか確認
+
+### 残高不足
+
+- **問題**: `INSUFFICIENT_FUNDS` エラー
+- **解決策**: アカウントに十分な残高を追加
+
+### リクエスト形式不正
+
+- **問題**: `INVALID_REQUEST` エラー
+- **解決策**: リクエストの形式とパラメータを見直す
+
+## ロギングとデバッグ
+
+```javascript
+// デバッグログの有効化
+const platformClient = new AAPlatformClient({
+  apiKey: 'YOUR_API_KEY',
+  projectId: 'YOUR_PROJECT_ID',
+  debug: true // デバッグログを有効化
+});
+
+// エラーのトラブルシューティング例
+try {
+  const result = await platformClient.someOperation();
+  // 処理...
+} catch (error) {
+  console.error('Error Code:', error.code);
+  console.error('Error Message:', error.message);
+  console.error('Request ID:', error.requestId); // サポートに問い合わせる際に使用
+  
+  // エラータイプに基づく処理
+  switch(error.code) {
+    case 'INVALID_API_KEY':
+      // APIキーの問題を処理
+      break;
+    case 'POLICY_VIOLATION':
+      // ポリシー違反の処理
+      break;
+    // その他のエラーケース
+  }
+}
+``` 

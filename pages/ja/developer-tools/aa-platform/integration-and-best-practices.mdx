@@ -1,0 +1,58 @@
+# 統合とベストプラクティス
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/integration-and-best-practices)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/integration-practices.png" alt="Integration Best Practices" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## 統合のベストプラクティス
+
+1. **APIキーのセキュリティ** - 安全な環境変数として保存し、頻繁にローテーション
+2. **バックエンド統合** - ユーザーに公開せず、バックエンドから呼び出し
+3. **レート制限対策** - 指数バックオフと再試行の実装
+4. **モニタリング** - 使用状況と費用の継続的モニタリング
+5. **キャッシング** - 繰り返しリクエストのキャッシング
+6. **エラー処理** - エラー状態の適切な処理と通知
+
+```javascript
+// バックエンド統合の例（Node.js Express）
+import express from 'express';
+import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
+
+const app = express();
+app.use(express.json());
+
+// APIキーは環境変数から
+const platformClient = new AAPlatformClient({
+  apiKey: process.env.AA_PLATFORM_API_KEY,
+  projectId: process.env.AA_PLATFORM_PROJECT_ID
+});
+
+// ペイマスター署名エンドポイント
+app.post('/api/paymaster/sign', async (req, res) => {
+  try {
+    const { userOp } = req.body;
+    
+    // ユーザー認証と承認チェック（アプリに依存）
+    // ...
+    
+    // ペイマスター署名の取得
+    const signature = await platformClient.getPaymasterSignature(userOp);
+    
+    res.json({ signature });
+  } catch (error) {
+    console.error('Paymaster Error:', error);
+    res.status(500).json({ 
+      error: 'Paymaster request failed',
+      message: error.message 
+    });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+``` 

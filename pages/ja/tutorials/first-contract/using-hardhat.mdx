@@ -1,0 +1,56 @@
+# Hardhatを使用
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/tutorials/first-contract/using-hardhat)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/hardhat-deploy.png" alt="Hardhat Deployment" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## Hardhatを使用したスマートコントラクトのデプロイ手順
+
+1. **プロジェクトの初期化**
+```bash
+mkdir my-nero-project
+cd my-nero-project
+npm init -y
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+npx hardhat init
+```
+
+2. **Hardhat設定ファイルの編集**
+```javascript
+// hardhat.config.js
+require("@nomicfoundation/hardhat-toolbox");
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+  solidity: "0.8.19",
+  networks: {
+    neroTestnet: {
+      url: "https://testnet-rpc.nerochain.io",
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  }
+};
+```
+
+3. **コントラクトの作成**
+```solidity
+// contracts/SimpleStorage.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+    uint256 private storedData;
+    
+    function set(uint256 x) public {
+        storedData = x;
+    }
+    
+    function get() public view returns (uint256) {
+        return storedData;
+    }
+}
+``` 

@@ -1,0 +1,40 @@
+# 使い始める
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/getting-started)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/aa-platform-dashboard.png" alt="AA Platform Dashboard" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## 始めるためのステップ
+
+1. **アカウント作成** - プラットフォームにサインアップ
+2. **API キーの取得** - 新しいAPIキーを生成
+3. **プロジェクト設定** - プロジェクトの作成と設定
+4. **スポンサーシップポリシーの設定** - ガス料金のスポンサー方法を定義
+5. **資金の追加** - スポンサーシップ用の資金をデポジット
+6. **統合** - アプリケーションへの統合
+
+```javascript
+// プラットフォームSDKの使用例
+import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
+
+// クライアントの初期化
+const platformClient = new AAPlatformClient({
+  apiKey: 'YOUR_API_KEY',
+  projectId: 'YOUR_PROJECT_ID'
+});
+
+// 残高の確認
+const balance = await platformClient.getBalance();
+console.log('Current Balance:', balance);
+
+// 使用状況の確認
+const usageStats = await platformClient.getUsageStats({
+  from: '2023-01-01',
+  to: '2023-01-31'
+});
+console.log('Usage Stats:', usageStats);
+``` 

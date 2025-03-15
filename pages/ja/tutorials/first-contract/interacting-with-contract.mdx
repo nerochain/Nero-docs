@@ -1,0 +1,101 @@
+# コントラクトとの対話
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/tutorials/first-contract/interacting-with-contract)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/contract-interaction.png" alt="Contract Interaction" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## スマートコントラクトとの対話方法
+
+### Web3.jsを使用した対話
+
+```javascript
+// Web3.jsを使用したコントラクトとの対話
+const Web3 = require('web3');
+const web3 = new Web3('https://testnet-rpc.nerochain.io');
+
+// コントラクトのABIとアドレス
+const contractABI = [
+  {
+    "inputs": [{"name": "x", "type": "uint256"}],
+    "name": "set",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "get",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+const contractAddress = '0xYourContractAddress';
+
+// コントラクトインスタンスの作成
+const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+// 値の取得
+async function getValue() {
+  const value = await contract.methods.get().call();
+  console.log('Stored value:', value);
+}
+
+// 値の設定
+async function setValue(newValue) {
+  const accounts = await web3.eth.getAccounts();
+  await contract.methods.set(newValue).send({ from: accounts[0] });
+  console.log('Value updated to:', newValue);
+}
+```
+
+### ethers.jsを使用した対話
+
+```javascript
+// ethers.jsを使用したコントラクトとの対話
+const { ethers } = require('ethers');
+const provider = new ethers.providers.JsonRpcProvider('https://testnet-rpc.nerochain.io');
+
+// 秘密鍵からウォレットを作成
+const privateKey = 'your-private-key';
+const wallet = new ethers.Wallet(privateKey, provider);
+
+// コントラクトのABIとアドレス
+const contractABI = [
+  {
+    "inputs": [{"name": "x", "type": "uint256"}],
+    "name": "set",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "get",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+const contractAddress = '0xYourContractAddress';
+
+// コントラクトインスタンスの作成
+const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+
+// 値の取得
+async function getValue() {
+  const value = await contract.get();
+  console.log('Stored value:', value.toString());
+}
+
+// 値の設定
+async function setValue(newValue) {
+  const tx = await contract.set(newValue);
+  await tx.wait();
+  console.log('Value updated to:', newValue);
+}
+``` 

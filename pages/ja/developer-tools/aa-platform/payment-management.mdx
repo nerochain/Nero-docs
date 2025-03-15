@@ -1,0 +1,54 @@
+# 支払い管理
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/payment-management)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/payment-management.png" alt="Payment Management" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## 支払い管理機能
+
+- **残高の管理** - デポジット、引き出し、残高照会
+- **使用状況の追跡** - 統計、レポート、アラート
+- **請求設定** - 自動デポジット、請求先設定
+- **支払いトークンの管理** - サポートするトークンの追加・削除
+
+```javascript
+// 支払い管理の例
+import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
+
+// クライアントの初期化
+const platformClient = new AAPlatformClient({
+  apiKey: 'YOUR_API_KEY',
+  projectId: 'YOUR_PROJECT_ID'
+});
+
+// 残高の確認
+const balance = await platformClient.getBalance();
+console.log('Current Balance:', balance);
+
+// デポジットの追加
+const depositTx = await platformClient.deposit({
+  amount: '1.0',
+  token: 'ETH'
+});
+console.log('Deposit Transaction:', depositTx);
+
+// 引き出し
+const withdrawTx = await platformClient.withdraw({
+  amount: '0.5',
+  token: 'ETH',
+  to: '0xYourWalletAddress'
+});
+console.log('Withdrawal Transaction:', withdrawTx);
+
+// 使用状況の確認
+const usageStats = await platformClient.getUsageStats({
+  from: '2023-01-01',
+  to: '2023-01-31',
+  groupBy: 'day'
+});
+console.log('Usage Stats:', usageStats);
+``` 

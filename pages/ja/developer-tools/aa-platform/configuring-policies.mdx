@@ -1,0 +1,46 @@
+# ポリシーの設定
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/configuring-policies)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/policy-configuration.png" alt="Policy Configuration" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## ポリシータイプ
+
+1. **グローバルポリシー** - すべてのリクエストに適用
+2. **IPベースポリシー** - 特定のIPアドレスからのリクエストに適用
+3. **ドメインベースポリシー** - 特定のドメインからのリクエストに適用
+4. **アドレスベースポリシー** - 特定のウォレットアドレス・コントラクトに適用
+
+## ポリシーの設定例
+
+```javascript
+// ポリシー設定の例
+const globalPolicy = {
+  type: 'global',
+  settings: {
+    maxGasPerRequest: '500000',
+    maxRequestsPerDay: 1000,
+    supportedTokens: ['ETH', '0xDAITokenAddress', '0xUSDCTokenAddress'],
+    sponsorPercentage: 100 // 完全スポンサー
+  }
+};
+
+const domainPolicy = {
+  type: 'domain',
+  domain: 'myapp.example.com',
+  settings: {
+    maxGasPerRequest: '1000000',
+    maxRequestsPerDay: 10000,
+    supportedTokens: ['ETH', '0xDAITokenAddress'],
+    sponsorPercentage: 80 // 80%スポンサー
+  }
+};
+
+// ポリシーの作成
+await platformClient.createPolicy(globalPolicy);
+await platformClient.createPolicy(domainPolicy);
+``` 

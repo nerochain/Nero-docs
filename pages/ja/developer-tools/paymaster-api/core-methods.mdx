@@ -1,0 +1,50 @@
+# コアメソッド
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/paymaster-api/core-methods)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/paymaster-core-methods.png" alt="Paymaster Core Methods" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## 主なAPIメソッド
+
+```javascript
+// ペイマスター署名リクエスト
+async function requestPaymasterSignature(userOp, paymasterUrl, apiKey) {
+  const response = await fetch(`${paymasterUrl}/sign`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      userOp,
+      context: {
+        // 必要なコンテキスト情報
+      }
+    })
+  });
+
+  const data = await response.json();
+  return data.paymasterAndData;
+}
+
+// ガス料金の見積もり
+async function estimateGasFee(userOp, paymasterUrl, apiKey) {
+  const response = await fetch(`${paymasterUrl}/estimate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      userOp
+    })
+  });
+
+  const data = await response.json();
+  return data.gasFee;
+}
+``` 

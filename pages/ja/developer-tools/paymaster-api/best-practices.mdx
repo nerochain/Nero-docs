@@ -1,0 +1,44 @@
+# ベストプラクティス
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/paymaster-api/best-practices)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/paymaster-best-practices.png" alt="Paymaster Best Practices" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## ベストプラクティスのポイント
+
+1. **APIキーのセキュリティ** - APIキーの適切な管理と保護
+2. **レート制限への対応** - バックオフと再試行メカニズムの実装
+3. **キャッシング戦略** - 見積もりなどのデータをキャッシュして呼び出しを最小化
+4. **ポリシー設計** - 効率的なスポンサーシップポリシーの設計
+5. **モニタリング** - 使用状況とコストのモニタリング
+
+```javascript
+// レート制限対応のベストプラクティス例
+async function requestWithRetry(url, options, maxRetries = 3) {
+  let retries = 0;
+  while (retries < maxRetries) {
+    try {
+      const response = await fetch(url, options);
+      
+      // レート制限に達した場合
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || 1;
+        console.log(`Rate limited. Retrying after ${retryAfter} seconds.`);
+        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+        retries++;
+        continue;
+      }
+      
+      return response;
+    } catch (error) {
+      retries++;
+      if (retries >= maxRetries) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+    }
+  }
+}
+``` 

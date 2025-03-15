@@ -1,0 +1,44 @@
+# エラー処理
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/paymaster-api/error-handling)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/paymaster-errors.png" alt="Paymaster Error Handling" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+## 一般的なエラーコード
+
+- `INVALID_REQUEST` - リクエスト形式が不正
+- `UNAUTHORIZED` - APIキーが無効またはアクセス権限がない
+- `INSUFFICIENT_FUNDS` - スポンサーシップアカウントの残高不足
+- `TOKEN_NOT_SUPPORTED` - サポートされていないERC-20トークン
+- `POLICY_VIOLATION` - スポンサーシップポリシーに違反
+
+```javascript
+// エラー処理の例
+async function handlePaymasterRequest(userOp, paymasterUrl, apiKey) {
+  try {
+    const response = await fetch(`${paymasterUrl}/sign`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({ userOp })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Paymaster Error: ${errorData.code} - ${errorData.message}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Paymaster Request Failed:', error);
+    // エラーに応じた適切な処理
+    throw error;
+  }
+}
+``` 

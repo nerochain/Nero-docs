@@ -1,0 +1,31 @@
+# ペイマスターの統合
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/paymaster-integration)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/paymaster-integration.png" alt="Paymaster Integration" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+```javascript
+// ペイマスター統合の例
+import { NeroUserOpSDK, PaymasterConfig } from '@nerochain/user-op-sdk';
+
+// ペイマスター設定
+const paymasterConfig: PaymasterConfig = {
+  url: 'https://paymaster-api.nerochain.io',
+  apiKey: 'YOUR_API_KEY',
+  context: {
+    // ペイマスターに必要なコンテキスト情報
+    sponsorshipPolicy: 'gas-only',
+    // その他の情報...
+  }
+};
+
+// SDKの初期化（ペイマスター付き）
+const userOpSDK = new NeroUserOpSDK({
+  rpcUrl: 'https://testnet-rpc.nerochain.io',
+  entryPointAddress: '0x...',
+  paymasterConfig
+}); 

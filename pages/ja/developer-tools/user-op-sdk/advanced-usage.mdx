@@ -1,0 +1,28 @@
+# 高度な使い方
+
+このページは現在準備中です。翻訳は後日提供されます。
+
+英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/advanced-usage)でご覧いただけます。
+
+<div className="flex justify-center my-8">
+  <img src="/assets/advanced-usage.png" alt="Advanced Usage Diagram" className="rounded-lg shadow-md max-w-full" />
+</div>
+
+```javascript
+// UserOp SDKの高度な使用例
+import { NeroUserOpSDK, AdvancedOptions } from '@nerochain/user-op-sdk';
+
+// 高度なオプションの設定
+const advancedOptions: AdvancedOptions = {
+  timeout: 30000,
+  retryCount: 3,
+  // その他の高度な設定...
+};
+
+// SDKの初期化（高度なオプション付き）
+const userOpSDK = new NeroUserOpSDK({
+  rpcUrl: 'https://testnet-rpc.nerochain.io',
+  entryPointAddress: '0x...',
+  advancedOptions
+});
+``` 
