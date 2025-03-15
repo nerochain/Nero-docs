@@ -1,9 +1,78 @@
-# バリデーターノードの実行
+# バリデーター
 
-このページは現在準備中です。翻訳は後日提供されます。
+## 概要
 
-英語版のドキュメントは[こちら](/en/node-validators/runningValidatorNode)でご覧いただけます。
+Neroチェーンは、短いブロック時間と低い手数料をサポートするハイブリッドランダム化DPoSA（委任型ステークドオーソリティのプルーフ）コンセンサスを持つ複数のバリデーターシステムに依存しています。ステーキングにおいて最もボンディングされたバリデーターがブロックを生成する機会を持ちます。非アクティブ検出やその他のスラッシングロジックにより、セキュリティ、安定性、およびチェーンのファイナリティが確保されます。
 
-<div className="flex justify-center my-8">
-  <img src="/assets/validator-node.png" alt="Running Validator Node" className="rounded-lg shadow-md max-w-full" />
-</div> 
+Neroチェーン上のバリデーターノードは、ブロックを生成し、コンセンサスメカニズムを通じてネットワークを保護する責任を持つノードです。それぞれがバリデーターを代表し、トランザクションのパッケージング、ブロックの作成と検証に参加してNeroネットワークを保護し、見返りとしてNEROトークンを報酬として獲得します。
+
+## バリデーターになる方法
+
+現在、バリデーターとして登録するにはNero公式に連絡する必要があります。ステーキング用のNEROトークンを取得し、以下の情報を提供する必要があります：
+
+1. ノード名
+2. バリデーターアドレス
+3. マネージャーアドレス
+4. セルフステーク量（$NERO）
+5. 委任を受け入れますか（はい/いいえ）？
+6. 手数料率（%）
+7. 自分自身でバリデーターノードを実行したいですか？はいの場合：
+  a. パブリックIPアドレスとP2Pリスニングポートを開放して、ネットワーク内の他のノードがP2Pプロトコルを通じてあなたのノードに接続できるようにする必要があります。
+
+### バリデーターアカウントの生成方法
+
+以下のコマンドを使用してアカウントを生成します（アカウントを安全に保つための強力なパスワードが必要です）：
+
+```shell
+./geth --datadir ./ account new
+```
+
+例：
+```shell
+-> % ./geth --datadir ./ account new
+INFO [09-24|11:13:09.372] Maximum peer count                       ETH=50 total=50
+Your new account is locked with a password. Please give a password. Do not forget this password.
+Password: 
+Repeat password: 
+
+Your new key was generated
+
+Public address of the key:   0xDbCFCBb1C4442eC76D329996530F1461733916ca
+Path of the secret key file: keystore/UTC--2024-09-24T03-13-16.723669000Z--dbcfcbb1c4442ec76d329996530f1461733916ca
+
+- You can share your public address with anyone. Others need it to interact with you.
+- You must NEVER share the secret key with anyone! The key controls access to your funds!
+- You must BACKUP your key file! Without the key, it's impossible to access account funds!
+- You must REMEMBER your password! Without the password, it's impossible to decrypt the key!
+```
+
+そして、公開アドレスをバリデーターアドレスとして使用します。
+
+## バリデータノードの実行
+
+まず、[コンパイルと実行](./compileAndRun.mdx) の内容をよく理解しておいてください。
+
+次に、以下の手順に従ってください。
+
+- バリデータの秘密鍵ファイルをディレクトリ `<DATADIR>/keystore/` にコピーします。
+  例えば、`config.toml` の `DataDir` が `DataDir = "/data/nerochain/data"` である場合、鍵ファイルのパスは `/data/nerochain/data/keystore/UTC--2024-09-24T03-13-16.723669000Z--dbcfcbb1c4442ec76d329996530f1461733916ca` となります。
+- バリデータの秘密鍵のパスワードをテキストファイル（例: `/data/nerochain/.password`）に保存します。
+- `run.sh` に以下の起動オプションを追加します。
+
+```sh
+--miner.etherbase <your validator address> \
+--mine \
+--allow-insecure-unlock \
+--unlock <your validator address> \
+--password /data/nerochain/.password \
+```
+
+また、バリデータノードにはフル同期を推奨します。
+
+```
+SyncMode = "full"
+```
+
+すべての設定が完了したら、バリデータノードを実行できます。
+
+ノードが最新のブロックに追従していることを確認し、システムのステーキングコントラクト（`0x000000000000000000000000000000000000F000`）を通じてバリデータのステークを管理し、準備を整えてください。バリデータがアクティブなバリデータとなると、Neroネットワークのトランザクションのパッケージ化、ブロックの作成と検証に参加し、報酬としてNEROトークンを獲得できるようになります。
