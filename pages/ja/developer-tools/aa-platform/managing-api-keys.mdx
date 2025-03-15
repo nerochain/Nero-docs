@@ -1,43 +1,44 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
 # APIキーの管理
 
-このページは現在準備中です。翻訳は後日提供されます。
+APIキーは、Paymasterサービスでアプリケーションを認証するために不可欠です。
 
-英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/managing-api-keys)でご覧いただけます。
+## APIキーの作成
 
-<div className="flex justify-center my-8">
-  <img src="/assets/api-key-management.png" alt="API Key Management" className="rounded-lg shadow-md max-w-full" />
+1. プロジェクトダッシュボードに移動します
+2. 「API Keys」タブに移動します
+3. 「Create」をクリックします
+4. TestnetまたはMainnetを選択します
+5. 「Create ApiKey」をクリックします
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/createapi.gif" 
+      alt="APIキー作成画面"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図1：APIキーの作成。
+  </figcaption>
+  </figure>
 </div>
 
-## APIキー管理の機能
+## APIキーのセキュリティ
 
-- **APIキーの作成** - 新しいAPIキーの生成
-- **APIキーの権限設定** - 特定の操作に制限
-- **APIキーの無効化** - 不要になったキーの無効化
-- **使用状況の監視** - キーごとの使用状況の追跡
+APIキーはガススポンサーシップリソースへのアクセスを許可します。安全に保つために：
 
-```javascript
-// APIキー管理の例
-import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
+- クライアント側のコードでAPIキーを公開しないでください
+- バックエンドでキーを保存するには環境変数を使用してください
+- 本番環境のキーにはドメイン制限を実装してください
+- 定期的にキーをローテーションしてください
+- 適切な使用制限を設定してください
 
-// 管理者クライアントの初期化
-const adminClient = new AAPlatformClient({
-  apiKey: 'YOUR_ADMIN_API_KEY',
-  projectId: 'YOUR_PROJECT_ID'
-});
+## 次のステップ
 
-// 新しいAPIキーの作成
-const newApiKey = await adminClient.createApiKey({
-  name: 'Development API Key',
-  permissions: ['READ', 'WRITE'],
-  expiresAt: '2023-12-31T23:59:59Z'
-});
-console.log('New API Key:', newApiKey);
+APIキーを作成した後は、以下の操作を行う必要があります：
+- [ポリシーを設定する](/ja/developer-tools/aa-platform/configuring-policies)でユーザーがガス代をどのように支払うかを決定します
+- [支払いを管理する](/ja/developer-tools/aa-platform/payment-management)でサービスの資金が確保されていることを確認します
 
-// APIキーの一覧取得
-const apiKeys = await adminClient.listApiKeys();
-console.log('API Keys:', apiKeys);
-
-// APIキーの無効化
-await adminClient.revokeApiKey(apiKeys[0].id);
-console.log('API Key Revoked');
-``` 
+<PageFeedback path="/ja/developer-tools/aa-platform/managing-api-keys" />

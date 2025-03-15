@@ -1,54 +1,92 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
 # 支払い管理
 
-このページは現在準備中です。翻訳は後日提供されます。
+## 残高管理機能
 
-英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/payment-management)でご覧いただけます。
-
-<div className="flex justify-center my-8">
-  <img src="/assets/payment-management.png" alt="Payment Management" className="rounded-lg shadow-md max-w-full" />
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/figure10.png" 
+      alt="支払い概要"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図1：支払い概要
+  </figcaption>
+  </figure>
 </div>
 
-## 支払い管理機能
 
-- **残高の管理** - デポジット、引き出し、残高照会
-- **使用状況の追跡** - 統計、レポート、アラート
-- **請求設定** - 自動デポジット、請求先設定
-- **支払いトークンの管理** - サポートするトークンの追加・削除
+### 残りのリクエスト数
+- Paymasterが処理できる残りのリクエスト数を表示します。
+- リクエスト数を増やすには、NEROにお問い合わせください。
 
-```javascript
-// 支払い管理の例
-import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
+> **_注意：_**  APIの残りのリクエスト数が0の場合、十分な資金があっても、それ以上のリクエストを処理できなくなります。
 
-// クライアントの初期化
-const platformClient = new AAPlatformClient({
-  apiKey: 'YOUR_API_KEY',
-  projectId: 'YOUR_PROJECT_ID'
-});
+### 残りのスポンサーNERO残高
+- 現在のNERO残高を表示します。
+- 「Add」ボタンを使用してNEROを追加します。
 
-// 残高の確認
-const balance = await platformClient.getBalance();
-console.log('Current Balance:', balance);
+> **_注意：_**  ここでNEROを追加することは、APIがアプリケーションリクエストのガス代を支払うために使用する資金を意味します。
 
-// デポジットの追加
-const depositTx = await platformClient.deposit({
-  amount: '1.0',
-  token: 'ETH'
-});
-console.log('Deposit Transaction:', depositTx);
+### トークン残高テーブル
 
-// 引き出し
-const withdrawTx = await platformClient.withdraw({
-  amount: '0.5',
-  token: 'ETH',
-  to: '0xYourWalletAddress'
-});
-console.log('Withdrawal Transaction:', withdrawTx);
+トークン残高テーブルには、APIが持つすべての残高が表示されます。主にNEROトークン残高が表示されますが、ガス代として支払いが可能に設定されたトークンの残高も表示されます。アプリケーションのユーザーが設定したトークンでガス代を支払い始めると、このテーブルで残高の変化が確認できます。
 
-// 使用状況の確認
-const usageStats = await platformClient.getUsageStats({
-  from: '2023-01-01',
-  to: '2023-01-31',
-  groupBy: 'day'
-});
-console.log('Usage Stats:', usageStats);
-``` 
+#### 資金の追加
+
+APIKeyにNEROトークンを追加するには、以下の手順に従ってください：
+
+1. 「Add」ボタンをクリックします
+2. 追加するNERO量を入力します
+3. 「Confirm」をクリックしてトランザクションの処理を開始します
+4. しばらくしてから残高を確認します
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/deposit.gif" 
+      alt="資金の追加"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図2：資金の追加
+  </figcaption>
+  </figure>
+</div>
+
+> **_注意：_**  ダッシュボードの値が更新されない場合は、数回更新してください。
+
+
+#### 資金の引き出し
+
+APIKeyから任意のトークン資金を引き出すには、以下の手順に従ってください：
+
+1. 引き出したいトークンの行の資金テーブルにある「withdraw」アイコンをクリックします
+2. 引き出すトークン量を入力します
+3. 「Confirm」をクリックしてトランザクションの処理を開始します
+4. しばらくしてから残高を確認します
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/withdraw.gif" 
+      alt="資金の引き出し"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図3：資金の引き出し
+  </figcaption>
+  </figure>
+</div>
+
+> **_注意：_**  ダッシュボードの値が更新されない場合は、数回更新してください。
+
+## 次のステップ
+
+支払いを管理した後は、以下のことができます：
+- [アプリケーションと統合する](/ja/developer-tools/aa-platform/integration-and-best-practices)で設定したサービスの使用を開始します
+- 問題が発生した場合は[トラブルシューティング](/ja/developer-tools/aa-platform/troubleshooting)を行います
+
+<PageFeedback path="/ja/developer-tools/aa-platform/payment-management" />

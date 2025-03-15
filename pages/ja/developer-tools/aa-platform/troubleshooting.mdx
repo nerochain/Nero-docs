@@ -1,63 +1,27 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
 # トラブルシューティング
 
-このページは現在準備中です。翻訳は後日提供されます。
+## 一般的な問題
 
-英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/troubleshooting)でご覧いただけます。
+- **APIキーのレート制限**: レート制限エラーが表示される場合は、キーの使用パターンを確認し、制限の引き上げを検討してください。
+- **戦略の拒否**: トランザクションが拒否される場合は、戦略パラメータがアプリケーションのニーズに合っているか確認してください。
+- **残高不足**: タイプ0の戦略では、スポンサーシップアカウントに十分な資金があることを確認してください。
+- **ユーザー支払いの失敗**: タイプ1/2の戦略では、ユーザーが十分なトークン残高を持ち、ペイマスターコントラクトを承認していることを確認してください。
 
-<div className="flex justify-center my-8">
-  <img src="/assets/troubleshooting.png" alt="Troubleshooting" className="rounded-lg shadow-md max-w-full" />
-</div>
+## デバッグのヒント
 
-## 一般的な問題と解決策
+1. **APIキーのステータス確認**: APIキーがアクティブで、十分なリクエスト数が残っていることを確認する
+2. **ネットワーク設定の確認**: 正しいネットワークエンドポイント（テストネットvsメインネット）を使用していることを確認する
+3. **トランザクションログの検査**: UserOperationsの失敗には、問題を診断するのに役立つ詳細なエラーコードが含まれていることが多い
+4. **ダッシュボードの監視**: AAプラットフォームのダッシュボードは、使用統計とエラー情報を提供します
 
-### APIキーエラー
+## サポートリソース
 
-- **問題**: `INVALID_API_KEY` または `UNAUTHORIZED` エラー
-- **解決策**: APIキーが有効であること、正しく設定されていることを確認
+解決できない問題が発生した場合は、以下のいずれかのチャネルを通じてNerochainサポートチームにお問い合わせください：
 
-### ポリシー違反
+- [Discordコミュニティ](https://discord.gg/nerochain)
+- [サポートメール](mailto:support@nerochain.io)
+- [GitHubイシュー](https://github.com/nerochain)
 
-- **問題**: `POLICY_VIOLATION` エラー
-- **解決策**: リクエストがポリシー制限内に収まっているか確認
-
-### 残高不足
-
-- **問題**: `INSUFFICIENT_FUNDS` エラー
-- **解決策**: アカウントに十分な残高を追加
-
-### リクエスト形式不正
-
-- **問題**: `INVALID_REQUEST` エラー
-- **解決策**: リクエストの形式とパラメータを見直す
-
-## ロギングとデバッグ
-
-```javascript
-// デバッグログの有効化
-const platformClient = new AAPlatformClient({
-  apiKey: 'YOUR_API_KEY',
-  projectId: 'YOUR_PROJECT_ID',
-  debug: true // デバッグログを有効化
-});
-
-// エラーのトラブルシューティング例
-try {
-  const result = await platformClient.someOperation();
-  // 処理...
-} catch (error) {
-  console.error('Error Code:', error.code);
-  console.error('Error Message:', error.message);
-  console.error('Request ID:', error.requestId); // サポートに問い合わせる際に使用
-  
-  // エラータイプに基づく処理
-  switch(error.code) {
-    case 'INVALID_API_KEY':
-      // APIキーの問題を処理
-      break;
-    case 'POLICY_VIOLATION':
-      // ポリシー違反の処理
-      break;
-    // その他のエラーケース
-  }
-}
-``` 
+<PageFeedback path="/ja/developer-tools/aa-platform/troubleshooting" /> 

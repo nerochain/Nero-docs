@@ -1,9 +1,93 @@
 # ネットワーク情報
 
-このページは現在準備中です。翻訳は後日提供されます。
+## NERO メインネット
 
-英語版のドキュメントは[こちら](/en/developer-tools/accessEntryPoint)でご覧いただけます。
+### ネットワーク情報
 
-<div className="flex justify-center my-8">
-  <img src="/assets/network-info.png" alt="Network Information" className="rounded-lg shadow-md max-w-full" />
-</div> 
+| パラメータ     | 値                                                                                   |
+| :-------------- | :-------------------------------------------------------------------------------------- |
+| ネットワーク名    | NERO Chain メインネット                                                                      |
+| RPCエンドポイント    | https://rpc.nerochain.io                                                                |
+| チェーンID        | 1689                                                                                    |
+| 通貨シンボル | NERO                                                                                    |
+| エクスプローラー        | https://neroscan.io                                                                     |
+| ウォレット接続  | [ここをクリックしてウォレットをNEROメインネットに接続](https://chainlist.org/?search=Nero) |
+| ノードWebソケット | wss://ws.nerochain.io                                                                   |
+
+### AA URL
+
+| パラメータ     | 値                                             |
+| :------------ | :------------------------------------------------ |
+| プラットフォーム      | https://aa-platform.nerochain.io/                 |
+| プラットフォームAPI  | https://api-aa-platform.nerochain.io/             |
+| ペイマスターRPC | https://paymaster-mainnet.nerochain.io            |
+| バンドラー       | https://bundler-mainnet.nerochain.io              |
+| 価格サービス  | https://aa-platform.nerochain.io/supported_tokens |
+
+### コントラクトアドレス
+
+| パラメータ      | 値                                      |
+| :------------- | :----------------------------------------- |
+| ペイマスター      | 0xC42E90D29D478ccFeCC28d3B838824E57e51F284 |
+| エントリーポイント     | 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 |
+| アカウントファクトリー | 0x9406Cc6185a346906296840746125a0E44976454 |
+| マルチコール      | 0x1dA998CfaA0C044d7205A17308B20C7de1bdCf74 |
+
+### フリーミントトークンアドレス
+
+| パラメータ | 値                                      |
+| :-------- | :----------------------------------------- |
+| テストトークン | 0xC86Fed58edF0981e927160C50ecB8a8B05B32fed |
+
+
+
+## NERO テストネット
+
+### ネットワーク情報
+
+| パラメータ       | 値                                                                                                 |
+| :-------------- | :---------------------------------------------------------------------------------------------------- |
+| ネットワーク名    | NERO Chain テストネット                                                                                    |
+| RPCエンドポイント    | https://rpc-testnet.nerochain.io                                                                      |
+| チェーンID        | 689                                                                                                   |
+| 通貨シンボル | NERO                                                                                                  |
+| エクスプローラー        | https://testnet.neroscan.io                                                                           |
+| ウォレット接続  | [ここをクリックしてウォレットをNEROテストネットに接続](https://chainlist.org/?search=Nero&testnets=true) |
+| ノードWebソケット | wss://ws-testnet.nerochain.io                                                                   |
+
+### AA URL
+
+| パラメータ     | 値                                  |
+| :------------ | :------------------------------------- |
+| プラットフォーム      | https://aa-platform.nerochain.io/      |
+| プラットフォームAPI  | https://api-aa-platform.nerochain.io/  |
+| ペイマスターRPC | https://paymaster-testnet.nerochain.io |
+| バンドラー       | https://bundler.service.nerochain.io   |
+| 価格サービス  | https://price-service.nerochain.io     |
+
+### コントラクトアドレス
+
+| パラメータ      | 値                                      |
+| :------------- | :----------------------------------------- |
+| ペイマスター      | 0x5a6680dFd4a77FEea0A7be291147768EaA2414ad |
+| エントリーポイント     | 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 |
+| アカウントファクトリー | 0x9406Cc6185a346906296840746125a0E44976454 |
+| マルチコール      | 0x343A0DdD8e58bEaf29d69936c82F1516C6677B0E |
+
+### フォーセット
+
+フォーセットトークンをミントする： https://app.testnet.nerochain.io/faucet
+
+| パラメータ | 値                                      |
+| :-------- | :----------------------------------------- |
+| DAI       | 0x5d0E342cCD1aD86a16BfBa26f404486940DBE345 |
+| USDT      | 0x1dA998CfaA0C044d7205A17308B20C7de1bdCf74 |
+| USDC      | 0xC86Fed58edF0981e927160C50ecB8a8B05B32fed |
+
+### フリーミントトークンアドレス
+
+| パラメータ | 値                                      |
+| :-------- | :----------------------------------------- |
+| テストトークン | 0xA919e465871871F2D1da94BccAF3acaF9609D968 |
+
+> **_注意:_**  関数mint(address to, uint256 amount)を呼び出すことで自由にミント可能

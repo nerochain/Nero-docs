@@ -1,40 +1,106 @@
-# 使い始める
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# AAプラットフォームの使い始め方
 
-英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/getting-started)でご覧いただけます。
+## プラットフォームへのアクセス
 
-<div className="flex justify-center my-8">
-  <img src="/assets/aa-platform-dashboard.png" alt="AA Platform Dashboard" className="rounded-lg shadow-md max-w-full" />
+AAプラットフォームは[https://aa-platform.nerochain.io](https://aa-platform.nerochain.io)で利用できます。以下が必要です：
+
+1. ウォレットの接続（MetaMaskまたは他のWeb3ウォレット）
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/Loginaa.gif" 
+      alt="AAプラットフォームログイン画面"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図1：AAプラットフォームログイン画面。
+  </figcaption>
+  </figure>
 </div>
 
-## 始めるためのステップ
+## チームの作成
 
-1. **アカウント作成** - プラットフォームにサインアップ
-2. **API キーの取得** - 新しいAPIキーを生成
-3. **プロジェクト設定** - プロジェクトの作成と設定
-4. **スポンサーシップポリシーの設定** - ガス料金のスポンサー方法を定義
-5. **資金の追加** - スポンサーシップ用の資金をデポジット
-6. **統合** - アプリケーションへの統合
+ログイン後すぐにチームを作成する必要があります。以下の手順に従ってください：
 
-```javascript
-// プラットフォームSDKの使用例
-import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
+1. 「Create New Team」（新しいチームを作成）をクリック
+2. プロジェクト名、説明、ウェブサイトURLを入力
 
-// クライアントの初期化
-const platformClient = new AAPlatformClient({
-  apiKey: 'YOUR_API_KEY',
-  projectId: 'YOUR_PROJECT_ID'
-});
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/create1.gif" 
+      alt="AAプラットフォームチーム作成1画面"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図2：チームの作成。
+  </figcaption>
+  </figure>
+</div>
 
-// 残高の確認
-const balance = await platformClient.getBalance();
-console.log('Current Balance:', balance);
+3. 最初の操作では最初のAPIキーの作成がトリガーされるため、Nerochainのオプション（Nerochain Testnet、Mainnetなど）を選択してください
+4. 「Create ApiKey」（APIキーを作成）をクリック
 
-// 使用状況の確認
-const usageStats = await platformClient.getUsageStats({
-  from: '2023-01-01',
-  to: '2023-01-31'
-});
-console.log('Usage Stats:', usageStats);
-``` 
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/create2.gif" 
+      alt="AAプラットフォームチーム作成2画面"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図3：チームの作成。
+  </figcaption>
+  </figure>
+</div>
+
+各チームには独自のダッシュボード、APIキー、および設定があります。
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/dash.gif" 
+      alt="AAプラットフォームチーム作成2画面"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図4：ダッシュボード。
+  </figcaption>
+  </figure>
+</div>
+
+## チームメンバーの管理
+
+### 追加
+
+以下の手順に従って、複数のユーザーをチームメンバーとして追加できます：
+
+1. チームタブに移動し、「Invite」（招待）ボタンをクリックします。
+2. 名前とメールアドレスを設定してユーザーを追加すると、メールが送信されます。
+3. 確認ボタンを押して招待を送信します。
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/addmember.gif" 
+      alt="チームメンバーの追加"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図5：チームメンバーの追加。
+  </figcaption>
+</div>
+
+> **_注意：_**  チームには3種類の役割があります：オーナー、管理者、同僚。同僚は読み取りアクセスのみを持ち、管理者とオーナーは書き込みアクセスを持ちます。ただし、APIキーを削除できるのはオーナーのみです。
+
+## 次のステップ
+
+チームを設定した後、以下のことができます：
+- [APIキーの作成と管理](/ja/developer-tools/aa-platform/managing-api-keys)
+- [ポリシーの設定](/ja/developer-tools/aa-platform/configuring-policies)
+
+<PageFeedback path="/ja/developer-tools/aa-platform/getting-started" />

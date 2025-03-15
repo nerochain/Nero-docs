@@ -1,58 +1,38 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
 # 統合とベストプラクティス
 
-このページは現在準備中です。翻訳は後日提供されます。
+## アプリケーションとの統合
 
-英語版のドキュメントは[こちら](/en/developer-tools/aa-platform/integration-and-best-practices)でご覧いただけます。
+APIキーと戦略を設定したら、それらをアプリケーションに統合します：
 
-<div className="flex justify-center my-8">
-  <img src="/assets/integration-practices.png" alt="Integration Best Practices" className="rounded-lg shadow-md max-w-full" />
-</div>
-
-## 統合のベストプラクティス
-
-1. **APIキーのセキュリティ** - 安全な環境変数として保存し、頻繁にローテーション
-2. **バックエンド統合** - ユーザーに公開せず、バックエンドから呼び出し
-3. **レート制限対策** - 指数バックオフと再試行の実装
-4. **モニタリング** - 使用状況と費用の継続的モニタリング
-5. **キャッシング** - 繰り返しリクエストのキャッシング
-6. **エラー処理** - エラー状態の適切な処理と通知
-
-```javascript
-// バックエンド統合の例（Node.js Express）
-import express from 'express';
-import { AAPlatformClient } from '@nerochain/aa-platform-sdk';
-
-const app = express();
-app.use(express.json());
-
-// APIキーは環境変数から
-const platformClient = new AAPlatformClient({
-  apiKey: process.env.AA_PLATFORM_API_KEY,
-  projectId: process.env.AA_PLATFORM_PROJECT_ID
+```typescript
+// アプリケーションでペイマスターを設定する
+builder.setPaymasterOptions({
+  apikey: "プラットフォームから取得した_API_キー",
+  rpc: "https://paymaster-testnet.nerochain.io",
+  type: 0 // 設定した戦略タイプを使用
 });
+```
 
-// ペイマスター署名エンドポイント
-app.post('/api/paymaster/sign', async (req, res) => {
-  try {
-    const { userOp } = req.body;
-    
-    // ユーザー認証と承認チェック（アプリに依存）
-    // ...
-    
-    // ペイマスター署名の取得
-    const signature = await platformClient.getPaymasterSignature(userOp);
-    
-    res.json({ signature });
-  } catch (error) {
-    console.error('Paymaster Error:', error);
-    res.status(500).json({ 
-      error: 'Paymaster request failed',
-      message: error.message 
-    });
-  }
-});
+## ベストプラクティス
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
-``` 
+1. **制限から始める**：アプリケーションのパターンを理解するまで、控えめなガスと使用制限から始めましょう。
+2. **定期的なモニタリング**：異常なアクティビティを発見するために、ダッシュボードを頻繁にチェックしましょう。
+3. **複数の戦略**：異なるユーザーアクションやユーザー層に対して、異なる戦略を作成しましょう。
+4. **開発用キーの分離**：開発環境と本番環境には別のAPIキーを使用しましょう。
+5. **十分な資金の維持**：スポンサード取引については、常にアカウントに十分な資金を維持しましょう。
+
+## セキュリティに関する推奨事項
+
+- APIキーは安全な環境変数に保存する
+- アプリケーションにレート制限を実装する
+- 異常なパターンの使用状況を監視する
+- 特定のドメインに対してAPIキーの使用を制限する
+- APIキーを機密として保持する
+
+## 次のステップ
+
+問題が発生した場合は、[トラブルシューティングガイド](/ja/developer-tools/aa-platform/troubleshooting)をご覧ください。
+
+<PageFeedback path="/ja/developer-tools/aa-platform/integration-and-best-practices" />
