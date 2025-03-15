@@ -1,18 +1,77 @@
-# 基本的な使い方
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# インストールと基本的な使い方
 
-英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/basic-usage)でご覧いただけます。
+## インストール
 
-```javascript
-// UserOp SDKの基本的な使用例
-import { NeroUserOpSDK } from '@nerochain/user-op-sdk';
+GitHubから直接UserOpSDKをインストールできます：
 
-// SDKの初期化
-const userOpSDK = new NeroUserOpSDK({
-  rpcUrl: 'https://testnet-rpc.nerochain.io',
-  entryPointAddress: '0x...',
+```bash
+npm install github:nerochain/aa-userop-sdk
+```
+
+または、yarnを使用：
+
+```bash
+yarn add github:nerochain/aa-userop-sdk
+```
+
+## 基本的な使い方
+
+このセクションでは、UserOpSDKの使用を開始するための基本的なステップを説明します。
+
+### SDKのインポート
+
+```typescript
+import { Client, Presets } from 'userop';
+```
+
+### 設定定数
+
+必要なコントラクトアドレスとサービスエンドポイントで設定を行います：
+
+```typescript
+// Chain configuration
+const NERO_RPC_URL = "https://rpc-testnet.nerochain.io";
+const BUNDLER_URL = "https://bundler.service.nerochain.io";
+const PAYMASTER_URL = "https://paymaster-testnet.nerochain.io";
+
+// Contract addresses
+const ENTRYPOINT_ADDRESS = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789";
+const ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454";
+```
+
+### クライアントの初期化
+
+```typescript
+// Initialize the AA Client
+const client = await Client.init(NERO_RPC_URL, {
+  overrideBundlerRpc: BUNDLER_URL,
+  entryPoint: ENTRYPOINT_ADDRESS,
 });
+```
 
-// その他の操作...
-``` 
+### SimpleAccountビルダーの作成
+
+SimpleAccountビルダーは、UserOperationsの作成と設定をサポートします：
+
+```typescript
+// accountSigner is the EOA wallet that will own the AA wallet
+const builder = await Presets.Builder.SimpleAccount.init(
+  accountSigner,
+  NERO_RPC_URL,
+  {
+    overrideBundlerRpc: BUNDLER_URL,
+    entryPoint: ENTRYPOINT_ADDRESS,
+    factory: ACCOUNT_FACTORY_ADDRESS,
+  }
+);
+```
+
+## 次のステップ
+
+クライアントとビルダーをインストール、初期化したら、次のことができます：
+- [AAウォレットの操作](/ja/developer-tools/user-op-sdk/working-with-wallets)
+- [UserOperationsの作成](/ja/developer-tools/user-op-sdk/creating-user-operations)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/basic-usage" /> 

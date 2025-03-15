@@ -1,9 +1,28 @@
-# UserOp SDK
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# UserOpSDK: アカウントアブストラクションSDK
 
-英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk)でご覧いただけます。
+UserOpSDKは強力なJavaScript/TypeScriptツールとして設計され、NERO Chain上でのUserOperationsの作成、署名、送信を効率化します。このセクションでは、SDKを使用してdAppでアカウントアブストラクション機能を活用する方法をサポートします。
 
-<div className="flex justify-center my-8">
-  <img src="/assets/user-op-sdk.png" alt="UserOp SDK" className="rounded-lg shadow-md max-w-full" />
-</div> 
+UserOpSDKは、NERO Chain上の基本的なアカウントアブストラクション機能へのアクセスを提供し、以下のような機能があります：
+
+- コントラクト呼び出しや送金のためのUserOperationsの作成
+- イーサリアム署名者によるUserOperationsの署名
+- トランザクションを実行するためのバンドラーとの通信
+- ガススポンサーシップやERC-20トークン受け入れのためのPaymasterとの統合
+- スマートコントラクトウォレットの作成と管理
+
+このセクションでは、SDKの使い方と一般的な操作の例を紹介します。
+
+## 目次
+
+- [インストールと基本的な使い方](/ja/developer-tools/user-op-sdk/basic-usage) - SDKのインストール方法と始め方
+- [AAウォレットの操作](/ja/developer-tools/user-op-sdk/working-with-wallets) - ウォレットアドレスの取得とデプロイステータスの確認
+- [UserOperationsの作成](/ja/developer-tools/user-op-sdk/creating-user-operations) - 単純な操作とバッチ操作の作成
+- [Paymasterの統合](/ja/developer-tools/user-op-sdk/paymaster-integration) - APIキーの設定、サポートされているトークンの取得、支払いタイプ
+- [UserOperationsの送信](/ja/developer-tools/user-op-sdk/sending-user-operations) - 操作をネットワークに送信する方法
+- [高度な使用法](/ja/developer-tools/user-op-sdk/advanced-usage) - カスタムガスパラメータとナンス管理
+- [エラー処理](/ja/developer-tools/user-op-sdk/error-handling) - 一般的なエラーとその対処法
+- [ベストプラクティス](/ja/developer-tools/user-op-sdk/best-practices) - 最適なSDK使用のためのヒント
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk" /> 

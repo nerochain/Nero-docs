@@ -1,28 +1,79 @@
-# クックブック
+import PageFeedback from '../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# NERO Chainクックブック
 
-英語版のドキュメントは[こちら](/en/tutorials)でご覧いただけます。
+NERO Chainクックブックへようこそ – NERO Chain上での開発に役立つ実用的ですぐに使えるレシピ集です。各レシピは、コピー＆ペースト可能なコードとステップバイステップの手順で特定の開発課題を解決するように設計されています。
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-    <h3 className="flex items-center text-lg font-semibold mb-2">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-      </svg>
-      <a href="/ja/tutorials/first-contract/using-remix">最初のコントラクトをデプロイする</a>
+## 学習パス
+
+チュートリアルは、段階的にスキルを構築できるよう論理的に整理されています。以下の学習パスに従うことをお勧めします：
+
+1. **コントラクトのデプロイから始める** - NERO Chain上でのスマートコントラクトのデプロイの基本を理解する
+2. **AAウォレット統合について学ぶ** - アカウントアブストラクションの基盤を設定する
+3. **最初のUserOperationsを送信する** - AAウォレットを通じてブロックチェーンと対話し、スポンサード型トランザクションを使用する
+4. **支払い方法を探る** - ERC20トークンを使用した代替ガス支払いオプションを実装する
+5. **サポートされているトークンを確認する** - ガス支払い用のERC20トークンを扱う
+6. **最初の完全なdAppを構築する** - すべての概念を一貫性のあるアプリケーションにまとめる
+
+## はじめに
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 mb-6">
+  <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-600">
+    <h3 className="text-lg font-semibold mb-2 text-center">
+      <span className="text-blue-600 mr-2">🔗</span>
+      <a href="/ja/tutorials/first-contract/using-remix">Remixでデプロイ</a>
     </h3>
-    <p className="text-gray-600 dark:text-gray-300">Remixを使ってスマートコントラクトをNERO Chainにデプロイする方法を学びます。</p>
+    <p className="text-gray-600 dark:text-gray-300 text-center">Remix IDEを使用して最初のコントラクトを立ち上げる。</p>
   </div>
   
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-    <h3 className="flex items-center text-lg font-semibold mb-2">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M13 7H7v6h6V7z" />
-        <path fillRule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clipRule="evenodd" />
-      </svg>
-      <a href="/ja/tutorials/aa-wallet-integration">AAウォレット連携</a>
+  <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-600">
+    <h3 className="text-lg font-semibold mb-2 text-center">
+      <span className="text-yellow-500 mr-2">⚒️</span>
+      <a href="/ja/tutorials/first-contract/using-hardhat">Hardhatでデプロイ</a>
     </h3>
-    <p className="text-gray-600 dark:text-gray-300">アプリケーションにAAウォレットを統合する方法を学びます。</p>
+    <p className="text-gray-600 dark:text-gray-300 text-center">Hardhatの開発環境を使用してコントラクトをデプロイする。</p>
+  </div>
+
+  <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-600">
+    <h3 className="text-lg font-semibold mb-2 text-center">
+      <span className="text-yellow-500 mr-2">⚒️</span>
+      <a href="/ja/tutorials/first-contract/using-foundry">Foundryでデプロイ</a>
+    </h3>
+    <p className="text-gray-600 dark:text-gray-300 text-center">近日公開！</p>
   </div>
 </div>
+
+## アカウントアブストラクションのレシピ
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">👛 <a href="/ja/tutorials/aa-wallet-integration">AAウォレットを統合する</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">シームレスなUXのためにReactアプリケーションにスマートコントラクトウォレットを追加する。</p>
+  </div>
+
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">📨 <a href="/ja/tutorials/sending-ops">UserOperationsを送信する</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">アカウントアブストラクションを通じてスポンサード型ガスでトランザクションを実行する。</p>
+  </div>
+
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">💲 <a href="/ja/tutorials/types-payments">支払い方法</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">dAppにさまざまなガス支払いオプションを実装する。</p>
+  </div>
+</div>
+
+## 高度なトピック
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">🔍 <a href="/ja/tutorials/checking-sup-tokens">トークンサポートの確認</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">NERO Chain Paymasterがサポートするトークンを照会して表示する。</p>
+  </div>
+
+  <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-400 transition-all">
+    <h3 className="text-lg font-semibold mb-2 text-center">🚀 <a href="/ja/tutorials/create-first-dapp">最初のdAppを作成する</a></h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">ガスレストランザクションを備えた完全なNFTミンティングアプリケーションを構築する。</p>
+  </div>
+</div>
+
+<PageFeedback />

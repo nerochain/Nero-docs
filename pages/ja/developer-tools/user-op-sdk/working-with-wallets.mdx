@@ -1,27 +1,34 @@
-# ウォレットとの連携
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# AAウォレットの操作
 
-英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/working-with-wallets)でご覧いただけます。
+アカウントアブストラクションウォレットは各EOAウォレットに対して決定論的に生成されます。このセクションでは、これらのAAウォレットの操作方法について説明します。
 
-<div className="flex justify-center my-8">
-  <img src="/assets/wallet-integration.png" alt="Wallet Integration" className="rounded-lg shadow-md max-w-full" />
-</div>
+## AAウォレットアドレスの取得
 
-```javascript
-// ウォレット連携の例
-import { NeroUserOpSDK, WalletAdapter } from '@nerochain/user-op-sdk';
+各EOAウォレットには、決定論的に生成される対応するAAウォレットアドレスがあります：
 
-// ウォレットアダプターの設定
-const walletAdapter = new WalletAdapter({
-  type: 'metamask',
-  // その他のウォレット固有の設定...
-});
+```typescript
+// Get the AA wallet address (works even if not yet deployed on-chain)
+const aaWalletAddress = await builder.getSender();
+console.log("AA Wallet Address:", aaWalletAddress);
+```
 
-// SDKの初期化（ウォレットアダプター付き）
-const userOpSDK = new NeroUserOpSDK({
-  rpcUrl: 'https://testnet-rpc.nerochain.io',
-  entryPointAddress: '0x...',
-  walletAdapter
-});
-``` 
+## AAウォレットのデプロイ状態の確認
+
+AAウォレットが既にデプロイされているかどうかを確認できます：
+
+```typescript
+const provider = new ethers.providers.JsonRpcProvider(NERO_RPC_URL);
+const code = await provider.getCode(aaWalletAddress);
+const isDeployed = code !== '0x';
+console.log("Wallet deployed:", isDeployed);
+```
+
+## 次のステップ
+
+AAウォレットアドレスの操作後、次のことができます：
+- [UserOperationsの作成](/ja/developer-tools/user-op-sdk/creating-user-operations)
+- [Paymasterとの統合](/ja/developer-tools/user-op-sdk/paymaster-integration)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/working-with-wallets" /> 

@@ -1,32 +1,105 @@
-# UserOperationの作成
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# UserOperationsの作成
 
-英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/creating-user-operations)でご覧いただけます。
+このパートでは、SDKを使用してさまざまな種類のUserOperationsを作成する方法について説明します。
 
-<div className="flex justify-center my-8">
-  <img src="/assets/creating-user-ops.png" alt="Creating UserOperations" className="rounded-lg shadow-md max-w-full" />
-</div>
+## 最小限のUserOperationsを理解する
 
-```javascript
-// UserOperationの作成例
-import { NeroUserOpSDK } from '@nerochain/user-op-sdk';
+ユーザー操作には標準的な構造があるため、特定のトランザクションを開始する前に理解することが重要です。単純なユーザー操作には、プレースホルダー値であっても、必要なフィールドがすべて含まれています：
 
-// SDKの初期化
-const userOpSDK = new NeroUserOpSDK({
-  rpcUrl: 'https://testnet-rpc.nerochain.io',
-  entryPointAddress: '0x...',
-});
+```typescript
+// Create a minimal UserOp
+const minimalUserOp = {
+  sender: aaWalletAddress, // The AA wallet address
+  nonce: "0x0",            // Will be filled by the SDK or custom logic
+  initCode: "0x",          // Empty for existing wallets
+  callData: "0x",          // Will be filled with actual transaction data
+  callGasLimit: "0x0",     // Gas estimation
+  verificationGasLimit: "0x0",
+  preVerificationGas: "0x0",
+  maxFeePerGas: "0x0",
+  maxPriorityFeePerGas: "0x0",
+  paymasterAndData: "0x",  // Will be filled by Paymaster integration
+  signature: "0x"          // Will be filled with EOA signature
+};
+```
 
-// UserOperationの作成
-async function createUserOperation() {
-  const userOp = await userOpSDK.createUserOp({
-    target: '0xTargetAddress',
-    data: '0xCallData',
-    value: '0',
-    // その他のパラメータ...
-  });
-  
-  return userOp;
-}
-``` 
+この最小限の構造は以下の目的に役立ちます：
+- UserOperation構造を必要とするRPC呼び出しを行う
+- 特定の詳細を入力する前にUserOperationを初期化する
+- テストとデバッグ
+- PaymasterAPIなどのサービスとの対話
+
+UserOpSDKは自動的にこれらのフィールドのほとんどを埋めてくれますが、SDKを使用してカスタムユーティリティを開発する際には、この構造を理解しておくと役立ちます。
+
+## 単純なトークン送金
+
+ERC-20トークンの単純な送金を実行するには、[基本的な使い方](/ja/developer-tools/user-op-sdk/basic-usage)セクションで作成したビルダーから始めて、特定のトランザクションを追加します：
+
+```typescript
+// 1. Start with the builder from previous setup
+// const builder = await Presets.Builder.SimpleAccount.init(...);
+
+// 2. Create an ERC-20 contract instance
+const tokenContract = new ethers.Contract(
+  tokenAddress,
+  ['function transfer(address to, uint256 amount) returns (bool)'],
+  accountSigner
+);
+
+// 3. Prepare the call data for transfer
+const callData = tokenContract.interface.encodeFunctionData(
+  'transfer',
+  [recipientAddress, ethers.utils.parseUnits(amount, decimals)]
+);
+
+// 4. Add the transaction to the builder
+// This will incorporate the transaction into a UserOperation
+builder.execute(tokenAddress, 0, callData);
+
+// 5. The builder now contains the UserOperation with your transfer
+// Under the hood, it fills in the parameters of the minimal UserOperation:
+// - sender: from builder.getSender()
+// - nonce: auto-retrieved from the AA wallet
+// - callData: your transfer function call
+// - gas parameters: estimated or set manually
+```
+
+`builder.execute()`を呼び出すと、SDKはトランザクションをUserOperation構造に組み込み、最小限のUserOperationの各フィールドを手動で構築する必要がなくなります。
+
+## 複数のトランザクションの実行
+
+同じビルダーパターンを使用して、複数のアクションを単一のUserOperationにバンドルできます：
+
+```typescript
+// 1. Start with the same builder
+// const builder = await Presets.Builder.SimpleAccount.init(...);
+
+// 2. Prepare multiple call data and targets
+const callData = [
+  tokenContract.interface.encodeFunctionData('approve', [spender, amount]),
+  tokenContract.interface.encodeFunctionData('transfer', [recipient, amount])
+];
+const callTo = [tokenAddress, tokenAddress];
+
+// 3. Add batch execution to the builder
+// This bundles multiple transactions into a single UserOperation
+builder.executeBatch(callTo, callData);
+
+// 4. The builder now contains a UserOperation with multiple actions
+// The single UserOperation will:
+// - Approve tokens to be spent by another address
+// - Transfer tokens to the recipient
+// All in one atomic transaction
+```
+
+バッチ実行機能により、複数のアクションが単一のUserOperationの`callData`フィールドに結合され、複雑な操作を効率的に実行できます。
+
+## 次のステップ
+
+ビルダーでUserOperationsを作成した後：
+- ガス支払いを処理するために[Paymasterと統合する](/ja/developer-tools/user-op-sdk/paymaster-integration)
+- [UserOperationsをネットワークに送信する](/ja/developer-tools/user-op-sdk/sending-user-operations)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/creating-user-operations" /> 

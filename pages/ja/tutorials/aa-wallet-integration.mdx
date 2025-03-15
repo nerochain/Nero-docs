@@ -6,4 +6,245 @@
 
 <div className="flex justify-center my-8">
   <img src="/assets/wallet-integration.png" alt="AA Wallet Integration" className="rounded-lg shadow-md max-w-full" />
-</div> 
+</div>
+
+# Reactでのアカウントアブストラクションウォレットの統合
+
+このチュートリアルでは、NERO Chain AAプラットフォームを使用して、アカウントアブストラクション（AA）ウォレットの作成と管理をReactアプリケーションに統合する方法を示します。
+
+## 学ぶこと
+- アカウントアブストラクションウォレットとは何か、そしてユーザーエクスペリエンスをどのように改善するか
+- NERO Chain AAプラットフォームの設定方法
+- AAウォレット統合のためのユーティリティ関数の作成方法
+- ウォレット接続とAAアドレス表示のためのReactコンポーネントの構築方法
+- AAウォレットのcounterfactualデプロイメントの仕組み
+
+## 前提条件
+- ReactとTypeScriptの基本知識
+- [NERO Chainでの最初のコントラクトのデプロイ](/ja/tutorials/first-contract)チュートリアルを完了していること（推奨）
+- NERO Chainテストネットへのアクセス
+
+## アカウントアブストラクションウォレットの理解
+
+従来のイーサリアムモデルでは、ユーザーはガス料金を支払うためにETHを所有する必要がありました。アカウントアブストラクション（AA）では、ユーザーは以下のことができます：
+
+- ガス用のネイティブトークンを保持せずにトランザクションを実行
+- 高度な機能を持つスマートコントラクトウォレットを使用
+- 第三者（Paymaster）によるトランザクションのスポンサー
+
+
+## 事前準備
+
+TypeScriptを使用した新しいReactプロジェクトを作成するか、当社の簡単なテンプレートリポジトリを使用して進めることができます。新しいプロジェクトを作成する場合は、以下の依存関係をインストールしてください：
+
+```bash
+npm install github:nerochain/aa-userop-sdk
+```
+
+そして
+
+```bash
+npm install ethers@5.7.2
+```
+
+テンプレートを使用してこれを進めたい場合は、以下を使用してください：
+
+```
+git clone https://github.com/souzavinny/application-templates-nero.git my-application
+cd my-application
+cd react-ts
+npm install
+```
+> **_注意_**: テンプレートフォルダにはさらに多くのコンポーネントが含まれています。
+
+## ステップ1：設定のセットアップ
+
+まず、チェーン情報とAAコントラクトアドレスを含む設定ファイルを作成します：
+
+```typescript
+// src/config.ts
+export const NERO_CHAIN_CONFIG = {
+  chainId: 689,
+  chainName: "NERO Chain Testnet",
+  rpcUrl: "https://rpc-testnet.nerochain.io",
+  currency: "NERO",
+  explorer: "https://testnet.neroscan.io"
+};
+
+export const AA_PLATFORM_CONFIG = {
+  bundlerRpc: "https://bundler.service.nerochain.io",
+  paymasterRpc: "https://paymaster-testnet.nerochain.io",
+};
+
+export const CONTRACT_ADDRESSES = {
+  entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  accountFactory: "0x9406Cc6185a346906296840746125a0E44976454",
+};
+```
+
+## ステップ2：ユーティリティ関数の作成
+
+AAウォレットとやり取りするためのユーティリティ関数を作成します：
+
+```typescript
+// src/utils/aaUtils.ts
+import { ethers } from 'ethers';
+import { Client, Presets } from 'userop';
+import { NERO_CHAIN_CONFIG, AA_PLATFORM_CONFIG, CONTRACT_ADDRESSES } from '../config';
+
+// Ethereumプロバイダーを取得
+export const getProvider = () => {
+  return new ethers.providers.JsonRpcProvider(NERO_CHAIN_CONFIG.rpcUrl);
+};
+
+// ブラウザウォレットからサイナーを取得
+export const getSigner = async () => {
+  if (!window.ethereum) {
+    throw new Error("暗号ウォレットが見つかりません。Metamaskをインストールしてください。");
+  }
+  
+  await window.ethereum.request({ method: 'eth_requestAccounts' });
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  return provider.getSigner();
+};
+
+// AAクライアントを初期化
+export const initAAClient = async (accountSigner: ethers.Signer) => {
+  return await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+    overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+    entryPoint: CONTRACT_ADDRESSES.entryPoint,
+  });
+};
+
+// サイナーのAAウォレットアドレスを取得
+export const getAAWalletAddress = async (accountSigner: ethers.Signer, apiKey?: string) => {
+  try {
+    // SimpleAccountビルダーを初期化
+    const simpleAccount = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // AAウォレットのcounterfactualアドレスを取得
+    const address = await simpleAccount.getSender();
+    console.log("AAウォレットアドレス:", address);
+    
+    return address;
+  } catch (error) {
+    console.error("AAウォレットアドレスの取得エラー:", error);
+    throw error;
+  }
+};
+```
+
+## ステップ3：types.d.tsファイルの作成
+
+```
+interface Window {
+    ethereum?: {
+        isMetaMask?: boolean;
+        request: (request: { method: string; params?: any[] }) => Promise<any>;
+        on: (eventName: string, callback: (...args: any[]) => void) => void;
+        removeListener: (eventName: string, callback: (...args: any[]) => void) => void;
+    };
+} 
+```
+
+## ステップ4：Reactコンポーネントの作成
+
+次に、ユーザーがウォレットを接続してAAウォレットアドレスを表示できるReactコンポーネントを作成します：
+
+```typescript
+// src/components/AAWalletConnect.tsx
+import React, { useState } from 'react';
+import { getSigner, getAAWalletAddress } from '../utils/aaUtils';
+
+const AAWalletConnect: React.FC = () => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [userAddress, setUserAddress] = useState('');
+  const [aaWalletAddress, setAAWalletAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const connectWallet = async () => {
+    try {
+      setIsLoading(true);
+      
+      // ブラウザウォレットからサイナーを取得
+      const signer = await getSigner();
+      const address = await signer.getAddress();
+      setUserAddress(address);
+      
+      // AAウォレットアドレスを取得
+      const aaAddress = await getAAWalletAddress(signer);
+      setAAWalletAddress(aaAddress);
+      
+      setIsConnected(true);
+    } catch (error: any) {
+      console.error("ウォレット接続エラー:", error);
+      alert(error.message || "ウォレットの接続に失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="wallet-container">
+      <h2>アカウントアブストラクションウォレット</h2>
+      
+      <div className="connect-section">
+        <button 
+          onClick={connectWallet}
+          disabled={isLoading || isConnected}
+        >
+          {isLoading ? "接続中..." : isConnected ? "接続済み" : "ウォレットを接続"}
+        </button>
+      </div>
+      
+      {isConnected && (
+        <div className="wallet-info">
+          <div className="address-item">
+            <strong>EOAアドレス:</strong> 
+            <span>{userAddress}</span>
+          </div>
+          <div className="address-item">
+            <strong>AAウォレットアドレス:</strong> 
+            <span>{aaWalletAddress}</span>
+          </div>
+          <p className="note">
+            このAAウォレットはcounterfactualであり、最初のトランザクション時にデプロイされます。
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AAWalletConnect;
+```
+
+## AAウォレットの仕組み
+
+1. **Counterfactualデプロイメント**: AAウォレットアドレスはオンチェーンにデプロイされる前に計算されます
+2. **遅延デプロイメント**: ウォレットコントラクトは最初のトランザクション時に自動的にデプロイされます
+3. **決定論的アドレス**: 同じEOA（ユーザーウォレット）は常に同じAAウォレットアドレスを取得します
+
+## 統合のテスト
+
+1. メインのAppコンポーネントに`AAWalletConnect`コンポーネントを追加
+2. Reactアプリケーションを実行
+3. 「ウォレットを接続」をクリックし、ブラウザウォレットで接続を承認
+4. EOAアドレスとAAウォレットアドレスの両方が表示されるはずです
+
+## 重要な注意点
+
+- AAウォレットはチェーンごとに一意であるため、同じEOAは異なるチェーンで異なるAAアドレスを持ちます
+- ウォレットアドレスはファクトリーアドレス、EOAアドレス、ソルト値から派生します
+- AAウォレットはガスコストを節約するために最初のトランザクションでのみデプロイされます
+
+## 次のステップ
+AAウォレット統合をセットアップしたので、これらのウォレットを通じてオペレーションを送信する方法を学ぶ準備ができました。次のチュートリアル：[UserOperationsの送信](/ja/tutorials/sending-ops)に進んで、AAウォレットを使用してトランザクションを実行する方法を学びましょう。 

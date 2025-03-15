@@ -1,9 +1,712 @@
-# トークンサポート確認
+# NERO Chainトランザクション用のシンプルなトークン選択
 
-このページは現在準備中です。翻訳は後日提供されます。
+このチュートリアルでは、NFTミントを例としたオペレーションを使用して、NERO Chainトランザクション用のシンプルなトークン選択UIを実装する方法を説明します。
 
-英語版のドキュメントは[こちら](/en/tutorials/checking-sup-tokens)でご覧いただけます。
+## 学ぶこと
+- NERO Chain Paymasterからサポートされているトークンを取得する方法
+- 支払いタイプ選択ワークフローを作成する方法
+- 異なる支払い方法のトークンを選択する方法
+- 選択した支払いアプローチでNFTミントトランザクションを実行する方法
 
-<div className="flex justify-center my-8">
-  <img src="/assets/token-support.png" alt="Token Support Check" className="rounded-lg shadow-md max-w-full" />
-</div> 
+## 前提条件
+- [AAウォレット統合](/ja/tutorials/aa-wallet-integration)チュートリアルを完了していること
+- [UserOperationsの送信](/ja/tutorials/sending-ops)チュートリアルを完了していること
+- [支払い方法](/ja/tutorials/types-payments)チュートリアルを完了していること
+
+## 概要
+
+このチュートリアルでは、ユーザーがまず支払いタイプ（前払いまたは後払い）を選択し、次に利用可能なトークンから選択するシンプルなインターフェースを作成します。このワークフローは、特定のトークンを選択する前に、ユーザーが支払いフローを理解するのに役立ちます。実用的な例としてNFTミントを使用します。
+
+## ステップ1：支払い優先のNFTミントコンポーネントの作成
+
+まず支払いタイプを尋ね、次に利用可能なトークンを表示するコンポーネントを作成しましょう：
+
+```typescript
+// src/components/NFTMintWithPaymentSelector.tsx
+import React, { useState, useEffect } from 'react';
+import { 
+  getSigner, 
+  getSupportedTokens, 
+  executeOperation 
+} from '../utils/aaUtils';
+
+interface Token {
+  address: string;
+  symbol: string;
+  type?: number; // フィルタリングに使用しないためオプション
+}
+
+const NFTMintWithPaymentSelector: React.FC = () => {
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [paymentType, setPaymentType] = useState<number>(0); // デフォルトは0（未選択）
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [txHash, setTxHash] = useState('');
+  const [tokenId, setTokenId] = useState<string>('');
+  
+  // トークンの読み込み
+  useEffect(() => {
+  const loadTokens = async () => {
+    try {
+      setIsLoading(true);
+      const signer = await getSigner();
+      
+        // サポートされているトークンを取得
+        const supportedTokens = await getSupportedTokens(signer);
+        console.log("サポートされているトークン:", supportedTokens);
+        
+        // トークン構造を正規化
+        const normalizedTokens = supportedTokens.map(token => ({
+          address: token.address || token.token,
+          symbol: token.symbol || "不明"
+        }));
+        
+        setTokens(normalizedTokens);
+      } catch (error) {
+      console.error("トークンの読み込みエラー:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+    loadTokens();
+  }, []);
+  
+  // 支払いタイプ選択の処理
+  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedType = parseInt(e.target.value);
+    setPaymentType(selectedType);
+  };
+  
+  // トークン選択の処理
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedToken(e.target.value);
+  };
+  
+  // NFTミントの処理
+  const handleMintNFT = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (paymentType === 0 || !selectedToken) {
+      alert("支払いタイプとトークンの両方を選択してください");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      const signer = await getSigner();
+      
+      // 前のチュートリアルからのNFTコントラクトアドレスとABI
+      const nftContractAddress = "0x1234567890123456789012345678901234567890"; // あなたのNFTコントラクトに置き換えてください
+      const nftContractAbi = [
+        "function mint(address to) external returns (uint256)"
+      ];
+      
+      // 選択されたトークンと支払いタイプを使用してNFTミントを実行
+      const result = await executeOperation(
+        signer,
+        nftContractAddress,
+        nftContractAbi,
+        "mint",
+        [await signer.getAddress()], // 署名者のアドレスにミント
+        paymentType,
+        selectedToken
+      );
+      
+      setTxHash(result.transactionHash);
+      
+      // トランザクションレシートまたはイベントからトークンIDを抽出
+      // これは簡略化されています - 実際のアプリでは、レシートからイベントを解析します
+      setTokenId(Math.floor(Math.random() * 1000).toString()); // シミュレートされたトークンID
+      
+      alert("NFTが正常にミントされました！");
+    } catch (error: any) {
+      console.error("NFTミントエラー:", error);
+      alert("NFTミントに失敗しました: " + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  if (isLoading) {
+    return <p>トークンを読み込んでいます...</p>;
+  }
+  
+  if (tokens.length === 0) {
+    return <p>サポートされているトークンが見つかりませんでした。</p>;
+  }
+  
+  // ミントボタンを有効にするかどうかを判断
+  const canMint = paymentType > 0 && selectedToken !== '';
+
+  return (
+    <div className="nft-mint-payment-selector">
+      <h2>トークン支払いでNFTをミント</h2>
+      
+      <form onSubmit={handleMintNFT}>
+        <div className="form-group">
+          <label htmlFor="payment-type">支払いタイプ:</label>
+          <select
+            id="payment-type"
+            value={paymentType}
+            onChange={handlePaymentTypeChange}
+            disabled={isSubmitting}
+          >
+            <option value="0">支払いタイプを選択...</option>
+            <option value="1">前払い（トランザクション前に支払い）</option>
+            <option value="2">後払い（トランザクション後に支払い）</option>
+          </select>
+        </div>
+        
+        {paymentType > 0 && (
+          <div className="form-group">
+            <label htmlFor="token-select">支払いトークンを選択:</label>
+            {tokens.length > 0 ? (
+              <select
+                id="token-select"
+                value={selectedToken}
+                onChange={handleTokenChange}
+                disabled={isSubmitting}
+              >
+                <option value="">トークンを選択...</option>
+                {tokens.map((token) => (
+                  <option key={token.address} value={token.address}>
+                    {token.symbol}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="no-tokens-message">
+                利用可能なトークンがありません。接続を確認してください。
+              </p>
+            )}
+          </div>
+        )}
+        
+        <button 
+          type="submit" 
+          disabled={isSubmitting || !canMint}
+          className="mint-btn"
+        >
+          {isSubmitting ? "ミント中..." : "NFTをミント"}
+        </button>
+      </form>
+      
+      {txHash && (
+        <div className="tx-success">
+          <p>NFTが正常にミントされました！</p>
+          {tokenId && <p>トークンID: {tokenId}</p>}
+          <a 
+            href={`https://testnet.neroscan.io/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            エクスプローラーで表示
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NFTMintWithPaymentSelector;
+```
+
+## ステップ2：App.tsxへの統合
+
+次に、このコンポーネントをアプリケーションに統合しましょう：
+
+```typescript
+// src/App.tsx
+import React, { useState } from 'react';
+import { getSigner, getAAWalletAddress } from './utils/aaUtils';
+import NFTMintWithPaymentSelector from './components/NFTMintWithPaymentSelector';
+
+const App: React.FC = () => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // シンプルなウォレット接続機能
+  const connectWallet = async () => {
+    try {
+      setIsLoading(true);
+      
+      const signer = await getSigner();
+      await getAAWalletAddress(signer); // AAウォレットを初期化
+      
+      setIsConnected(true);
+  } catch (error) {
+      console.error("ウォレット接続エラー:", error);
+      alert("ウォレットの接続に失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="app">
+      <header>
+        <h1>NERO Chain NFTミンター</h1>
+      </header>
+      
+      <main>
+        {!isConnected ? (
+          <div className="connect-section">
+            <p>NFTをミントするにはウォレットを接続してください</p>
+            <button 
+              onClick={connectWallet}
+              disabled={isLoading}
+            >
+              {isLoading ? "接続中..." : "ウォレットを接続"}
+            </button>
+          </div>
+        ) : (
+          <NFTMintWithPaymentSelector />
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default App;
+```
+
+## ステップ3：支払い処理のためのユーティリティ関数
+
+前のチュートリアルからのコードを拡張して、トークンの取得とトランザクションの処理を改善しましょう：
+
+```typescript
+// src/utils/aaUtils.ts
+import { ethers } from 'ethers';
+import { Client, Presets } from 'userop';
+import { 
+  NERO_CHAIN_CONFIG, 
+  AA_PLATFORM_CONFIG, 
+  CONTRACT_ADDRESSES,
+  API_KEY 
+} from '../config';
+
+// スポンサーまたはトークンを使用してオペレーションを実行
+export const executeOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  paymentType: number,
+  tokenAddress?: string
+) => {
+  try {
+    // クライアントを初期化
+    const client = await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+      overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+      entryPoint: CONTRACT_ADDRESSES.entryPoint,
+    });
+    
+    // ビルダーを初期化
+    const builder = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // コントラクトインスタンスを作成
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      ethers.getDefaultProvider()
+    );
+    
+    // 関数呼び出しをエンコード
+    const callData = contract.interface.encodeFunctionData(
+      functionName,
+      functionParams
+    );
+    
+    // 基本的なpaymasterオプションを設定
+    const paymasterOptions: any = {
+      apikey: API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: paymentType.toString(),
+    };
+    
+    // ERC20支払いの場合（タイプ1または2）、トークンアドレスを追加
+    if (paymentType > 0) {
+      if (!tokenAddress) {
+        throw new Error("トークン支払いにはtokenAddressが必要です");
+      }
+      
+      // トークン承認を確認（実際のアプリでは実装する必要があります）
+      // await approveTokenForPaymaster(accountSigner, tokenAddress);
+      
+      // paymasterオプションにトークンを追加
+      paymasterOptions.token = tokenAddress;
+    }
+    
+    console.log("paymasterオプションを設定:", paymasterOptions);
+    builder.setPaymasterOptions(paymasterOptions);
+    
+    // ガスパラメータを設定
+    const gasParams = {
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+    };
+    
+    builder.setCallGasLimit(gasParams.callGasLimit);
+    builder.setVerificationGasLimit(gasParams.verificationGasLimit);
+    builder.setPreVerificationGas(gasParams.preVerificationGas);
+    builder.setMaxFeePerGas(gasParams.maxFeePerGas);
+    builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
+    
+    // UserOperationを作成
+    console.log("UserOperationを作成中...");
+    const userOp = await builder.execute(contractAddress, 0, callData);
+    
+    console.log("UserOperationを送信中...");
+    // UserOperationを送信
+    const res = await client.sendUserOperation(userOp);
+    console.log(`UserOperationが送信されました。ハッシュ: ${res.userOpHash}`);
+    
+    // トランザクションを待つ
+    console.log("トランザクションがマイニングされるのを待機中...");
+    const receipt = await res.wait();
+    if (!receipt) {
+      throw new Error("トランザクションのレシートがnullです");
+    }
+    console.log(`トランザクションがブロック${receipt.blockNumber}でマイニングされました`);
+    
+    return {
+      userOpHash: res.userOpHash,
+      transactionHash: receipt.transactionHash,
+      receipt
+    };
+  } catch (error) {
+    console.error("オペレーションの実行エラー:", error);
+    throw error;
+  }
+};
+```
+
+## ステップ4：カスタムトークンセレクションコンポーネントの作成
+
+より汎用的なトークンセレクターコンポーネントを作成して、他のコンポーネントで再利用できるようにしましょう：
+
+```tsx
+// src/components/TokenSelector.tsx
+import React, { useState, useEffect } from 'react';
+import { getSigner, getSupportedTokens } from '../utils/aaUtils';
+
+interface Token {
+  address: string;
+  symbol: string;
+  type?: number;
+}
+
+interface TokenSelectorProps {
+  onTokenSelected: (tokenAddress: string) => void;
+  paymentType: number;
+  disabled?: boolean;
+}
+
+const TokenSelector: React.FC<TokenSelectorProps> = ({ 
+  onTokenSelected, 
+  paymentType,
+  disabled = false 
+}) => {
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // 支払いタイプが変更されたときにリセット
+  useEffect(() => {
+    setSelectedToken('');
+  }, [paymentType]);
+  
+  // トークンの読み込み
+  useEffect(() => {
+    const loadTokens = async () => {
+      try {
+        setIsLoading(true);
+        if (paymentType <= 0) {
+          setTokens([]);
+          return;
+        }
+        
+        const signer = await getSigner();
+        const supportedTokens = await getSupportedTokens(signer);
+        
+        // トークン構造を正規化
+        const normalizedTokens = supportedTokens.map(token => ({
+          address: token.address || token.token,
+          symbol: token.symbol || "不明",
+          type: token.type
+        }));
+        
+        setTokens(normalizedTokens);
+      } catch (error) {
+        console.error("トークンの読み込みエラー:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadTokens();
+  }, [paymentType]);
+  
+  // トークン選択の処理
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedToken(value);
+    onTokenSelected(value);
+  };
+  
+  if (isLoading && paymentType > 0) {
+    return <p>トークンを読み込んでいます...</p>;
+  }
+  
+  return (
+    <div className="token-selector">
+      <label htmlFor="token-select">支払いトークン:</label>
+      <select
+        id="token-select"
+        value={selectedToken}
+        onChange={handleTokenChange}
+        disabled={disabled || tokens.length === 0}
+      >
+        <option value="">トークンを選択...</option>
+        {tokens.map((token) => (
+          <option key={token.address} value={token.address}>
+            {token.symbol}
+          </option>
+        ))}
+      </select>
+      {tokens.length === 0 && paymentType > 0 && !isLoading && (
+        <p className="error-message">利用可能なトークンがありません</p>
+      )}
+    </div>
+  );
+};
+
+export default TokenSelector;
+```
+
+## ステップ5：改良されたNFTミントコンポーネント
+
+トークンセレクターを活用した改良されたNFTミントコンポーネントを作成しましょう：
+
+```tsx
+// src/components/EnhancedNFTMinter.tsx
+import React, { useState } from 'react';
+import { getSigner, executeOperation } from '../utils/aaUtils';
+import TokenSelector from './TokenSelector';
+
+const EnhancedNFTMinter: React.FC = () => {
+  const [paymentType, setPaymentType] = useState<number>(0);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [txHash, setTxHash] = useState('');
+  const [tokenId, setTokenId] = useState<string>('');
+  
+  // トークン選択の処理
+  const handleTokenSelected = (tokenAddress: string) => {
+    setSelectedToken(tokenAddress);
+  };
+  
+  // 支払いタイプ選択の処理
+  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = parseInt(e.target.value);
+    setPaymentType(value);
+  };
+  
+  // NFTミントの処理
+  const handleMintNFT = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (paymentType === 0 || (paymentType > 0 && !selectedToken)) {
+      alert("支払いタイプとトークンを選択してください");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      const signer = await getSigner();
+      
+      // NFTコントラクトの詳細
+      const nftContractAddress = "0x1234567890123456789012345678901234567890"; // あなたのコントラクトに置き換え
+      const nftContractAbi = [
+        "function mint(address to) external returns (uint256)"
+      ];
+      
+      // ミントトランザクションを実行
+      const result = await executeOperation(
+        signer,
+        nftContractAddress,
+        nftContractAbi,
+        "mint",
+        [await signer.getAddress()],
+        paymentType,
+        selectedToken
+      );
+      
+      // 結果を処理
+      setTxHash(result.transactionHash);
+      setTokenId(`${Date.now() % 10000}`); // 実際のアプリではイベントからトークンIDを取得
+    } catch (error: any) {
+      console.error("NFTミントエラー:", error);
+      alert(`ミントエラー: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  // ミントが可能かどうかを判断
+  const canMint = paymentType === 0 || (paymentType > 0 && selectedToken !== '');
+  
+  return (
+    <div className="enhanced-nft-minter">
+      <h2>NFTミンター</h2>
+      
+      <form onSubmit={handleMintNFT}>
+        <div className="form-group">
+          <label htmlFor="payment-type">支払い方法:</label>
+          <select
+            id="payment-type"
+            value={paymentType}
+            onChange={handlePaymentTypeChange}
+            disabled={isSubmitting}
+          >
+            <option value="0">スポンサード（無料ガス）</option>
+            <option value="1">ERC20前払い</option>
+            <option value="2">ERC20後払い</option>
+          </select>
+        </div>
+        
+        {paymentType > 0 && (
+          <div className="form-group">
+            <TokenSelector
+              paymentType={paymentType}
+              onTokenSelected={handleTokenSelected}
+              disabled={isSubmitting}
+            />
+          </div>
+        )}
+        
+        <button 
+          type="submit"
+          disabled={isSubmitting || !canMint}
+          className="mint-button"
+        >
+          {isSubmitting ? "処理中..." : "NFTをミント"}
+        </button>
+      </form>
+      
+      {txHash && (
+        <div className="success-message">
+          <h3>ミント成功！</h3>
+          <p>トークンID: {tokenId}</p>
+          <p>
+            <a 
+              href={`https://testnet.neroscan.io/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              エクスプローラーでトランザクションを表示
+            </a>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default EnhancedNFTMinter;
+```
+
+## トラブルシューティングとベストプラクティス
+
+### トークンリストのキャッシュ
+
+パフォーマンスを向上させるには、サポートされているトークンリストをキャッシュすることをお勧めします：
+
+```typescript
+// src/utils/aaUtils.ts
+// トークンキャッシュの実装
+let tokenCache: any[] = [];
+let lastFetchTime = 0;
+const TOKEN_CACHE_DURATION = 5 * 60 * 1000; // 5分間有効
+
+export const getSupportedTokens = async (signer: ethers.Signer) => {
+  const currentTime = Date.now();
+  
+  // キャッシュが有効な場合はそれを使用
+  if (tokenCache.length > 0 && currentTime - lastFetchTime < TOKEN_CACHE_DURATION) {
+    return tokenCache;
+  }
+  
+  // 実際のAPIコール
+  try {
+    // トークンリストを取得（前のチュートリアルと同様）
+    const tokens = await fetchActualTokens(signer);
+    
+    // キャッシュを更新
+    tokenCache = tokens;
+    lastFetchTime = currentTime;
+    
+    return tokens;
+  } catch (error) {
+    console.error("トークンの取得エラー:", error);
+    
+    // エラーが発生した場合でも、有効期限切れの場合は古いキャッシュを返す
+    if (tokenCache.length > 0) {
+      return tokenCache;
+    }
+    throw error;
+  }
+};
+```
+
+### フィルタリングされたトークンリスト
+
+トークンリストをユーザーにとって関連性の高いトークンに絞り込むには：
+
+```typescript
+// 特定の支払いタイプのトークンをフィルタリング
+export const getFilteredTokens = async (signer: ethers.Signer, paymentType: number) => {
+  const allTokens = await getSupportedTokens(signer);
+  
+  // すべてのトークンに有効なタイプがある場合はフィルタリング
+  if (allTokens.every(token => token.type !== undefined)) {
+    return allTokens.filter(token => {
+      // 特定の支払いタイプのトークンのみを含める
+      if (paymentType === 1) {
+        return token.type === 1 || token.type === 3; // タイプ1と3は前払いをサポート
+      } else if (paymentType === 2) {
+        return token.type === 2 || token.type === 3; // タイプ2と3は後払いをサポート
+      }
+      return true; // フィルタリングなし
+    });
+  }
+  
+  // タイプ情報がない場合はすべてのトークンを返す
+  return allTokens;
+};
+```
+
+## まとめ
+
+このチュートリアルでは、NERO Chainトランザクション用のシンプルなトークン選択UIを実装する方法を学びました。特に：
+
+1. 様々な支払いタイプをサポートするトークン選択フローを作成する方法
+2. サポートされているトークンを取得し、簡単に表示する方法
+3. 選択された支払い方法とトークンを使用してトランザクションを実行する方法
+4. 再利用可能なコンポーネントを作成して、他のプロジェクトでのトークンの選択と支払い処理を簡素化する方法
+
+次に、[最初のdAppを作成する](/ja/tutorials/create-first-dapp)チュートリアルに進んで、学んだすべての概念を実際のアプリケーションに統合する方法を見てみましょう。 
