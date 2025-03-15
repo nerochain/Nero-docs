@@ -1,50 +1,201 @@
-# コアメソッド
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# コアJSON-RPCメソッド
 
-英語版のドキュメントは[こちら](/en/developer-tools/paymaster-api/core-methods)でご覧いただけます。
+ペイマスターAPIはJSON-RPCを使用しており、これはEthereum互換ノードと通信するための標準です。以下が利用可能な主要なメソッドです：
 
-<div className="flex justify-center my-8">
-  <img src="/assets/paymaster-core-methods.png" alt="Paymaster Core Methods" className="rounded-lg shadow-md max-w-full" />
-</div>
+## pm_supported_tokens
 
-## 主なAPIメソッド
+ペイマスターがガス支払いをサポートするERC20トークンのリストと価格情報を取得します。
 
-```javascript
-// ペイマスター署名リクエスト
-async function requestPaymasterSignature(userOp, paymasterUrl, apiKey) {
-  const response = await fetch(`${paymasterUrl}/sign`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+**パラメータ：**
+1. `userOperation` - 少なくともsenderフィールドを含む最小限のUserOperationオブジェクト
+2. `apiKey` - AAプラットフォームから取得したAPIキー
+3. `entryPoint` - EntryPointコントラクトアドレス（通常は`0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789`）
+
+**リクエスト例：**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_supported_tokens",
+  "params": [
+    {
+      "sender": "0xAAWalletAddress",
+      "nonce": "0x0",
+      "initCode": "0x",
+      "callData": "0x",
+      "callGasLimit": "0x0",
+      "verificationGasLimit": "0x0",
+      "preVerificationGas": "0x0",
+      "maxFeePerGas": "0x0",
+      "maxPriorityFeePerGas": "0x0",
+      "paymasterAndData": "0x",
+      "signature": "0x"
     },
-    body: JSON.stringify({
-      userOp,
-      context: {
-        // 必要なコンテキスト情報
+    "YOUR_API_KEY",
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```
+
+**レスポンス例：**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "freeGas": true,
+    "native": { 
+      "gas": "0x337dc", 
+      "price": 1, 
+      "decimals": 18, 
+      "symbol": "NERO" 
+    },
+    "tokens": [
+      {
+        "type": "system",
+        "token": "0xD5a6dcff7AC339A03f6964c315575bF65c3c6cF6",
+        "symbol": "DAI",
+        "decimals": 18,
+        "price": 2.1
+      },
+      {
+        "type": "custom",
+        "token": "0x13DCf97b6B94bDA883492AB46d556E8919445876",
+        "symbol": "TestToken",
+        "decimals": 18,
+        "price": 0.1
       }
-    })
-  });
-
-  const data = await response.json();
-  return data.paymasterAndData;
+    ]
+  }
 }
+```
 
-// ガス料金の見積もり
-async function estimateGasFee(userOp, paymasterUrl, apiKey) {
-  const response = await fetch(`${paymasterUrl}/estimate`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+このレスポンスでは：
+- `freeGas`はガススポンサーシップ（タイプ0）が利用可能かどうかを示します
+- `native`はネイティブトークン（NERO）に関する情報を提供します
+- `tokens`はNEROに対する相対価格比率を持つすべてのサポート対象ERC20トークンをリストします
+
+## pm_sponsor_userop
+
+ペイマスターでUserOperationに署名し、スポンサードまたはトークン支払いトランザクションに必要なpaymasterAndDataフィールドを追加します。
+
+**パラメータ：**
+1. `userOperation` - 署名される完全なUserOperation
+2. `apiKey` - AAプラットフォームから取得したAPIキー
+3. `entryPoint` - EntryPointコントラクトアドレス
+4. `context` - 支払い詳細を含むオブジェクト：
+   - `type` - 支払いタイプ（0：スポンサード、1：前払い、2：後払い）
+   - `token` - ERC20トークンアドレス（タイプ1と2では必須）
+
+**無料ガス（タイプ0）のリクエスト例：**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_sponsor_userop",
+  "params": [
+    {
+      "sender": "0xAAWalletAddress",
+      "nonce": "0x0",
+      "initCode": "0x",
+      "callData": "0xCallData",
+      "callGasLimit": "0x88b8",
+      "verificationGasLimit": "0x33450",
+      "preVerificationGas": "0xc350",
+      "maxFeePerGas": "0x9502f900",
+      "maxPriorityFeePerGas": "0x9502f900",
+      "paymasterAndData": "0x",
+      "signature": "0xUserSignature"
     },
-    body: JSON.stringify({
-      userOp
-    })
-  });
-
-  const data = await response.json();
-  return data.gasFee;
+    "YOUR_API_KEY",
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+    {
+      "type": 0
+    }
+  ]
 }
-``` 
+```
+
+**ERC20支払い（タイプ1）のリクエスト例：**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_sponsor_userop",
+  "params": [
+    {
+      "sender": "0xAAWalletAddress",
+      "nonce": "0x0",
+      "initCode": "0x",
+      "callData": "0xCallData",
+      "callGasLimit": "0x88b8",
+      "verificationGasLimit": "0x33450",
+      "preVerificationGas": "0xc350",
+      "maxFeePerGas": "0x9502f900",
+      "maxPriorityFeePerGas": "0x9502f900",
+      "paymasterAndData": "0x",
+      "signature": "0xUserSignature"
+    },
+    "YOUR_API_KEY",
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+    {
+      "type": 1,
+      "token": "0xTokenAddress"
+    }
+  ]
+}
+```
+
+**レスポンス例：**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "sender": "0xAAWalletAddress",
+    "nonce": "0x0",
+    "initCode": "0x",
+    "callData": "0xCallData",
+    "callGasLimit": "0x88b8",
+    "verificationGasLimit": "0x33450",
+    "preVerificationGas": "0xc350",
+    "maxFeePerGas": "0x9502f900",
+    "maxPriorityFeePerGas": "0x9502f900",
+    "paymasterAndData": "0xPaymasterAddress+EncodedData+PaymasterSignature",
+    "signature": "0xUserSignature"
+  }
+}
+```
+
+## pm_entrypoints
+
+現在サポートされているEntryPointアドレスを取得します。
+
+リクエスト：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "pm_entrypoints",
+  "params": [
+      "entryPoint"
+  ]
+}
+```
+
+レスポンス：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+  ]
+}
+```
+
+<PageFeedback path="/ja/developer-tools/paymaster-api/core-methods" />

@@ -1,9 +1,56 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
 # ペイマスターAPI
 
-このページは現在準備中です。翻訳は後日提供されます。
+開発者がdAppsでガス抽象化を使用できるようにすることで、NerochainペイマスターAPIはユーザーがERC20トークンを使用してガスコストを支払ったり、トランザクションを完全にスポンサーしたりすることを可能にします。このガイドでは、統合のための推奨プラクティス、リクエスト/レスポンス形式、APIエンドポイントについて説明します。
 
-英語版のドキュメントは[こちら](/en/developer-tools/paymaster-api)でご覧いただけます。
+## 概要
 
-<div className="flex justify-center my-8">
-  <img src="/assets/paymaster-api.png" alt="Paymaster API" className="rounded-lg shadow-md max-w-full" />
-</div> 
+ペイマスターAPIはあなたのdAppとNerochainブロックチェーンの間に位置し、以下のサービスを提供します：
+
+1. ユーザーのガス料金をスポンサーする。
+2. ユーザーがERC20トークンでガスを支払えるようにする。
+3. バンドラーに送信される前にUserOperationを検証して署名する。
+4. ユーザーのトランザクションに設定したガス戦略を適用する。
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/figure2.jpeg" 
+      alt="ペイマスターAPIフロー"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      図1：ペイマスターAPIの統合/使用フロー
+    </figcaption>
+  </figure>
+</div>
+
+## APIエンドポイント
+
+### ベースURL
+
+ペイマスターAPIは以下で利用可能です：
+
+```
+https://paymaster-testnet.nerochain.io
+```
+
+メインネット向け：
+
+```
+https://paymaster-mainnet.nerochain.io
+```
+
+### 認証
+
+すべてのAPIリクエストには、[AAプラットフォーム](https://aa-platform.nerochain.io)を通じて作成されたAPIキーが必要です。APIキーはRPC呼び出しのパラメータとして含める必要があります。
+
+## このセクションの内容
+
+- [コアメソッド](./core-methods) - すべてのペイマスターAPIメソッドの詳細なAPIリファレンス
+- [支払いタイプ](./payment-types) - 異なる支払いタイプの説明
+- [エラー処理](./error-handling) - 一般的なエラーとトラブルシューティング
+- [ベストプラクティス](./best-practices) - ペイマスターを統合する際に念頭に置くべきこと
+
+<PageFeedback path="/ja/developer-tools/paymaster-api" />

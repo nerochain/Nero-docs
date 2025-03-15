@@ -1,44 +1,37 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
 # エラー処理
 
-このページは現在準備中です。翻訳は後日提供されます。
-
-英語版のドキュメントは[こちら](/en/developer-tools/paymaster-api/error-handling)でご覧いただけます。
-
-<div className="flex justify-center my-8">
-  <img src="/assets/paymaster-errors.png" alt="Paymaster Error Handling" className="rounded-lg shadow-md max-w-full" />
-</div>
+ペイマスターAPIを統合する際には、適切なエラー処理が不可欠です。このセクションでは、遭遇する可能性のある一般的なエラーと堅牢な実装のためのベストプラクティスについて説明します。
 
 ## 一般的なエラーコード
 
-- `INVALID_REQUEST` - リクエスト形式が不正
-- `UNAUTHORIZED` - APIキーが無効またはアクセス権限がない
-- `INSUFFICIENT_FUNDS` - スポンサーシップアカウントの残高不足
-- `TOKEN_NOT_SUPPORTED` - サポートされていないERC-20トークン
-- `POLICY_VIOLATION` - スポンサーシップポリシーに違反
+トランザクションの送信などのペイマスターAPIとのやり取りでは、標準的なJSON-RPCエラーが返されることがあります。以下は一般的なエラーコードとその意味です：
 
-```javascript
-// エラー処理の例
-async function handlePaymasterRequest(userOp, paymasterUrl, apiKey) {
-  try {
-    const response = await fetch(`${paymasterUrl}/sign`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({ userOp })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Paymaster Error: ${errorData.code} - ${errorData.message}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Paymaster Request Failed:', error);
-    // エラーに応じた適切な処理
-    throw error;
-  }
-}
-``` 
+
+これらのエラーの多くには、EntryPointからの追加のエラーメッセージも含まれています。
+
+|コード	| 説明|
+|------------|-------------|
+|-32521	| 実行フェーズ中にトランザクションがリバートした（またはリバートする予定）。|
+|-32602	| 無効なUserOperation構造体/フィールド。|
+|-32500	| アカウント作成または検証中にentryPointのsimulateValidationによってトランザクションが拒否された。|
+|-32501	| paymasterのvalidatePaymasterUserOpによってトランザクションが拒否された。|
+|-32502	| オペコード検証によってトランザクションが拒否された。|
+|-32503	| UserOperationが時間範囲外：アカウントまたはペイマスターが時間範囲を返し、既に期限切れ（またはすぐに期限切れになる）。|
+|-32504	| ペイマスター（または署名アグリゲーター）がスロットル/禁止されているためトランザクションが拒否された。|
+|-32505	| ペイマスター（または署名アグリゲーター）のステークまたはアンステーク遅延が低すぎるためトランザクションが拒否された。|
+|-32506	| アカウントが未サポートの署名アグリゲーターを指定したためトランザクションが拒否された。|
+|-32507	| validateUserOpまたはvalidatePaymasterUserOpが無効な署名チェックを返した。|
+
+## 一般的な特定エラー
+
+バンドラーエラーコードには、追加のガイダンスを提供するためにEntryPointによって提供される追加のAAxxコードが付随していることがよくあります。
+
+- AA1xエラーコードはアカウントの作成に関連しています
+- AA2xエラーコードはユーザー操作の送信者に関連しています
+- AA3xエラーコードはペイマスターに関連しています
+- AA4xエラーコードは一般的な検証に関連しています
+- AA5xエラーはユーザー操作が実行された後のアクションに関連しています
+
+<PageFeedback path="/ja/developer-tools/paymaster-api/error-handling" />
