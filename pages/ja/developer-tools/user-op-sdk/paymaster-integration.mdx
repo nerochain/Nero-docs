@@ -1,31 +1,129 @@
-# ペイマスターの統合
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# Paymasterの統合
 
-英語版のドキュメントは[こちら](/en/developer-tools/user-op-sdk/paymaster-integration)でご覧いただけます。
+Paymasterサービスは、UserOperationsに対して柔軟なガス支払いオプションを提供します。
 
-<div className="flex justify-center my-8">
-  <img src="/assets/paymaster-integration.png" alt="Paymaster Integration" className="rounded-lg shadow-md max-w-full" />
-</div>
+## Paymaster用のAPIキーの設定
 
-```javascript
-// ペイマスター統合の例
-import { NeroUserOpSDK, PaymasterConfig } from '@nerochain/user-op-sdk';
+Paymasterサービスを使用するには、APIキーを設定します：
 
-// ペイマスター設定
-const paymasterConfig: PaymasterConfig = {
-  url: 'https://paymaster-api.nerochain.io',
-  apiKey: 'YOUR_API_KEY',
-  context: {
-    // ペイマスターに必要なコンテキスト情報
-    sponsorshipPolicy: 'gas-only',
-    // その他の情報...
+```typescript
+builder.setPaymasterOptions({
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+```
+
+## サポートされているトークンの取得
+
+SDKにはサポートされているトークンを取得するための組み込みメソッドはありません。Paymaster APIに直接RPCコールを行う必要があります：
+
+```typescript
+// サポートされているトークンを取得するヘルパー関数を作成
+async function getSupportedTokens(client, builder) {
+  try {
+    // ウォレットアドレスを取得
+    const sender = await builder.getSender();
+    
+    // リクエスト用の最小限のUserOpを作成
+    const minimalUserOp = {
+      sender,
+      nonce: "0x0",
+      initCode: "0x",
+      callData: "0x",
+      callGasLimit: "0x0",
+      verificationGasLimit: "0x0",
+      preVerificationGas: "0x0",
+      maxFeePerGas: "0x0",
+      maxPriorityFeePerGas: "0x0",
+      paymasterAndData: "0x",
+      signature: "0x"
+    };
+    
+    // paymaster RPC用のプロバイダーを設定
+    const provider = new ethers.providers.JsonRpcProvider(PAYMASTER_URL);
+    
+    // pm_supported_tokensメソッドを呼び出す
+    const tokensResponse = await provider.send("pm_supported_tokens", [
+      minimalUserOp,
+      YOUR_API_KEY,
+      ENTRYPOINT_ADDRESS
+    ]);
+    
+    // トークンリストを解析して返す
+    if (tokensResponse && tokensResponse.tokens) {
+      return tokensResponse.tokens.map(token => ({
+        address: token.token || token.address,
+        decimals: token.decimals,
+        symbol: token.symbol,
+        type: token.type
+      }));
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("サポートされているトークンの取得エラー:", error);
+    return [];
   }
-};
+}
 
-// SDKの初期化（ペイマスター付き）
-const userOpSDK = new NeroUserOpSDK({
-  rpcUrl: 'https://testnet-rpc.nerochain.io',
-  entryPointAddress: '0x...',
-  paymasterConfig
-}); 
+// 使用例
+const supportedTokens = await getSupportedTokens(client, builder);
+console.log("サポートされているトークン:", supportedTokens);
+```
+
+異なるPaymaster実装では、トークンが異なる形式で返される場合があります。より堅牢な実装では、この例に示すようにさまざまなレスポンス形式の処理が含まれます：
+
+```typescript
+// 異なるレスポンス形式を処理
+let tokens = [];
+if (tokensResponse.tokens) {
+  tokens = tokensResponse.tokens;
+} else if (Array.isArray(tokensResponse)) {
+  tokens = tokensResponse;
+} else if (typeof tokensResponse === 'object') {
+  // レスポンスオブジェクト内でトークンを見つける
+  const possibleTokensArray = Object.values(tokensResponse).find(val => Array.isArray(val));
+  if (possibleTokensArray && Array.isArray(possibleTokensArray)) {
+    tokens = possibleTokensArray;
+  }
+}
+```
+
+## 支払いタイプの設定
+
+ユーザーがガスをどのように支払うかを設定します：
+
+```typescript
+// タイプ0：無料ガス（開発者がスポンサー）
+builder.setPaymasterOptions({ 
+  type: 0,
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+
+// タイプ1：ERC20トークンでの前払い
+builder.setPaymasterOptions({ 
+  type: 1,
+  token: TOKEN_ADDRESS, // ERC20トークンアドレス
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+
+// タイプ2：ERC20トークンでの後払い
+builder.setPaymasterOptions({ 
+  type: 2,
+  token: TOKEN_ADDRESS, // ERC20トークンアドレス
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+```
+
+## 次のステップ
+
+UserOperationのPaymasterを設定した後、以下のことができます：
+- [UserOperationsをネットワークに送信する](/ja/developer-tools/user-op-sdk/sending-user-operations)
+- カスタマイズのための[高度なオプションを探索する](/ja/developer-tools/user-op-sdk/advanced-usage)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/paymaster-integration" />
