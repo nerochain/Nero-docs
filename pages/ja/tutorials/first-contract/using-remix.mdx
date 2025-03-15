@@ -1,34 +1,249 @@
-# Remixを使用
+import PageFeedback from '../../../../components/PageFeedback'
 
-このページは現在準備中です。翻訳は後日提供されます。
+# NEROチェーンでRemixを使用した初めてのコントラクトのデプロイ
 
-英語版のドキュメントは[こちら](/en/tutorials/first-contract/using-remix)でご覧いただけます。
+このチュートリアルでは、Remix IDEを使用してNEROチェーン上にスマートコントラクトを作成してデプロイするプロセスを説明します。Remixは人気のあるブラウザベースの開発環境で、セットアップが不要なため、初心者に最適です。
 
-<div className="flex justify-center my-8">
-  <img src="/assets/remix-interface.png" alt="Remix Interface" className="rounded-lg shadow-md max-w-full" />
+## 前提条件
+
+- ブラウザにインストールされたWeb3ウォレット（MetaMaskなど）
+- Solidityプログラミング言語の基本知識
+- ガス代用のNEROテストネットトークン（[NEROフォーセット](https://app.testnet.nerochain.io/)から入手可能）
+
+## 環境のセットアップ
+
+### 1. ウォレットをNEROチェーンに接続する
+
+始める前に、NEROチェーンをMetaMaskウォレットに追加する必要があります：
+
+1. MetaMaskを開き、上部のネットワークドロップダウンをクリック
+2. 「ネットワークを追加」を選択 
+3. NEROテストネットの場合、以下の設定を使用：
+   - ネットワーク名：`NEROテストネット`
+   - RPC URL：`https://rpc-testnet.nerochain.io`
+   - チェーンID：`689`
+   - 通貨シンボル：`NERO`
+   - ブロックエクスプローラーURL：`https://testnet.neroscan.io`
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/cookbook/metanerotest.gif" 
+      alt="MetaMaskの設定"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
 </div>
 
-## Remixを使用したスマートコントラクトのデプロイ手順
+### 2. Remix IDEを開く
 
-1. **Remixを開く** - [Remix IDE](https://remix.ethereum.org/)にアクセス
-2. **新しいファイルを作成** - `.sol`拡張子でSolidityファイルを作成
-3. **コントラクトを記述** - 以下のサンプルコードを使用
-4. **コンパイル** - Solidityコンパイラでコントラクトをコンパイル
-5. **デプロイ** - NERO Chainネットワークにデプロイ
+ブラウザで[Remix IDE](https://remix.ethereum.org/)に移動します。
+
+## シンプルなスマートコントラクトの作成
+
+ストレージ機能を持つシンプルな「Hello World」コントラクトを作成しましょう。
+
+### 1. 新しいファイルを作成
+
+Remixで：
+1. 左側のサイドバーにある「ファイルエクスプローラー」アイコンをクリック
+2. 「+」アイコンをクリックして新しいファイルを作成
+3. `HelloWorld.sol`という名前を付ける
+
+### 2. スマートコントラクトを書く
+
+以下のコードを新しいファイルにコピー＆ペーストします：
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
-contract SimpleStorage {
-    uint256 private storedData;
+contract HelloWorld {
+    string private greeting;
     
-    function set(uint256 x) public {
-        storedData = x;
+    constructor() {
+        greeting = "Hello, NERO Chain!";
     }
     
-    function get() public view returns (uint256) {
-        return storedData;
+    function setGreeting(string memory _greeting) public {
+        greeting = _greeting;
+    }
+    
+    function getGreeting() public view returns (string memory) {
+        return greeting;
     }
 }
-``` 
+```
+
+このシンプルなコントラクトは：
+- 挨拶メッセージを保存する
+- 誰でも挨拶を更新できる
+- 現在の挨拶を取得する関数を提供する
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/cookbook/remixcreate.gif" 
+      alt="Remixでのコントラクト作成"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+## コントラクトのコンパイル
+
+### 1. コンパイラタブに移動
+
+左側のサイドバーにある「Solidityコンパイラ」アイコン（2番目のアイコン）をクリックします。
+
+### 2. コンパイラバージョンの選択
+
+pragmaステートメントに一致するコンパイラバージョンを選択します（この場合、0.8.17以上）。
+
+### 3. コントラクトのコンパイル
+
+「HelloWorld.solをコンパイル」ボタンをクリックします。成功すると、緑色のチェックマークが表示されます。
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/cookbook/remixcomp.gif" 
+      alt="Remixでのコンパイル"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+## コントラクトのデプロイ
+
+### 1. デプロイタブに移動
+
+左側のサイドバーにある「デプロイ＆実行トランザクション」アイコン（3番目のアイコン）をクリックします。
+
+### 2. 環境の設定
+
+1. 「環境」ドロップダウンから「Injected Provider - MetaMask」を選択
+2. MetaMaskが接続を促します - NEROテストネットに接続されていることを確認
+3. 「アカウント」フィールドにウォレットアドレスが表示されていることを確認
+
+
+### 3. コントラクトのデプロイ
+
+1. 「コントラクト」ドロップダウンで「HelloWorld」が選択されていることを確認
+2. 「デプロイ」ボタンをクリック
+3. MetaMaskがトランザクションの確認を求めます - ガス料金を確認して「確認」をクリック
+4. トランザクションがマイニングされるのを待ちます（NEROチェーンでは通常数秒かかります）
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/cookbook/remixdeploy.gif" 
+      alt="Remixでのデプロイ"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+## デプロイされたコントラクトとの対話
+
+デプロイ後、コントラクトは「デプロイされたコントラクト」セクションに表示されます。
+
+### 挨拶の読み取り
+
+1. 「デプロイされたコントラクト」セクションでコントラクトを展開
+2. 「getGreeting」関数を見つける（青いボタン、読み取り専用関数を示す）
+3. クリックして保存されている挨拶を取得
+
+### 挨拶の更新
+
+1. 「setGreeting」関数を見つける（オレンジ色のボタン、状態を変更することを示す）
+2. 入力フィールドに新しい挨拶メッセージを入力
+3. 「setGreeting」ボタンをクリック
+4. MetaMaskでトランザクションを確認
+5. トランザクションがマイニングされた後、再度「getGreeting」を呼び出して更新を確認
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/cookbook/remixinteract.gif" 
+      alt="Remixでの対話"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+</div>
+
+## ブロックエクスプローラーでのコントラクトの検証
+
+他の人があなたのコントラクトと対話し、そのコードを表示できるようにするには、ブロックエクスプローラーでそれを検証する必要があります：
+
+1. Remixの「デプロイされたコントラクト」セクションからコントラクトアドレスをコピー
+2. [NEROチェーンエクスプローラー](https://testnet.neroscan.io)にアクセス
+3. 検索バーにコントラクトアドレスを貼り付け
+4. 「Contract」タブをクリック
+5. 「Verify and Publish」をクリック
+6. 必要な情報を入力：
+   - コントラクト名：`HelloWorld`
+   - コンパイラバージョン：使用したバージョン（例：`v0.8.17+commit.8df45f5f`）
+   - オープンソースライセンスタイプ：`MIT License (MIT)`
+7. 「Enter the Solidity Contract Code」フィールドに、コントラクトコード全体を貼り付け
+8. 「Verify and Publish」をクリック
+
+
+検証後、ユーザーはエクスプローラーから直接あなたのコントラクトコードを読み、対話することができます。
+
+## 一般的な問題のトラブルシューティング
+
+### トランザクションの失敗
+
+デプロイトランザクションが失敗する場合、以下を確認してください：
+- ガス代のために十分なNEROトークンがありますか？
+- MetaMaskはNEROチェーンに接続されていますか？
+- コントラクトコードにエラーはありませんか？
+
+### 高いガス料金
+
+NEROチェーンは比較的ガス料金が低いですが、高く感じる場合：
+- 正しいネットワークに接続されているか確認
+- 混雑していない時間に試す
+
+### コンパイラエラー
+
+コンパイラエラーが発生した場合：
+- Solidityバージョンが互換性があることを確認（0.8.0以上を推奨）
+- 構文エラーがないか確認
+- NEROチェーンで利用できないかもしれないイーサリアム固有の関数への参照がないか確認
+
+## 高度なヒント
+
+### ライブラリの使用
+
+外部ライブラリを使用する場合：
+1. importステートメントを使ってそれらをインポート
+2. NEROチェーンと互換性があることを確認
+
+```solidity
+// OpenZeppelinのERC20コントラクトをインポートする例
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+```
+
+### コンストラクタ引数
+
+コントラクトがコンストラクタ引数を必要とする場合：
+1. 「デプロイ」ボタンの横のフィールドにそれらを入力
+2. 複数の引数はカンマで区切る
+
+### コントラクトサイズの制限
+
+NEROチェーンは、イーサリアムと同様に、最大コントラクトサイズ制限があります。コントラクトが大きすぎる場合：
+- 複数のコントラクトに分割
+- コードを最適化
+- コードを再利用するためにライブラリを使用
+
+## 次のステップ
+
+最初のコントラクトをデプロイしたので、次のことを学ぶことができます：
+
+1. [NEROチェーン上のアカウント抽象化](/ja/tutorials/aa-wallet-integration)について学ぶ
+2. ガスレストランザクションのための[Paymasterインテグレーション](/ja/tutorials/paymaster-integration)を探る
+3. [Reactを使った完全なdApp](/ja/tutorials/create-first-dapp)を構築する
+4. より複雑なプロジェクトのために[Hardhat](/ja/tutorials/first-contract/using-hardhat)を使ったデプロイを試す
