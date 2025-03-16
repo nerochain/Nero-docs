@@ -10,7 +10,7 @@ interface MDXLayoutProps {
 const resourceLinksMap: Record<string, { title: string; url: string }[]> = {
   '/en/getting-started/introduction': [
     {
-      title: "NeroChain Architecture Overview",
+      title: "NERO Chain Architecture Overview",
       url: "https://nero-docs.vercel.app/en/nero-architecture"
     },
     {
@@ -18,8 +18,8 @@ const resourceLinksMap: Record<string, { title: string; url: string }[]> = {
       url: "https://nero-docs.vercel.app/en/developer-tools"
     },
     {
-      title: "NeroChain GitHub Repository",
-      url: "https://github.com/nerochain"
+      title: "NERO Chain GitHub Repository",
+      url: "https://github.com/NERO Chain"
     }
   ]
 };
