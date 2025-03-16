@@ -239,7 +239,6 @@
 
   /* Hide sidebars on homepage */
   [data-nextra-hide-sidebar] .nextra-sidebar-container,
-  [data-nextra-hide-sidebar] .nextra-toc,
   [data-nextra-hide-sidebar] aside,
   [data-nextra-hide-sidebar] nav[aria-label="Main"] {
     display: none !important;
