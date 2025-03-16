@@ -123,6 +123,48 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "https://github.com/nerochain/aa-userop-sdk"
     }
   ],
+  '/en/developer-tools/aa-platform': [
+    {
+      title: "Check the AA Plaform Website",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/en/developer-tools/aa-platform/getting-started': [
+    {
+      title: "Check the AA Plaform Website",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/en/developer-tools/aa-platform/managing-api-keys': [
+    {
+      title: "Check the AA Plaform Website",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/en/developer-tools/aa-platform/configuring-policies': [
+    {
+      title: "Check the AA Plaform Website",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/en/developer-tools/aa-platform/payment-management': [
+    {
+      title: "Check the AA Plaform Website",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/en/developer-tools/aa-platform/integration-and-best-practices': [
+    {
+      title: "Check the AA Plaform Website",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/en/developer-tools/aa-platform/troubleshooting': [
+    {
+      title: "Check the AA Plaform Website",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
   '/en/developer-tools/user-op-sdk/basic-usage': [
     {
       title: "User OP SDK Github",
@@ -204,6 +246,246 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "https://medium.com/@souza.mvsl/d508f827910e"
     }
   ],
+  '/ja/getting-started/introduction': [
+    {
+      title: "NERO Chainの紹介",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ], 
+  '/ja/getting-started/key-features': [
+    {
+      title: "NERO Chainの紹介",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ],
+  '/ja/getting-started/nero-dapp-architecture': [
+    {
+      title: "NERO Chain用のサンプルdApps",
+      url: "https://github.com/souzavinny/dapp-samples-nero"
+    }
+  ], 
+  '/ja/tutorials/aa-wallet-integration': [
+    {
+      title: "シンプルなNEROテンプレート",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    },
+    {
+      title: "AAウォレットの操作",
+      url: "/en/user-op-sdk/working-with-wallets"
+    }
+  ],
+  '/ja/tutorials/checking-sup-tokens': [
+    {
+      title: "NERO Chain用のサンプルdApps",
+      url: "https://github.com/souzavinny/dapp-samples-nero"
+    },
+    {
+      title: "サポートされているトークンの取得",
+      url: "/en/developer-tools/user-op-sdk/paymaster-integration#getting-supported-tokens"
+    }
+  ],
+  '/ja/tutorials/create-first-dapp': [
+    {
+      title: "完全なNERO dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
+    }
+  ],
+  '/ja/tutorials/sending-ops': [
+    {
+      title: "UserOpsガイド",
+      url: "/developer-tools/user-op-sdk/sending-user-operations"
+    }
+  ],
+  '/ja/tutorials/types-payments': [
+    {
+      title: "支払いタイプのドキュメント",
+      url: "/en/developer-tools/user-op-sdk/paymaster-integration#setting-payment-type"
+    },
+    {
+      title: "ERC-20ガス支払いの例",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ],
+
+  '/ja/core-concepts/architecture/architecture': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/ja/core-concepts/architecture/accessLayer': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/ja/core-concepts/architecture/dataAvailabilityLayer': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/ja/core-concepts/architecture/settlementLayer': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+
+  '/ja/core-concepts/consensus-mechanism/overview': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/ja/core-concepts/consensus-mechanism/pipelinedConsensus': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/ja/core-concepts/consensus-mechanism/randomNumberGeneration': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+
+  '/ja/core-concepts/native-account-abstraction/nativeAccountAbstraction': [
+    {
+      title: "参考セクションを確認する",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/basic-usage': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "シンプルなNEROテンプレート",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/paymaster-integration': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }, {
+      title: "シンプルなNEROテンプレート",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/sending-user-operations': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/creating-user-operations': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }, 
+    {
+      title: "シンプルなNEROテンプレート",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/working-with-wallets': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "シンプルなNEROテンプレート",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/advanced-usage': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "完全なNERO dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/error-handling': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "完全なNERO dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
+    }
+  ],
+  '/ja/developer-tools/user-op-sdk/best-practices': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }
+  ],
+  '/ja/developer-tools/paymaster-api': [
+    {
+      title: "Paymaster APIガイド",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    },
+    {
+      title: "ガススポンサーシップの例",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ],
+  '/ja/developer-tools/aa-platform': [
+    {
+      title: "AA プラットフォームウェブサイトを確認する",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/ja/developer-tools/aa-platform/getting-started': [
+    {
+      title: "AA プラットフォームウェブサイトを確認する",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/ja/developer-tools/aa-platform/managing-api-keys': [
+    {
+      title: "AA プラットフォームウェブサイトを確認する",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/ja/developer-tools/aa-platform/configuring-policies': [
+    {
+      title: "AA プラットフォームウェブサイトを確認する",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/ja/developer-tools/aa-platform/payment-management': [
+    {
+      title: "AA プラットフォームウェブサイトを確認する",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/ja/developer-tools/aa-platform/integration-and-best-practices': [
+    {
+      title: "AA プラットフォームウェブサイトを確認する",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
+  '/ja/developer-tools/aa-platform/troubleshooting': [
+    {
+      title: "AA プラットフォームウェブサイトを確認する",
+      url: "https://aa-platform.nerochain.io/user/login"
+    }
+  ],
 };
 
 const SidebarResources: React.FC = () => {
@@ -213,6 +495,10 @@ const SidebarResources: React.FC = () => {
   if (!links || links.length === 0) {
     return null;
   }
+
+  // Determine language based on path for the "Useful resources" title
+  const isJapanese = router.pathname.startsWith('/ja/');
+  const resourcesTitle = isJapanese ? "役立つリソース" : "Useful resources";
 
   return (
     <div className="mt-6 pt-4 border-t border-gray-200">
@@ -229,7 +515,7 @@ const SidebarResources: React.FC = () => {
         >
           <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <span className="font-semibold text-gray-700">Useful resources</span>
+        <span className="font-semibold text-gray-700">{resourcesTitle}</span>
       </div>
       
       <ul className="pl-5 space-y-1.5 text-xs">
