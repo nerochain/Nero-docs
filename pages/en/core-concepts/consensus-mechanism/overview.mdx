@@ -1,5 +1,9 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
 # Consensus
 
 Consensus is the core component of a blockchain, and NERO employs a hybrid randomized DPoSA (Delegated Proof of Staked Authority) protocol. This consensus protocol, grounded in DPoSA consensus, integrates a random selection mechanism for nodes, thus widening participation and enhancing system decentralization. Within the consensus nodes, a BFT (Byzantine Fault Tolerance) consensus mechanism ensures fast transaction confirmations. Furthermore, the conventional consensus workflow is divided into phrase of transaction distribution, phrase of execution process and phrase of execution result spread. This approach establishes a pipeline mechanism for transaction processing, improving system throughput greatly.
 
 The consensus protocol of NERO selects the set of nodes to propose and validate blocks, which is an important mechanism to introduce more nodes into the system to participate in the consensus process. The consensus process is divided into different epochs according to a fixed number of blocks, and the same set of validators is used in each epoch for proposing and validating blocks.
+
+<PageFeedback path="/en/core-concepts/consensus-mechanism/overview" />

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
+    "glob": "^11.0.1",
     "gray-matter": "^4.0.3",
     "next": "^15.0.4",
     "nextra": "^3.2.4",

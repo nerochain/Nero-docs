@@ -1,3 +1,5 @@
+import PageFeedback from '../../../../../components/PageFeedback'
+
 # Data availability verification
 
 In terms of verification, we define the following roles of DA nodes in the DA layer of NERO:
@@ -7,3 +9,5 @@ In terms of verification, we define the following roles of DA nodes in the DA la
 Data availability verification is conducted by validators within the settlement layer. Upon proposal of a block in the DA chain by the settlement layer's validator, who also serves as the block producer, the hash of the DA block is transmitted to the settlement layer. Subsequently, other validators within the settlement layer verify the data availability of the DA block through random sampling. If successfully verified, a settlement layer validator broadcasts the signature of the DA block hash, indicating validation. Once signatures from 2/3 of these validators are obtained, they are submitted to the settlement layer as confirmation proof.
 
 Upon passing the settlement layer verification in the subsequent settlement block, and provided no fraud-proof has been issued since the DA block is marked as confirmed within the settlement layer. Simultaneously, the next DA block is proposed.
+
+<PageFeedback path="/en/core-concepts/data-availability/dataAvailabilityVerification/overview" />
