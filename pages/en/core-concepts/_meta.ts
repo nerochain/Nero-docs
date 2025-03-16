@@ -20,5 +20,8 @@ export default {
   },
   'fee-sharing': {
     title: "Fee-Sharing Mechanism"
+  },
+  'references': {
+    title: "References"
   }
 } 

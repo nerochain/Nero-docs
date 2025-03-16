@@ -20,5 +20,8 @@ export default {
   },
   'fee-sharing': {
     title: '手数料共有メカニズム'
+  },
+  'references': {
+    title: '参考文献'
   }
 }

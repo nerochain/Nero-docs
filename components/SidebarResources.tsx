@@ -9,15 +9,201 @@ interface ResourceLink {
 const resourceLinksMap: Record<string, ResourceLink[]> = {
   '/en/getting-started/introduction': [
     {
-      title: "Introduction to Nerochain",
+      title: "Introduction to NERO Chain",
       url: "https://medium.com/@souza.mvsl/d508f827910e"
     }
-  ], '/en/tutorials/aa-wallet-integration': [
+  ], '/en/getting-started/key-features': [
     {
-      title: "Simple Nero Template",
+      title: "Introduction to NERO Chain",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ],
+  '/en/getting-started/nero-dapp-architecture': [
+    {
+      title: "Sample dApps for NERO Chain",
+      url: "https://github.com/souzavinny/dapp-samples-nero"
+    }
+  ], 
+  '/en/tutorials/aa-wallet-integration': [
+    {
+      title: "Simple NERO Template",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    },
+    {
+      title: "Working with AA Wallets",
+      url: "/en/user-op-sdk/working-with-wallets"
+    }
+  ],
+  '/en/tutorials/checking-sup-tokens': [
+    {
+      title: "Sample dApps for NERO Chain",
+      url: "https://github.com/souzavinny/dapp-samples-nero"
+    },
+    {
+      title: "Getting Supported Tokens",
+      url: "/en/developer-tools/user-op-sdk/paymaster-integration#getting-supported-tokens"
+    }
+  ],
+  '/en/tutorials/create-first-dapp': [
+    {
+      title: "Full NERO dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
+    }
+  ],
+  '/en/tutorials/sending-ops': [
+    {
+      title: "UserOps Guide",
+      url: "/developer-tools/user-op-sdk/sending-user-operations"
+    }
+  ],
+  '/en/tutorials/types-payments': [
+    {
+      title: "Payment Types Documentation",
+      url: "/en/developer-tools/user-op-sdk/paymaster-integration#setting-payment-type"
+    },
+    {
+      title: "ERC-20 Gas Payment Examples",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ],
+
+  '/en/core-concepts/architecture/architecture': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/en/core-concepts/architecture/accessLayer': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/en/core-concepts/architecture/dataAvailabilityLayer': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/en/core-concepts/architecture/settlementLayer': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+
+  '/en/core-concepts/consensus-mechanism/overview': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/en/core-concepts/consensus-mechanism/pipelinedConsensus': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/en/core-concepts/consensus-mechanism/randomNumberGeneration': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+
+  '/en/core-concepts/native-account-abstraction/nativeAccountAbstraction': [
+    {
+      title: "Check the References section",
+      url: "/en/core-concepts/references"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk/basic-usage': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "Simple NERO Template",
       url: "https://github.com/souzavinny/application-templates-nero"
     }
-  ]
+  ],
+  '/en/developer-tools/user-op-sdk/paymaster-integration': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }, {
+      title: "Simple NERO Template",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk/sending-user-operations': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk/creating-user-operations': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }, 
+    {
+      title: "Simple NERO Template",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk/working-with-wallets': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "Simple NERO Template",
+      url: "https://github.com/souzavinny/application-templates-nero"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk/advanced-usage': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "Full NERO dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk/error-handling': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    },
+    {
+      title: "Full NERO dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
+    }
+  ],
+  '/en/developer-tools/user-op-sdk/best-practices': [
+    {
+      title: "User OP SDK Github",
+      url: "https://github.com/nerochain/aa-userop-sdk"
+    }
+  ],
+  '/en/developer-tools/paymaster-api': [
+    {
+      title: "Paymaster API Guide",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    },
+    {
+      title: "Gas Sponsorship Examples",
+      url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ],
 };
 
 const SidebarResources: React.FC = () => {
