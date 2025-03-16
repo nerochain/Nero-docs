@@ -5,7 +5,7 @@ export default {
       breadcrumb: true
     }
   },
-  introduction: 'Nerochain',
+  introduction: 'NERO Chain',
   'key-features': '主な特徴',
   'nero-dapp-architecture': 'Nero dAppのアーキテクチャ'
 }
