@@ -1,0 +1,7 @@
+# 2.3 Data Availability Layer: Storage Scalability
+
+In order to conserve valuable storage capacity within the settlement layer, NERO designed the data availability layer to offer dependable on-chain storage for Rollup. This eliminates the reliance on external storage protocols for the original transaction data associated with Rollup, resolving the issue entirely within the NERO Chain.Moreover, NERO designed the data availability layer with a Sharding architecture to engage a greater number of nodes, enhancing decentralization and scalability. This structure enables each node to store only a portion of data (shard), while a number of nodes ensures data accessibility.As an independent storage layer, NERO's data availability layer possesses several key features compared to traditional blockchains:
+
+* Only data storage is necessary on the chain, with no transaction execution and absence of a world state.
+* Block verification does not rely on historical data.
+* Only the settlement layer conducts unified management.

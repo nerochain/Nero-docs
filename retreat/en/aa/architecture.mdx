@@ -1,0 +1,57 @@
+# Architecture
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/aaPlatform/figure1.png" alt="Figure 1" />
+  <p style={{ fontStyle: 'italic' }}>Figure 1: Architecture</p>
+</div>
+
+## Key Component Specifications
+
+### Entrypoint
+
+* An intelligent contract that serves as the universal Account Abstraction (AA) infrastructure should be globally unique and responsible for processing UserOperations.
+
+### Bundler
+
+Responsible for collecting UserOperations and providing a MemPool to manage pending UserOperations.
+Verifies the validity of UserOperations to prevent DoS attacks.
+Packages UserOperations, pays for transaction fees, and assembles them into traditional transactions to be sent to the Entrypoint. After the Entrypoint executes the UserOperation, it will reimburse the UserOperation fees to the beneficiary address specified by the Bundler.
+Provides necessary Json-rpc APIs for users.
+
+### AA Platform
+
+* A business management platform for paymasters, provided for developers.
+* Offers paymaster infrastructure for AA wallet applications and DAPP developers, facilitating the provision of gas subsidy/token payment capabilities to their end-users.
+* Enables developers to define custom payment strategies.
+* Manages account balances.
+* Provides a webhooks mechanism, allowing developers to verify whether specific UserOperations comply with the sponsorship strategy before and after paymaster signing.
+
+### Paymaster API
+
+* Provides APIs for developers to use paymasters.
+
+### Developer SDK
+
+* Offers SDKs for developers to construct UserOperations.
+* Provides SDKs for developers to access the Nero Paymaster API.
+* Currently, only the JS version SDK is considered.
+
+### Paymaster & Paymaster template
+
+* Provides official paymaster contracts.
+* Implements paymaster templates to support developers in customizing payment strategies (specific capabilities to be determined).
+
+### User-Side Applications
+
+Includes all applications for end-users, such as AA Wallet and DAPPs. The AA Wallet can be built by Nero or in collaboration with third-party AA wallet service providers, allowing third-party wallets to support the Nero chain and integrate Nero’s Bundler and paymaster services.
+
+### AA Wallet Basic Features
+
+* Supports one or more login/permission control methods, which can refer to other competitors like Particle.
+* Offers smart contract wallets based on product positioning.
+* Conventional wallet functions: receive/send tokens, add token…
+* Social recovery feature
+* Provides gas subsidy and token-based payment features as needed
+* Offers SDKs for DAPPs to connect to wallets and interact with them
+* Should support DAPPs in building UserOperations (including paymaster data) to enable customized gas subsidies or payment methods.
