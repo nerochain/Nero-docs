@@ -6,7 +6,7 @@ interface MessageBannerProps {
 }
 
 const messages = {
-  en: "NERO Chain x AKINDO Wavehack is comming! More info soon!",
+  en: "NERO Chain x AKINDO Wavehack is coming! More info soon!",
   ja: "NERO Chain × AKINDO Wavehack、まもなく開催！詳細は近日公開予定です。お楽しみに！"
 };
 
