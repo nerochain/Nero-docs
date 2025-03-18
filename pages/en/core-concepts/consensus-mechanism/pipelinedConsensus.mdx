@@ -4,11 +4,11 @@ import PageFeedback from '../../../../components/PageFeedback'
 
 In traditional blockchain systems such as Ethereum, the block generation process consists of several steps:
 
-*The miner (block proposer) packs the transaction and executes it;
-*The miner sets the execution results to the block header;
-*Block propagation;
-*Other nodes execute the transactions in the block;
-*And then validate the execution results of the block.
+- The miner (block proposer) packs the transaction and executes it;
+- The miner sets the execution results to the block header;
+- Block propagation;
+- Other nodes execute the transactions in the block;
+- And then validate the execution results of the block.
 
 It can be seen that a transaction undergoes two serial executions from the time it is packaged to the time it reaches network-wide consensus, in addition to a serial propagation process, which has a lot of room for optimization. We take a closer look at the structure of a block, which contains a batch of transactions and various Merkle roots associated with the execution results. The transaction list mainly represents the sequence of transaction execution, while the block header can be seen as the result of the block execution. We can consider separating the consensus of these two into a transaction sequence consensus and an execution result consensus.
 
