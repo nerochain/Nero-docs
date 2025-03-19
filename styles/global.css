@@ -306,6 +306,11 @@
     z-index: 1000;
     overflow: hidden;
     white-space: nowrap;
+    transition: opacity 0.3s ease-out;
+  }
+
+  .message-banner.fade-out {
+    opacity: 0;
   }
 
   .message-banner span {
@@ -341,12 +346,22 @@
     background: none !important;
     border: none !important;
     box-shadow: none !important;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out !important;
   }
 
   body.has-banner .nextra-banner-container {
     position: fixed !important;
     top: 0 !important;
     width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  body:not(.has-banner) .nextra-banner-container {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 
   /* Dark mode support for message banner */
@@ -364,6 +379,12 @@
   body.has-banner .nextra-nav-container {
     top: 2rem !important;
     border-top: none !important;
+  }
+
+  /* Add transition for smooth repositioning */
+  .nextra-nav-container {
+    transition: top 0.3s ease-out !important;
+    top: 0 !important;
   }
 
   /* Remove the top shadow/border of the header when banner is present */
