@@ -293,6 +293,14 @@
     display: none !important;
   }
 
+  /* Hide hamburger menu only on homepage in mobile view */
+  @media (max-width: 767px) {
+    [data-nextra-hide-sidebar] button[aria-label="Menu"],
+    [data-nextra-hide-sidebar] .nextra-nav-container button[class*="nx-p-2"] {
+      display: none !important;
+    }
+  }
+
   /* Hide all breadcrumb navigation on homepage - more specific selector */
   [data-nextra-hide-sidebar] .nextra-breadcrumb,
   [data-nextra-hide-sidebar] nav.nx-flex.nx-items-center.nx-gap-1.nx-mt-6.nx-mb-8 {
