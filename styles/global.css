@@ -178,8 +178,15 @@
   }
   
   /* Dark mode support for icons */
-  :root.dark .text-nero-brand {
-    color: #ffffff; /* White color for dark mode */
+  :root.dark .text-nero-brand,
+  :root.dark svg.text-nero-brand,
+  :root.dark .text-blue-500,
+  :root.dark .text-green-500,
+  :root.dark .text-red-500,
+  :root.dark .text-purple-500,
+  :root.dark .text-yellow-500,
+  :root.dark .text-indigo-500 {
+    color: #ffffff !important; /* White color for all icons in dark mode */
   }
   
   :root.dark .hover\:text-nero-dark:hover {
