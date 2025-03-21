@@ -1,5 +1,7 @@
 import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
+import MessageBanner from "./components/MessageBanner";
+import SidebarResources from "./components/SidebarResources";
 
 const themeConfig: DocsThemeConfig = {
   logo: (
@@ -9,6 +11,7 @@ const themeConfig: DocsThemeConfig = {
         alt="NERO Chain Logo"
         width={200}
         height={128}
+        style={{ borderRadius: '20px' }}
       />
     </>
   ),
@@ -19,6 +22,11 @@ const themeConfig: DocsThemeConfig = {
       <title>NERO Chain Docs</title>
     </>
   ),
+  banner: {
+    key: 'network-status',
+    content: <MessageBanner />,
+    dismissible: false
+  },
   footer: {
     content: (
       <span>
@@ -48,6 +56,16 @@ const themeConfig: DocsThemeConfig = {
     { locale: "en", name: "English" },
     { locale: "ja", name: "日本語" },
   ],
+  
+  // Default menu collapse level
+  sidebar: {
+    defaultMenuCollapseLevel: 1
+  },
+  
+  // Add custom components to the right sidebar
+  toc: {
+    extraContent: <SidebarResources />
+  }
 };
 
 export default themeConfig;

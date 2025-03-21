@@ -1,0 +1,688 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# Payment Methods for NERO Chain Transactions
+
+This tutorial explains how to implement different payment methods for transaction gas fees using the NERO Chain Paymaster, focusing on ERC20 token payments as alternatives to sponsored transactions.
+
+## What You'll Learn
+- How to fetch the list of tokens supported by the NERO Chain Paymaster
+- How to implement different payment types for transactions (sponsored, prepay, and postpay)
+- How to handle token approvals for Paymaster interactions
+- How to build a payment selector interface for your application
+
+## Prerequisites
+- Completed the [AA Wallet Integration](/en/tutorials/aa-wallet-integration) tutorial
+- Completed the [Sending UserOperations](/en/tutorials/sending-ops) tutorial (with sponsored transactions)
+- An API key from the [NERO Chain AA Platform](https://aa-platform.nerochain.io)
+
+## Understanding Paymaster Payment Types
+
+In the previous tutorial, you learned how to use sponsored transactions (Type 0) where the developer covers all gas costs. The NERO Chain Paymaster also supports two additional payment types:
+
+1. **Prepay ERC20 (Type 1)**: Users pay gas costs upfront with ERC20 tokens
+2. **Postpay ERC20 (Type 2)**: Users pay gas costs after transaction execution with ERC20 tokens
+
+Before implementing these payment types, we first need to fetch the supported tokens from the Paymaster API.
+
+## Step 1: Fetching Supported Tokens
+
+Let's create a utility function to query the supported tokens:
+
+```typescript
+// src/utils/aaUtils.ts
+import { ethers } from 'ethers';
+import { Client, Presets } from 'userop';
+import { 
+  NERO_CHAIN_CONFIG, 
+  AA_PLATFORM_CONFIG, 
+  CONTRACT_ADDRESSES,
+  API_KEY 
+} from '../config';
+
+// Cache to avoid excessive API calls
+let tokenCache: any[] = [];
+let lastFetchTime: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Transform token response data
+const transformTokensResponse = (response: any) => {
+  if (!response || !response.tokens) return [];
+  
+  return response.tokens.map((token: any) => ({
+    address: token.token,
+    decimal: parseInt(token.decimal),
+    symbol: token.symbol,
+    type: parseInt(token.type),
+    price: token.price ? parseFloat(token.price) : undefined
+  }));
+};
+
+// Get supported tokens from Paymaster API
+export const getSupportedTokens = async (accountSigner: ethers.Signer) => {
+  // Check cache first
+  const now = Date.now();
+  if (tokenCache.length > 0 && now - lastFetchTime < CACHE_DURATION) {
+    console.log("Using cached token list");
+    return tokenCache;
+  }
+  
+  try {
+    // Initialize the SimpleAccount builder
+    const builder = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Get the AA wallet address
+    const sender = await builder.getSender();
+    
+    // Create a minimal UserOp for querying tokens
+    const minimalUserOp = {
+      sender,
+      nonce: "0x0",
+      initCode: "0x",
+      callData: "0x",
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+      paymasterAndData: "0x",
+      signature: "0x"
+    };
+    
+    // Setup provider for paymaster API call
+    const provider = new ethers.providers.JsonRpcProvider(AA_PLATFORM_CONFIG.paymasterRpc);
+    
+    // Query supported tokens from paymaster API
+    const tokensResponse = await provider.send("pm_supported_tokens", [
+      minimalUserOp,
+      API_KEY,
+      CONTRACT_ADDRESSES.entryPoint
+    ]);
+    
+    // Transform and cache the results
+    const tokens = transformTokensResponse(tokensResponse);
+    tokenCache = tokens;
+    lastFetchTime = now;
+    
+    console.log(`Found ${tokens.length} supported tokens`);
+    return tokens;
+  } catch (error) {
+    console.error("Error fetching supported tokens:", error);
+    
+    // Return cached data if available, otherwise empty array
+    return tokenCache.length > 0 ? tokenCache : [];
+  }
+};
+```
+
+## Step 2: Handling ERC20 Token Approvals
+
+When using ERC20 tokens for gas (payment types 1 and 2), the user's AA wallet must first approve the token paymaster contract:
+
+```typescript
+// src/utils/aaUtils.ts
+// Add this to your existing utility functions
+
+// Handle token approval for paymaster
+export const approveTokenForPaymaster = async (
+  accountSigner: ethers.Signer,
+  tokenAddress: string,
+  amount: string = ethers.constants.MaxUint256.toString()
+) => {
+  try {
+    // Initialize client
+    const client = await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+      overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+      entryPoint: CONTRACT_ADDRESSES.entryPoint,
+    });
+    
+    // Initialize builder
+    const builder = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Get the AA wallet address
+    const aaWalletAddress = await builder.getSender();
+    
+    // Create token contract interface
+    const erc20Interface = new ethers.utils.Interface([
+      'function approve(address spender, uint256 amount) returns (bool)',
+      'function allowance(address owner, address spender) view returns (uint256)'
+    ]);
+    
+    // Check current allowance
+    const provider = new ethers.providers.JsonRpcProvider(NERO_CHAIN_CONFIG.rpcUrl);
+    const tokenContract = new ethers.Contract(
+      tokenAddress,
+      [
+        'function allowance(address owner, address spender) view returns (uint256)'
+      ],
+      provider
+    );
+    
+    const currentAllowance = await tokenContract.allowance(
+      aaWalletAddress,
+      CONTRACT_ADDRESSES.tokenPaymaster
+    );
+    
+    // If allowance is sufficient, return early
+    if (!currentAllowance.lt(ethers.utils.parseUnits("100", 18))) {
+      console.log("Token already approved");
+      return true;
+    }
+    
+    console.log("Approving tokens for paymaster...");
+    
+    // Create the approval call data
+    const approveCallData = erc20Interface.encodeFunctionData(
+      'approve',
+      [CONTRACT_ADDRESSES.tokenPaymaster, amount]
+    );
+    
+    // Configure paymaster for free gas (for the approval transaction)
+    builder.setPaymasterOptions({
+      apikey: API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: "0" // Use free for the approval
+    });
+    
+    // Set gas parameters
+    const gasParams = {
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+    };
+    
+    builder.setCallGasLimit(gasParams.callGasLimit);
+    builder.setVerificationGasLimit(gasParams.verificationGasLimit);
+    builder.setPreVerificationGas(gasParams.preVerificationGas);
+    builder.setMaxFeePerGas(gasParams.maxFeePerGas);
+    builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
+    
+    // Create a UserOperation for the approval
+    const userOp = await builder.execute(tokenAddress, 0, approveCallData);
+    
+    // Send the approval UserOperation
+    console.log("Sending approval transaction...");
+    const res = await client.sendUserOperation(userOp);
+    console.log("Approval transaction sent with hash:", res.userOpHash);
+    
+    // Wait for the approval to be mined
+    const receipt = await res.wait();
+    if (!receipt) {
+            throw new Error("Transaction receipt is null");
+    }
+    console.log("Token approval confirmed in block:", receipt.blockNumber);
+    
+    return true;
+  } catch (error) {
+    console.error("Error approving token for paymaster:", error);
+    throw error;
+  }
+};
+```
+
+## Step 3: Implementing a Unified Transaction Function
+
+Instead of creating separate functions for each payment type, let's create a single function that can handle all types:
+
+```typescript
+// src/utils/aaUtils.ts
+/**
+ * Execute an operation with configurable payment type
+ * @param accountSigner The user's signer
+ * @param contractAddress The target contract address
+ * @param contractAbi The contract ABI
+ * @param functionName The function to call
+ * @param functionParams Parameters for the function
+ * @param paymentType 0 = sponsored, 1 = prepay, 2 = postpay
+ * @param tokenAddress Required for payment types 1 and 2
+ * @param options Additional options
+ */
+export const executeOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  paymentType: number = 0,
+  tokenAddress?: string,
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // For token payments, first approve the token if needed
+    if ((paymentType === 1 || paymentType === 2) && tokenAddress) {
+      await approveTokenForPaymaster(accountSigner, tokenAddress);
+    } else if ((paymentType === 1 || paymentType === 2) && !tokenAddress) {
+      throw new Error(`Token address is required for payment type ${paymentType}`);
+    }
+    
+    // Initialize AA client
+    const client = await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+      overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+      entryPoint: CONTRACT_ADDRESSES.entryPoint,
+    });
+    
+    // Initialize AA builder
+    const builder = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Configure gas parameters
+    const gasParams = {
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+    };
+    
+    // Set gas parameters
+    builder.setCallGasLimit(gasParams.callGasLimit);
+    builder.setVerificationGasLimit(gasParams.verificationGasLimit);
+    builder.setPreVerificationGas(gasParams.preVerificationGas);
+    builder.setMaxFeePerGas(gasParams.maxFeePerGas);
+    builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
+    
+    // Configure paymaster based on payment type
+    const paymasterOptions: any = {
+      apikey: options?.apiKey || API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: paymentType.toString()
+    };
+    
+    // Add token address for token payments
+    if ((paymentType === 1 || paymentType === 2) && tokenAddress) {
+      paymasterOptions.token = tokenAddress;
+    }
+    
+    // Set paymaster options
+    builder.setPaymasterOptions(paymasterOptions);
+    
+    // Create contract instance
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      ethers.getDefaultProvider()
+    );
+    
+    // Encode function call
+    const callData = contract.interface.encodeFunctionData(
+      functionName,
+      functionParams
+    );
+    
+    // Payment type in human-readable form for logging
+    const paymentTypeNames = ["Sponsored", "Prepay", "Postpay"];
+    console.log(`Sending UserOperation with ${paymentTypeNames[paymentType]} payment...`);
+    
+    // Create the UserOperation
+    const userOp = await builder.execute(contractAddress, 0, callData);
+    
+    // Send the UserOperation
+    const res = await client.sendUserOperation(userOp);
+    console.log("UserOperation sent with hash:", res.userOpHash);
+    
+    // Wait for the transaction to be included
+    const receipt = await res.wait();
+    if (!receipt) {
+        throw new Error("Transaction receipt is null");
+    }
+    console.log("Transaction mined in block:", receipt.blockNumber);
+
+    return {
+        userOpHash: res.userOpHash,
+        transactionHash: receipt.transactionHash,
+        receipt: receipt
+    };
+  } catch (error) {
+    console.error(`Error executing operation with payment type ${paymentType}:`, error);
+    throw error;
+  }
+};
+```
+
+## Step 4: Using the Unified Function for NFT Minting
+
+Let's update our NFT minting function to use the unified operation executor:
+
+```typescript
+// src/utils/aaUtils.ts
+
+// Add a generic NFT ABI
+const NFT_ABI = [
+    "function mint(address to, string memory uri) external",
+    "function tokenURI(uint256 tokenId) external view returns (string memory)",
+    "function balanceOf(address owner) external view returns (uint256)"
+];
+
+export const mintNFT = async (
+  accountSigner: ethers.Signer,
+  recipientAddress: string,
+  metadataUri: string,
+  paymentType: number = 0,
+  tokenAddress?: string,
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Execute the mint function with the specified payment type
+    return await executeOperation(
+      accountSigner,
+      CONTRACT_ADDRESSES.nftContract,
+      NFT_ABI,
+      'mint',
+      [recipientAddress, metadataUri],
+      paymentType,
+      tokenAddress,
+      options
+    );
+  } catch (error) {
+    console.error("Error minting NFT:", error);
+    throw error;
+  }
+};
+```
+
+## Step 5: Creating a Payment Type Selector
+
+To allow users to choose their preferred payment method, let's create a component for selecting payment types and tokens:
+
+```typescript
+// src/components/PaymentTypeSelector.tsx
+import React, { useState, useEffect } from 'react';
+import { getSigner, getSupportedTokens } from '../utils/aaUtils';
+
+interface Token {
+  address: string;
+  symbol: string;
+  type: number;
+  decimal: number;
+}
+
+interface PaymentTypeSelectorProps {
+  onPaymentTypeChange: (type: number, token?: string) => void;
+  disabled?: boolean;
+}
+
+const PaymentTypeSelector: React.FC<PaymentTypeSelectorProps> = ({
+  onPaymentTypeChange,
+  disabled = false
+}) => {
+  const [paymentType, setPaymentType] = useState<number>(0);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Load supported tokens on component mount
+  useEffect(() => {
+    const loadTokens = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const signer = await getSigner();
+        const supportedTokens = await getSupportedTokens(signer);
+        
+        setTokens(supportedTokens);
+      } catch (error: any) {
+        console.error("Error loading tokens:", error);
+        setError(error.message || "Failed to load supported tokens");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadTokens();
+  }, []);
+  
+  // Filter tokens by payment type
+  const availableTokens = tokens.filter(token => 
+    paymentType === 0 || token.type === paymentType
+  );
+  
+  // Handle payment type change
+  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const type = parseInt(e.target.value);
+    setPaymentType(type);
+    
+    // Reset token selection when switching to free
+    if (type === 0) {
+      setSelectedToken('');
+      onPaymentTypeChange(type);
+    } else if (selectedToken && tokens.find(t => t.address === selectedToken)?.type === type) {
+      // If selected token supports the new type, keep it
+      onPaymentTypeChange(type, selectedToken);
+    } else {
+      // Clear token selection
+      setSelectedToken('');
+    }
+  };
+  
+  // Handle token selection change
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const token = e.target.value;
+    setSelectedToken(token);
+    
+    if (token) {
+      onPaymentTypeChange(paymentType, token);
+    }
+  };
+  
+  return (
+    <div className="payment-type-selector">
+      <div className="form-group">
+        <label>Gas Payment Method:</label>
+        <select
+          value={paymentType}
+          onChange={handlePaymentTypeChange}
+          disabled={disabled || isLoading}
+          className="select-field"
+        >
+          <option value={0}>Sponsored (Free Gas)</option>
+          <option value={1}>Prepay with ERC20 Token</option>
+          <option value={2}>Postpay with ERC20 Token</option>
+        </select>
+        
+        <p className="help-text">
+          {paymentType === 0 
+            ? "Gas fees are sponsored by the application." 
+            : paymentType === 1 
+              ? "Pay for gas upfront with ERC20 tokens. Excess will be refunded." 
+              : "Pay for exact gas costs after transaction execution."}
+        </p>
+      </div>
+      
+      {paymentType > 0 && (
+        <div className="form-group">
+          <label>Select Token:</label>
+          {isLoading ? (
+            <p>Loading supported tokens...</p>
+          ) : error ? (
+            <p className="error-text">{error}</p>
+          ) : availableTokens.length === 0 ? (
+            <p className="warning-text">No tokens available for this payment type.</p>
+          ) : (
+            <select
+              value={selectedToken}
+              onChange={handleTokenChange}
+              disabled={disabled || availableTokens.length === 0}
+              className="select-field"
+            >
+              <option value="">Select a token</option>
+              {availableTokens.map(token => (
+                <option key={token.address} value={token.address}>
+                  {token.symbol}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PaymentTypeSelector;
+```
+
+## Step 6: Using the Payment Selector in an NFT Minting Component
+
+Let's update our NFT minting component to use the unified function and payment selector:
+
+```typescript
+// src/components/NFTMinter.tsx
+import React, { useState } from 'react';
+import { ethers } from 'ethers';
+import { getSigner, mintNFT } from '../utils/aaUtils';
+import { NERO_CHAIN_CONFIG } from '../config';
+import PaymentTypeSelector from './PaymentTypeSelector';
+
+const NFT_ABI = [
+  "function mint(address to, string memory uri) external",
+  "function tokenURI(uint256 tokenId) external view returns (string memory)",
+  "function balanceOf(address owner) external view returns (uint256)"
+];
+
+interface MintOptions {
+  paymentType: number;
+  tokenAddress?: string;
+}
+
+const NFTMinter: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState('');
+  const [mintOptions, setMintOptions] = useState<MintOptions>({ paymentType: 0 });
+  
+  // Handle payment type selection
+  const handlePaymentTypeChange = (type: number, token?: string) => {
+    setMintOptions({ paymentType: type, tokenAddress: token });
+  };
+  
+  // Handle NFT minting with appropriate payment method
+  const handleMint = async () => {
+    try {
+      setIsLoading(true);
+      setTxHash('');
+      
+      // Get signer from browser wallet
+      const signer = await getSigner();
+      const userAddress = await signer.getAddress();
+      
+      // Example NFT metadata URI
+      const metadataUri = "ipfs://bafkreiabag3ztnhe5pg7js3cokbq3id2b3t6evbncbpzzh2c5sdioxngoe";
+      
+      // Mint NFT with the selected payment type and token
+      const result = await mintNFT(
+        signer, 
+        userAddress, 
+        metadataUri,
+        mintOptions.paymentType,
+        mintOptions.tokenAddress
+      );
+      
+      // Set transaction hash for display
+      setTxHash(result.transactionHash);
+      alert("NFT minted successfully!");
+    } catch (error: any) {
+      console.error("Error minting NFT:", error);
+      alert("Failed to mint NFT: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="nft-minter">
+      <h2>Mint an NFT</h2>
+      
+      <PaymentTypeSelector
+        onPaymentTypeChange={handlePaymentTypeChange}
+        disabled={isLoading}
+      />
+      
+      <div className="mint-button-container">
+        <button
+          onClick={handleMint}
+          disabled={isLoading || (mintOptions.paymentType > 0 && !mintOptions.tokenAddress)}
+        >
+          {isLoading ? "Minting..." : "Mint NFT"}
+        </button>
+      </div>
+      
+      {txHash && (
+        <div className="transaction-info">
+          <p>Transaction successful!</p>
+          <a
+            href={`${NERO_CHAIN_CONFIG.explorer}/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on Explorer
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NFTMinter;
+```
+
+## Comparing Payment Types
+
+| Feature | Type 0 (Free) | Type 1 (Prepay) | Type 2 (Postpay) |
+|---------|--------------|-----------------|------------------|
+| Who pays gas | Developer | User (ERC20 before) | User (ERC20 after) |
+| User experience | Seamless | Good | Good |
+| Developer costs | High | Low | Low |
+| Gas estimation | Fixed | Fixed | Dynamic |
+| Best for | Onboarding, NFTs | Regular users | Power users |
+| User needs tokens? | No | Yes (before tx) | Yes (before tx) |
+| Token approval? | Not needed | Required | Required |
+
+## Best Practices
+
+1. **Token Approval Flow**: Always handle token approvals before attempting token payments
+2. **Payment Type Selection**: Offer all payment options but default to the most user-friendly (Type 0)
+3. **Error Handling**: Provide clear error messages specifically for token-related issues
+4. **Token Balance Checking**: Verify users have sufficient token balance before attempting operations
+5. **UI Feedback**: Show loading states and success/failure messages for each step of the process
+
+## When to Use Each Payment Type
+
+- **Type 0 (Free/Sponsored)**: Use for onboarding, NFT minting, and casual users
+- **Type 1 (Prepay)**: Use for regular transactions where users have ERC20 tokens but not native tokens
+- **Type 2 (Postpay)**: Use for precise gas payments or when exact costs matter
+
+## Next Steps
+Now that you understand the different payment methods available with the NERO Chain Paymaster, you might want to learn more about which tokens are supported. Continue to the [Token Support Check](/en/tutorials/checking-sup-tokens) tutorial to learn how to fetch and display detailed token information.
+
+<PageFeedback path="/en/tutorials/types-payments" />

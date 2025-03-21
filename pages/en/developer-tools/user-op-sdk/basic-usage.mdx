@@ -1,0 +1,80 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Installation and Basic Usage
+
+## Installation
+
+You can install the UserOpSDK directly from GitHub:
+
+```bash
+npm install github:nerochain/aa-userop-sdk
+```
+
+Or using yarn:
+
+```bash
+yarn add github:nerochain/aa-userop-sdk
+```
+
+## Basic Usage
+
+This section covers the essential steps to start using the UserOpSDK.
+
+### Importing the SDK
+
+```typescript
+import { Client, Presets } from 'userop';
+```
+
+### Configuration Constants
+
+Set up your configuration with the necessary contract addresses and service endpoints:
+
+```typescript
+// Chain configuration
+const NERO_RPC_URL = "https://rpc-testnet.nerochain.io";
+const BUNDLER_URL = "https://bundler.service.nerochain.io";
+const PAYMASTER_URL = "https://paymaster-testnet.nerochain.io";
+
+// Contract addresses
+const ENTRYPOINT_ADDRESS = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789";
+const ACCOUNT_FACTORY_ADDRESS = "0x9406Cc6185a346906296840746125a0E44976454";
+```
+
+### Initializing the Client
+
+```typescript
+// Initialize the AA Client
+const client = await Client.init(NERO_RPC_URL, {
+  overrideBundlerRpc: BUNDLER_URL,
+  entryPoint: ENTRYPOINT_ADDRESS,
+});
+```
+
+### Creating a SimpleAccount Builder
+
+The SimpleAccount builder helps you create and configure UserOperations:
+
+```typescript
+// accountSigner is the EOA wallet that will own the AA wallet
+const builder = await Presets.Builder.SimpleAccount.init(
+  accountSigner,
+  NERO_RPC_URL,
+  {
+    overrideBundlerRpc: BUNDLER_URL,
+    entryPoint: ENTRYPOINT_ADDRESS,
+    factory: ACCOUNT_FACTORY_ADDRESS,
+  }
+);
+```
+
+## Next Steps
+
+Now that you've installed, initialized the client and builder, you can:
+- [Work with AA Wallets](/en/developer-tools/user-op-sdk/working-with-wallets)
+- [Create UserOperations](/en/developer-tools/user-op-sdk/creating-user-operations)
+
+
+
+<PageFeedback path="/en/developer-tools/user-op-sdk/basic-usage" />

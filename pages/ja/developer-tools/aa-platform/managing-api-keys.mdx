@@ -1,0 +1,44 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# APIキーの管理
+
+APIキーは、Paymasterサービスでアプリケーションを認証するために不可欠です。
+
+## APIキーの作成
+
+1. プロジェクトダッシュボードに移動します
+2. 「API Keys」タブに移動します
+3. 「Create」をクリックします
+4. TestnetまたはMainnetを選択します
+5. 「Create ApiKey」をクリックします
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/createapi.gif" 
+      alt="APIキー作成画面"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図1：APIキーの作成。
+  </figcaption>
+  </figure>
+</div>
+
+## APIキーのセキュリティ
+
+APIキーはガススポンサーシップリソースへのアクセスを許可します。安全に保つために：
+
+- クライアント側のコードでAPIキーを公開しないでください
+- バックエンドでキーを保存するには環境変数を使用してください
+- 本番環境のキーにはドメイン制限を実装してください
+- 定期的にキーをローテーションしてください
+- 適切な使用制限を設定してください
+
+## 次のステップ
+
+APIキーを作成した後は、以下の操作を行う必要があります：
+- [ポリシーを設定する](/ja/developer-tools/aa-platform/configuring-policies)でユーザーがガス代をどのように支払うかを決定します
+- [支払いを管理する](/ja/developer-tools/aa-platform/payment-management)でサービスの資金が確保されていることを確認します
+
+<PageFeedback path="/ja/developer-tools/aa-platform/managing-api-keys" />

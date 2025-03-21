@@ -1,0 +1,80 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Best Practices
+
+Follow these best practices to optimize your use of the UserOpSDK in production applications.
+
+## 1. Cache AA Wallet Addresses
+
+Calculate and store AA wallet addresses to avoid redundant computation:
+
+```typescript
+// Calculate once and store in your database or local storage
+const aaWalletAddress = await builder.getSender();
+```
+
+## 2. Implement Comprehensive Error Handling
+
+Handle all potential errors gracefully to improve user experience:
+
+```typescript
+try {
+  const result = await client.sendUserOperation(builder);
+  // Success path
+} catch (error) {
+  // Categorize and handle different error types
+  if (error.message.includes('AA21')) {
+    // Handle insufficient funds
+  } else if (error.message.includes('AA31')) {
+    // Handle paymaster validation error
+  } else {
+    // Generic error handling
+  }
+}
+```
+
+## 3. Gas Estimation
+
+For complex operations, use gas estimation functions to ensure sufficient gas:
+
+```typescript
+// Estimate gas before sending
+const gasEstimation = await client.estimateUserOperationGas(builder);
+builder.setCallGasLimit(gasEstimation.callGasLimit);
+builder.setVerificationGasLimit(gasEstimation.verificationGasLimit);
+builder.setPreVerificationGas(gasEstimation.preVerificationGas);
+```
+
+## 4. Test on Testnet
+
+Always test your implementation on NERO Chain's testnet before deploying to mainnet:
+
+```typescript
+// Testnet configuration
+const NERO_TESTNET_RPC_URL = "https://rpc-testnet.nerochain.io";
+const TESTNET_BUNDLER_URL = "https://bundler-testnet.nerochain.io";
+const TESTNET_PAYMASTER_URL = "https://paymaster-testnet.nerochain.io";
+```
+
+## 5. Security
+
+Never store private keys or API keys in client-side code:
+
+```typescript
+// BAD: Hardcoded API key
+const PAYMASTER_API_KEY = "your-api-key"; // Don't do this!
+
+// GOOD: Load from environment variables on the server
+const PAYMASTER_API_KEY = process.env.PAYMASTER_API_KEY;
+```
+
+## Additional Resources
+
+For more details and advanced use cases, refer to the following resources:
+- [ERC-4337 Specification](https://eips.ethereum.org/EIPS/eip-4337)
+- [UserOpSDK GitHub Repository](https://github.com/nerochain/aa-userop-sdk)
+
+
+
+<PageFeedback path="/en/developer-tools/user-op-sdk/best-practices" />

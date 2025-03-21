@@ -1,0 +1,320 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# NERO Chain Paymaster APIを使用した操作の送信方法
+
+このチュートリアルでは、NERO Chain Paymaster APIを使用してトランザクションを実行する方法を説明します。アカウント抽象化によるスポンサー付きガストランザクションに焦点を当てています。
+
+## 学習内容
+- ERC-4337 アカウント抽象化標準におけるUserOperationsとは何か
+- NERO Chain Paymasterがどのようにガスレストランザクションを可能にするか
+- AAウォレットを介してトランザクションを送信する関数を作成する方法
+- 最初のスポンサー付き（無料）トランザクションを実行する方法
+- 適切なエラー処理とトランザクションモニタリングを実装する方法
+
+## 前提条件
+- [AAウォレット統合](/ja/tutorials/aa-wallet-integration)チュートリアルを完了していること
+- ethers.jsによるスマートコントラクト操作の基本的な理解
+- 前回のチュートリアルで示したAAウォレット設定へのアクセス
+- [NERO Chain AAプラットフォーム](https://aa-platform.nerochain.io)からのAPIキー
+
+## PaymasterとUserOperationsの理解
+
+### Paymasterとは何か？
+
+Paymasterはユーザーのトランザクションガス料金を支援するサービスです。アカウント抽象化（AA）モデルでは、Paymasterは以下を行います：
+
+1. トランザクションが実行される前に審査する
+2. ガス料金を支援すべきかどうかを判断する
+3. 支払う意思を示すためにトランザクションに署名する
+4. ネイティブトークンの代わりに代替支払い方法（ERC-20トークンなど）を受け入れることができる
+
+### UserOperationとは何か？
+
+ERC-4337アカウント抽象化標準では、`UserOperation`が従来のイーサリアムトランザクションに代わるものです。これには以下が含まれます：
+
+- **Sender**: AAウォレットアドレス
+- **CallData**: 実行する関数呼び出しのエンコードされたデータ
+- **Gas Parameters**: 実行のための制限と価格
+- **Signature**: 操作がウォレット所有者によって承認されていることの証明
+- **PaymasterAndData**: ガススポンサーシップのためのオプションのpaymaster情報
+
+## ステップ1：Paymaster設定のセットアップ
+
+まず、Paymaster設定を含むように設定ファイルを更新します：
+
+```typescript
+// src/config.ts
+// AAウォレットチュートリアルからの既存の設定に追加
+export const AA_PLATFORM_CONFIG = {
+  bundlerRpc: "https://bundler.service.nerochain.io",
+  paymasterRpc: "https://paymaster-testnet.nerochain.io",
+};
+
+// NERO Chain AAプラットフォームからのAPIキー
+export let API_KEY: string = "あなたのAPIキーをここに";
+
+// テスト用のNFTコントラクトを追加
+export const CONTRACT_ADDRESSES = {
+  entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  accountFactory: "0x9406Cc6185a346906296840746125a0E44976454",
+  tokenPaymaster: "0xA919e465871871F2D1da94BccAF3acaF9609D968",
+  nftContract: "0x63f1f7c6a24294a874d7c8ea289e4624f84b48cb"
+};
+```
+
+## ステップ2：基本的なトランザクション関数の作成
+
+Paymasterを通じてスポンサー付きガスでトランザクションを送信できる関数を作成しましょう：
+
+```typescript
+// src/utils/aaUtils.ts
+import { ethers } from 'ethers';
+import { Client, Presets } from 'userop';
+import { 
+  NERO_CHAIN_CONFIG, 
+  AA_PLATFORM_CONFIG, 
+  CONTRACT_ADDRESSES,
+  API_KEY 
+} from '../config';
+
+// スポンサー付きガスでAAを介してコントラクト呼び出しを実行する関数
+export const executeSponsoredOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // AAクライアントを初期化
+    const client = await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+      overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+      entryPoint: CONTRACT_ADDRESSES.entryPoint,
+    });
+    
+    // AAビルダーを初期化
+    const builder = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // ガスパラメータを設定
+    const gasParams = {
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+    };
+    
+    // ガスパラメータを設定
+    builder.setCallGasLimit(gasParams.callGasLimit);
+    builder.setVerificationGasLimit(gasParams.verificationGasLimit);
+    builder.setPreVerificationGas(gasParams.preVerificationGas);
+    builder.setMaxFeePerGas(gasParams.maxFeePerGas);
+    builder.setMaxPriorityFeePerGas(gasParams.maxPriorityFeePerGas);
+    
+    // スポンサー付きトランザクション（無料）用のpaymasterを設定
+    const paymasterOptions = {
+      apikey: options?.apiKey || API_KEY,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: "0" // タイプ0 = スポンサー付き/無料ガス
+    };
+    
+    // paymasterオプションを設定
+    builder.setPaymasterOptions(paymasterOptions);
+    
+    // コントラクトインスタンスを作成
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      ethers.getDefaultProvider()
+    );
+    
+    // 関数呼び出しをエンコード
+    const callData = contract.interface.encodeFunctionData(
+      functionName,
+      functionParams
+    );
+    
+    // UserOperationを作成
+    const userOp = await builder.execute(contractAddress, 0, callData);
+    
+    console.log("UserOperationをpaymasterに送信中...");
+    
+    // UserOperationを送信
+    const res = await client.sendUserOperation(userOp);
+    console.log("UserOperationがハッシュで送信されました:", res.userOpHash);
+    
+    // トランザクションが含まれるのを待つ
+    const receipt = await res.wait();
+    if (!receipt) {
+        throw new Error("トランザクションレシートがnullです");
+    }
+    console.log("トランザクションがブロックでマイニングされました:", receipt.blockNumber);
+
+    return {
+        userOpHash: res.userOpHash,
+        transactionHash: receipt.transactionHash,
+        receipt: receipt
+    };
+  } catch (error) {
+    console.error("操作実行エラー:", error);
+    throw error;
+  }
+};
+```
+
+## ステップ3：NFTミント用の特定関数の作成
+
+一般的な操作実行者を使用してNFTをミントするための特定の関数を実装しましょう：
+
+```typescript
+// src/utils/aaUtils.ts
+
+// 汎用的なNFT ABI: これはabiフォルダを作成するか、独自のabiを持つことで変更できます。
+const NFT_ABI = [
+    "function mint(address to, string memory uri) external",
+    "function tokenURI(uint256 tokenId) external view returns (string memory)",
+    "function balanceOf(address owner) external view returns (uint256)"
+];
+
+export const mintNFT = async (
+  accountSigner: ethers.Signer,
+  recipientAddress: string,
+  metadataUri: string,
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // スポンサー付きガスでミント関数を実行
+    return await executeSponsoredOperation(
+      accountSigner,
+      CONTRACT_ADDRESSES.nftContract,
+      NFT_ABI,
+      'mint',
+      [recipientAddress, metadataUri],
+      options
+    );
+  } catch (error) {
+    console.error("NFTミントエラー:", error);
+    throw error;
+  }
+};
+```
+
+## ステップ4：React コンポーネントでの関数の使用
+
+ここで、Reactコンポーネントで関数を実装します：
+
+```typescript
+// コンポーネントでの使用例
+import React, { useState } from 'react';
+import { getSigner, mintNFT } from '../utils/aaUtils';
+import { NERO_CHAIN_CONFIG } from '../config';
+import { toast } from 'react-toastify';
+
+const NFTMinterButton: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState('');
+
+  const handleMint = async () => {
+    try {
+      setIsLoading(true);
+      
+      // ブラウザウォレットからサイナーを取得
+      const signer = await getSigner();
+      
+      // NFTメタデータを定義（フォームから取得することも可能）
+      const metadataUri = "ipfs://bafkreiabag3ztnhe5pg7js3cokbq3id2b3t6evbncbpzzh2c5sdioxngoe";
+      
+      // スポンサー付きガスでミント操作を実行
+      const result = await mintNFT(
+        signer,
+        await signer.getAddress(), // 接続されたウォレットにミント
+        metadataUri,
+        { apiKey: 'あなたのAPIキーをここに' }
+      );
+      
+      setTxHash(result.transactionHash);
+      toast.success("NFTが正常にミントされました！");
+    } catch (error) {
+      console.error("NFTミントエラー:", error);
+      toast.error("NFTのミントに失敗しました: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="minter-container">
+      <button 
+        onClick={handleMint}
+        disabled={isLoading}
+      >
+        {isLoading ? "ミント中..." : "NFTをミント"}
+      </button>
+      
+      {txHash && (
+        <div className="tx-info">
+          <p>トランザクション成功！</p>
+          <a 
+            href={`${NERO_CHAIN_CONFIG.explorer}/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            エクスプローラーで表示
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NFTMinterButton;
+```
+
+## テスト
+
+前回と同様に、コンポーネントをApp.tsxファイルに追加して実行します。
+
+## Paymasterフローの理解
+
+1. **ビルダーの作成**: あなたのサイナーでSimpleAccountビルダーを初期化
+2. **Paymaster設定**: APIキーと支払いタイプ（0は無料/スポンサー付き）を設定
+3. **操作の準備**: 関数のコントラクト呼び出しデータを作成
+4. **UserOp作成**: ビルダーでUserOperationを構築
+5. **UserOp送信**: クライアントを通じて操作をバンドラーに送信
+6. **トランザクション追跡**: レシートを待ち、結果を追跡
+
+## スポンサー付きトランザクションのベストプラクティス
+
+1. **エラー処理**: 常に適切なエラー処理を実装し、ユーザーにフィードバックを提供する
+2. **ガスパラメータ**: 操作の複雑さに基づいてガスパラメータを調整する
+3. **APIキーのセキュリティ**: 本番環境では環境変数とバックエンドプロキシを使用してAPIキーを保護する
+4. **コスト監視**: NERO Chain AAプラットフォームダッシュボードを通じてスポンサー付きトランザクションの使用状況を追跡する
+5. **ユーザーフィードバック**: ローディング状態とトランザクション結果を明確に表示して、ユーザー体験を向上させる
+
+## Paymaster使用における重要な考慮事項
+
+1. **APIキーのセキュリティ**: 本番環境のクライアント側コードにPaymaster APIキーを公開しないでください。バックエンドプロキシの使用を検討してください。
+2. **ガス制限**: ガスパラメータは、トランザクションの複雑さに基づいて調整する必要があります。
+3. **エラー処理**: Paymaster関連の障害に対して堅牢なエラー処理を実装してください。
+4. **レート制限**: スポンサー付きトランザクションには、アカウントに基づく使用制限がある場合があることに注意してください。
+
+## 次のステップ
+AAウォレットでスポンサー付きUserOperationsを送信する方法を学んだので、次は代替支払い方法を探求したいかもしれません。[支払い方法](/ja/tutorials/types-payments)チュートリアルに進んで、ERC20トークンを使用した前払いと後払いのトランザクションを実装する方法を学びましょう。
+
+
+<PageFeedback path="/ja/tutorials/sending-ops" />

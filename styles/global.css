@@ -80,3 +80,580 @@
   code {
     font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
   }
+
+  /* Grid Layout */
+  .grid {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 768px) {
+    .md\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  .gap-4 {
+    gap: 1rem;
+  }
+  
+  .mt-6 {
+    margin-top: 1.5rem;
+  }
+  
+  .mt-12 {
+    margin-top: 3rem;
+  }
+  
+  .mt-4 {
+    margin-top: 1rem;
+  }
+  
+  .mt-2 {
+    margin-top: 0.5rem;
+  }
+  
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
+  
+  /* Card styles */
+  .border {
+    border-width: 1px;
+    border-style: solid;
+  }
+  
+  .border-gray-200 {
+    border-color: #e5e7eb;
+  }
+  
+  /* Dark mode support for cards */
+  :root.dark .border-gray-200 {
+    border-color: #2d2d2d;
+  }
+  
+  .hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Dark mode support for shadow */
+  :root.dark .hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
+  }
+  
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  .p-4 {
+    padding: 1rem;
+  }
+  
+  .transition-shadow {
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  /* Text styles */
+  .text-lg {
+    font-size: 1.125rem;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  /* NERO Brand Colors */
+  .text-nero-brand {
+    color: #000000; /* Updated to match NERO logo color */
+  }
+  
+  .hover\:text-nero-dark:hover {
+    color: #333333; /* Updated hover color */
+  }
+  
+  /* Dark mode support for icons */
+  :root.dark .text-nero-brand,
+  :root.dark svg.text-nero-brand,
+  :root.dark .text-blue-500,
+  :root.dark .text-green-500,
+  :root.dark .text-red-500,
+  :root.dark .text-purple-500,
+  :root.dark .text-yellow-500,
+  :root.dark .text-indigo-500 {
+    color: #ffffff !important; /* White color for all icons in dark mode */
+  }
+  
+  :root.dark .hover\:text-nero-dark:hover {
+    color: #cccccc; /* Light gray for hover in dark mode */
+  }
+  
+  .text-red-500 {
+    color: #000000; /* Replaced with NERO brand color */
+  }
+  
+  .hover\:text-red-700:hover {
+    color: #333333; /* Replaced with NERO brand darker color */
+  }
+  
+  .inline-block {
+    display: inline-block;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .items-center {
+    align-items: center;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  /* Icon styles */
+  .h-5 {
+    height: 1.25rem;
+  }
+  
+  .w-5 {
+    width: 1.25rem;
+  }
+  
+  /* Image styles */
+  .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Homepage specific styles */
+  .homepage-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* Hide sidebars on homepage */
+  [data-nextra-hide-sidebar] .nextra-sidebar-container,
+  [data-nextra-hide-sidebar] aside,
+  [data-nextra-hide-sidebar] nav[aria-label="Main"] {
+    display: none !important;
+  }
+
+  [data-nextra-hide-sidebar] main {
+    margin: 0 auto !important;
+    max-width: 1200px !important;
+    padding: 0 2rem !important;
+    width: 100% !important;
+  }
+  
+  [data-nextra-hide-sidebar] article {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  
+  /* Override Nextra default styles for homepage */
+  [data-nextra-hide-sidebar] .nx-container {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Full width layout */
+  .nextra-content.full {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .nextra-content.full .nextra-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Hide breadcrumb on homepage */
+  [data-nextra-hide-sidebar] nav:has(> a[href="/en"]) {
+    display: none !important;
+  }
+
+  /* Hide "Index" text on homepage */
+  body[class*="index"] nav.nx-flex.nx-items-center {
+    display: none !important;
+  }
+
+  /* Hide hamburger menu only on homepage in mobile view */
+  @media (max-width: 767px) {
+    [data-nextra-hide-sidebar] button[aria-label="Menu"],
+    [data-nextra-hide-sidebar] .nextra-nav-container button[class*="nx-p-2"] {
+      display: none !important;
+    }
+  }
+
+  /* Hide all breadcrumb navigation on homepage - more specific selector */
+  [data-nextra-hide-sidebar] .nextra-breadcrumb,
+  [data-nextra-hide-sidebar] nav.nx-flex.nx-items-center.nx-gap-1.nx-mt-6.nx-mb-8 {
+    display: none !important;
+  }
+
+  /* Dynamic Message Banner */
+  .message-banner {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background-color: #000000;
+    color: white;
+    font-size: 0.875rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.3s ease-out;
+  }
+
+  .message-banner.fade-out {
+    opacity: 0;
+  }
+
+  .message-banner span {
+    display: inline-block;
+    animation: slideMessage 15s linear infinite;
+  }
+
+  @keyframes slideMessage {
+    0% {
+      transform: translateX(100%);
+    }
+    50% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  body.has-banner {
+    padding-top: 2.5rem;
+  }
+
+  .dark .message-banner {
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  /* Fix for nextra banner container */
+  .nextra-banner-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out !important;
+  }
+
+  body.has-banner .nextra-banner-container {
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  body:not(.has-banner) .nextra-banner-container {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Dark mode support for message banner */
+  :root.dark .message-banner {
+    background-color: #ffffff; /* White for dark mode */
+    color: #000000; /* Black text for dark mode */
+  }
+
+  /* Adjust main content when banner is present */
+  body.has-banner {
+    padding-top: 2rem;
+  }
+
+  /* Adjust header position when banner is present */
+  body.has-banner .nextra-nav-container {
+    top: 2rem !important;
+    border-top: none !important;
+  }
+
+  /* Add transition for smooth repositioning */
+  .nextra-nav-container {
+    transition: top 0.3s ease-out !important;
+    top: 0 !important;
+  }
+
+  /* Remove the top shadow/border of the header when banner is present */
+  body.has-banner .nextra-nav-container-blur {
+    box-shadow: none !important;
+    border-top: none !important;
+    background: none !important;
+  }
+
+  /* Remove any margin/padding that might cause gaps */
+  body.has-banner .nextra-nav-container-blur {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Page Feedback Component */
+  .page-feedback {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    margin: 0;
+    padding: 1.5rem;
+    width: 320px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 50;
+    animation: slideFeedback 0.3s ease-out;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  }
+
+  .page-feedback.exit {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  @keyframes slideFeedback {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .dark .page-feedback {
+    background: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+
+  .feedback-question {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #000000;
+  }
+
+  .dark .feedback-question {
+    color: #ffffff;
+  }
+
+  .feedback-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .feedback-option {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dark .feedback-option {
+    border-color: #2d2d2d;
+  }
+
+  .feedback-option:hover {
+    border-color: #000000;
+    background: #f9fafb;
+  }
+
+  .dark .feedback-option:hover {
+    border-color: #ffffff;
+    background: #2d2d2d;
+  }
+
+  .feedback-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .feedback-radio {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    transition: all 0.2s;
+  }
+
+  .dark .feedback-radio {
+    border-color: #4b5563;
+  }
+
+  .feedback-option input[type="radio"]:checked + .feedback-radio {
+    border-color: #000000;
+    background: #000000;
+  }
+
+  .dark .feedback-option input[type="radio"]:checked + .feedback-radio {
+    border-color: #ffffff;
+    background: #ffffff;
+  }
+
+  .feedback-option input[type="radio"]:checked + .feedback-radio::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .dark .feedback-option input[type="radio"]:checked + .feedback-radio::after {
+    background: black;
+  }
+
+  .feedback-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #000000;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .dark .feedback-label {
+    color: #ffffff;
+  }
+
+  .feedback-emoji {
+    font-size: 1.125rem;
+  }
+
+  .feedback-submit {
+    width: 100%;
+    padding: 0.75rem;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: not-allowed;
+    transition: all 0.2s;
+  }
+
+  .dark .feedback-submit {
+    background: #2d2d2d;
+  }
+
+  .feedback-submit.active {
+    background: #000000;
+    color: white;
+    cursor: pointer;
+  }
+
+  .dark .feedback-submit.active {
+    background: #ffffff;
+    color: black;
+  }
+
+  .feedback-thank-you {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    color: #000000;
+    font-weight: 500;
+  }
+
+  .dark .feedback-thank-you {
+    color: #ffffff;
+  }
+
+  .feedback-check-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: #000000;
+    animation: scaleCheck 0.3s ease-out;
+  }
+
+  .dark .feedback-check-icon {
+    color: #ffffff;
+  }
+
+  @keyframes scaleCheck {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .feedback-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.25rem;
+    background: transparent;
+    border: none;
+    color: #000000;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .feedback-close:hover {
+    transform: scale(1.1);
+  }
+
+  .dark .feedback-close {
+    color: #ffffff;
+  }
+
+  .feedback-close svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .page-feedback {
+      bottom: 1rem;
+      right: 1rem;
+      left: 1rem;
+      width: auto;
+    }
+  }

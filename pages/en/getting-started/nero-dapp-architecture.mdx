@@ -1,0 +1,174 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+
+# The Architecture of a dApp
+
+Understanding NERO Chain's architecture helps us see how its unique features can be leveraged to build innovative applications with new user experiences. This overview explains how the various components work together to enable account abstraction, paymaster functionality, and other key capabilities.
+
+Multiple components working cohesively within the distributed application (dApp) architecture ensure robust, secure, and efficient blockchain operations. Each component is explained in detail below.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/figure1.png" 
+      alt="NERO Chain dApp Architecture"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 1: NERO Chain's dApp Architecture
+    </figcaption>
+  </figure>
+</div>
+
+## Key Components and Transaction Flow
+
+### User and Authentication Layer
+
+The basis of NERO Chain's user experience is a flexible authentication mechanism that fits Web3 users as well as beginners alike.
+Through an **AA Wallet**, a smart contract wallet supporting many simultaneous authentication techniques, the **user** interacts with blockchain functionalities. Unlike conventional wallets that depend only on private keys, NERO Chain's AA wallets may be accessible using recognizable **3rd party wallets like MetaMask**, practical **Web2 authentication** mechanisms such as Google or Twitter login, and even conventional password-based security. While keeping security and optionality for expert users, this adaptability eliminates a major obstacle to entrance for ordinary consumers.
+
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaWallet/login-3.png" 
+      alt="Aa-platform policies"
+      className="mx-auto rounded-lg shadow-md"
+      style={{ width: '40%' }}
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 2: Example of a Social Login.
+    </figcaption>
+  </figure>
+</div>
+
+For both owning the same on-chain identity and assets, a person may set up an AA wallet on their phone via social login but also connect to MetaMask on their PC.
+
+### Application Components
+
+The application layer serves as the bridge between users and the blockchain, featuring several integrated components:
+
+The **Wallet SDK** can be the same used in any other Web3 application. Handling all the difficult chores of transaction building and submission, it serves as the interface between AA wallets and decentralized apps. It will let you get your AA wallet from the AA Wallet Factory deployed in NERO Chain.
+
+Decentralized applications built on NERO Chain can use this architecture to provide seamless front-end interactions. Your application connects with the Wallet SDK to provide consumers with a flawless experience, whether you are developing a DEX, NFT marketplace, or gaming platform.
+
+The Developer SDK (in our case, our **UserOpSDK**) provides developers with the tools needed to integrate account abstraction features into their applications. It covers techniques for building UserOperations, liaising with the EntryPoint contract, and using Paymasters.
+
+By letting dApps seek gas sponsorship or alternate payment options, the **Paymaster API** helps to create gas abstraction. Your application may search the Paymaster API when a user starts a transaction to find suitable payment choices and include the required information in the UserOperation.
+
+### Backend Infrastructure
+
+Behind the user-facing components lies a robust infrastructure that powers NERO Chain's unique capabilities:
+
+The **AA Platform** serves as a control center for developers, providing a dashboard to configure paymaster settings, monitor quotas, and track usage. Through this platform, developers can define which tokens are accepted for gas payment, set spending limits, and configure other parameters that govern how users interact with their dApps.
+
+For token-based gas payments, the **Price Service** handles the critical function of determining exchange rates between ERC20 tokens and gas costs. This ensures users pay a fair amount when using tokens instead of the native NERO currency for gas.
+
+**Bundlers** are specialized services that collect UserOperations from multiple users and bundle them into standard transactions. By batching operations together, bundlers increase efficiency and reduce costs. These services listen for UserOperations and submit them to the EntryPoint contract.
+
+The **Paymaster** contract is responsible for the actual gas fee abstraction. It verifies whether a transaction should be sponsored and handles the accounting for token-based payments. The Paymaster interacts directly with the EntryPoint to ensure gas costs are covered appropriately.
+
+The **EntryPoint** contract (deployed at `0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789`) serves as the central hub for all UserOperations. This standardized contract processes bundled operations and interacts with both Contract Accounts and Paymasters to execute transactions.
+
+Each user's **Contract Account** is a smart contract wallet deployed using the account factory. These accounts execute the actual transaction logic and can implement additional features like multi-signature requirements, spending limits, or account recovery mechanisms.
+
+For advanced use cases, the optional **Aggregator** component handles signature aggregation, enabling more efficient processing of multi-signature operations.
+
+## Transaction Flow
+
+### Connection Phase
+The journey begins when a user connects to a dApp. This initial connection establishes the communication channel between the user's browser and the blockchain. During this phase, the user authenticates using their preferred method (MetaMask, social login, password, etc.), and the dApp identifies their AA wallet address, which may be a counterfactual address if the wallet hasn't been deployed yet.
+
+### UserOperation Construction Phase
+Once connected, the transaction preparation process begins. When a user initiates an action, such as swapping tokens or minting an NFT, the dApp constructs a UserOperation either directly or through the Developer SDK. Unlike traditional transactions, UserOperations include additional fields necessary for account abstraction.
+
+If gas abstraction is desired, the Developer SDK communicates with the Paymaster API to determine payment options. For token-based payments, the Price Service calculates the exact token amount needed based on current exchange rates and expected gas consumption. The Paymaster API then returns the paymasterAndData field, which includes all necessary information for gas handling.
+
+This modular approach allows developers to offer flexible payment options without modifying their core application logic. Users can choose to pay with tokens they already have rather than acquiring the native token specifically for gas fees.
+
+### Transaction Submission Phase
+With the UserOperation constructed and signed, the submission process begins. The dApp sends the complete UserOperation to the Wallet SDK, which handles the interaction with the user to obtain their signature. This might involve a popup in MetaMask or an in-app signature request, depending on the authentication method.
+
+After signing, the AA Wallet forwards the UserOperation to the Bundlers. These specialized services collect operations from multiple users to optimize gas usage and increase efficiency. By batching operations together, Bundlers can reduce the per-operation cost significantly.
+
+### Execution Phase
+The final stage occurs when the Bundler has collected enough operations or reached a time threshold. The Bundler creates a transaction calling the EntryPoint contract with a batch of UserOperations. The EntryPoint then processes each operation sequentially.
+
+For each operation, the EntryPoint verifies the signature, checks that gas requirements are met (either through the user's wallet balance or via a Paymaster), and then calls the user's Contract Account to execute the actual transaction logic. If a Paymaster is involved, it handles the gas payment according to the configured strategy.
+
+This multi-step process happens transparently to the end user, who simply sees their transaction being processed and eventually confirmed, similar to a traditional transaction but with enhanced flexibility and potentially lower costs.
+
+### Administrative Components
+Behind the scenes, developers maintain control over their gas sponsorship policies through the AA Platform. Here, they can configure payment strategies, set daily quotas, and monitor usage patterns. This administrative layer ensures that gas sponsorship remains economically viable for developers while providing a superior user experience.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/aa-platform-policies.png" 
+      alt="Aa-platform policies"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 3: AA-platform policies configuration dashboard.
+    </figcaption>
+  </figure>
+</div>
+
+Nero operators also have access to platform-level settings, allowing them to manage the overall system health and ensure fair resource allocation.
+
+
+## Paymaster Payment Types and User Experience
+
+The Paymaster system is one of NERO Chain's most innovative features, enabling flexible gas payment mechanisms that dramatically improve user experience. Let's explore the different payment types and their implications:
+
+### Type 0: Developer-Sponsored Gas (Free)
+
+With Type 0 payments, developers fully cover the gas costs for their users. This creates a frictionless experience similar to Web2 applications, where users don't need to think about transaction fees.
+
+This model is ideal for user onboarding, where requiring new users to acquire a specific token creates unnecessary friction. By sponsoring gas for initial interactions, developers can create a smooth path for users to experience their application's value before requiring token acquisition.
+
+Promotional campaigns also benefit from sponsored gas, allowing temporary removal of transaction costs to drive engagement. Gaming applications and metaverse experiences particularly benefit from hiding blockchain complexity, letting users focus on gameplay rather than gas management.
+
+To implement Type 0 payments, developers maintain a balance in their AA Platform account, setting daily or per-user limits to control costs. The platform provides analytics to help optimize sponsorship strategies based on user behavior and conversion metrics.
+
+### Type 1: Prepay with ERC20 Tokens
+
+The Type 1 payment model allows users to pay gas fees using ERC20 tokens they already own, rather than requiring them to hold NERO tokens. This removes a significant adoption barrier, especially for applications with their own token ecosystems.
+
+When using Type 1, the full estimated gas amount (converted to the equivalent value in the selected token) is collected from the user before transaction execution. After the transaction completes, any excess tokens are automatically refunded to the user.
+
+This approach provides certainty for both users and developers: users know the maximum they might spend, and developers know the payment is secured before execution. The model works particularly well for high-value operations where the gas cost is a small fraction of the total transaction value.
+
+Implementation requires users to approve the Paymaster contract to spend their tokens, which is typically handled through the Wallet SDK with appropriate UI guidance.
+
+### Type 2: Postpay with ERC20 Tokens
+
+The Type 2 payment model also uses ERC20 tokens for gas but collects payment after transaction execution. This optimizes the user experience by only charging for the exact gas consumed rather than requiring an upfront estimate with a later refund.
+
+Users appreciate paying exactly what's needed, especially for transactions where gas costs might vary significantly based on execution paths in the contract. However, this model introduces a risk of payment failure if the user's token balance or approval is insufficient after the transaction executes.
+
+This model works best when integrated with applications where users are likely to maintain token balances for other purposes, minimizing the risk of payment failure.
+
+## Building Advanced Applications
+
+The NERO Chain architecture enables developers to create applications with capabilities that weren't previously possible or practical. Here are some examples of what you can build:
+
+**Token-Centric Ecosystems**: By allowing users to pay gas with your application's token, you can create a closed ecosystem where users never need to leave your token economy. This increases the utility and demand for your token while simplifying the user experience.
+
+**Frictionless Onboarding**: Implement a gradual onboarding process where new users enjoy sponsored transactions initially, then transition to token payments once they're engaged with your platform. This removes the "crypto complexity" that often deters mainstream users.
+
+**Bundled Transactions**: Enable users to perform multiple actions in a single operation, such as approving and swapping tokens or minting multiple NFTs. This reduces costs and improves the user experience by minimizing the number of confirmations needed.
+
+**Enhanced Security Features**: Build applications with advanced security features like multi-signature requirements, spending limits, or time locks. The smart contract wallet architecture makes these features much easier to implement than with traditional EOAs.
+
+**Social Recovery Systems**: Implement account recovery mechanisms that don't depend on private key backup, such as social recovery through trusted friends or service providers. This addresses one of the biggest user experience challenges in crypto - fear of losing access to funds.
+
+**Subscription Models**: Create subscription-based services where users authorize recurring payments, similar to traditional subscription apps. The Paymaster can handle gas costs for these pre-approved transactions.
+
+By understanding and leveraging the full capabilities of NERO Chain's architecture, you can build applications that offer the security and ownership benefits of blockchain without the traditional UX limitations.
+
+In the following sections, we'll provide detailed guides on implementing each of these components in your application.
+
+
+
+<PageFeedback path="/en/getting-started/nero-dapp-architecture" />

@@ -1,0 +1,140 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# ポリシーの設定
+
+ポリシーは、アプリケーションがユーザーのトランザクション手数料をどのように処理するかを決定します。考慮すべき4つの主要な設定があります：
+
+- ERC20決済の有効化
+- アドレスごとの割引
+- すべてのアドレスに対するオファー
+- コールバックの指定
+
+## ERC20決済の有効化
+
+1. 「API Keys」タブに移動し、設定したいAPIKeyを選択します
+2. 「Policies」タブをクリックします
+3. ERC-20 Paymentトグルをクリックします
+4. 支払いモードを選択します：事前支払いと事後支払い、または事前支払いのみ
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/erc20.gif" 
+      alt="ガスポリシーの設定"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図1：ガスポリシーの設定
+  </figcaption>
+</div>
+
+### ガス支払いをサポートするトークンの選択
+ここでは、ガス代の支払いとして受け取りたいERC20トークンを選択できます。
+
+1. 「Select」ボタンをクリックします
+2. リスト上のトークンを選択するか、テキストフィールドにトークンコントラクトを入力してリストに表示させます
+3. 選択を「Confirm」します
+4. ガス支払い変動レートを設定します
+5. ダッシュボードの最後にある「Save」ボタンをクリックします
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/erc20config.gif" 
+      alt="ガスポリシーの設定"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図2：ガスサポート用トークンの選択
+  </figcaption>
+</div>
+
+### 戦略タイプの説明
+
+#### 無料ガス（タイプ0）
+
+この戦略では、ユーザーのガスコストを完全に負担します。以下の場合に最適です：
+- 暗号資産を所有していない新規ユーザーのオンボーディング
+- プロモーションキャンペーン
+- すべての摩擦を取り除きたいアプリケーション
+- ブロックチェーンの複雑さを隠したいGameFiアプリケーション
+
+#### ERC20事前支払い（タイプ1）
+
+ユーザーはトランザクションが実行される前にERC20トークンを使用してガスを支払います：
+- 予想される全額が前もって収集されます
+- 実行後に余剰分は返金されます
+- 支払いが保証されるため、開発者にとってより安全です
+- 高額な操作に適しています
+
+#### ERC20事後支払い（タイプ2）
+
+ユーザーはトランザクションが実行された後にERC20トークンを使用してガスを支払います：
+- 正確なガスコストのみが収集されます
+- 実行前にトークン承認が必要です
+- ユーザーは必要な分だけ支払うためUXがやや向上します
+- 実行後の支払い失敗のリスクがあります
+
+## アドレスごとの割引の設定
+
+アドレスごとにスポンサーする意思のあるUSDまたはネイティブトークンの合計を設定できます。
+
+1. ポリシータブで、「Discount per address」オプションをトグルします
+2. アドレスごとの回数を日、週、または月モードで設定します
+3. 新しいアドレスごとの最大無料金額：アドレスごとにスポンサーできる合計制限を設定できます
+4. アドレスがスポンサーされる無料回数の合計も設定できます
+5. 「Save」ボタンをクリックします
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/discount.gif" 
+      alt="割引の設定"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図3：割引の設定
+  </figcaption>
+</div>
+
+## すべてのアドレスに対するオファー
+
+同様の設定をすべてのアドレスに同時に設定することもできます。
+
+1. ポリシータブで、「All Addresses offer」オプションをトグルします
+2. アドレスごとの回数を日、週、または月モードで設定します
+3. 新しいアドレスごとの最大無料金額：アドレスごとにスポンサーできる合計制限を設定できます
+4. アドレスがスポンサーされる無料回数の合計も設定できます
+5. 「Save」ボタンをクリックします
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/alldiscount.gif" 
+      alt="すべてのアドレスに対する割引の設定"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      図4：すべてのアドレスに対する割引の設定
+  </figcaption>
+</div>
+
+## コールバックの指定
+
+ユーザー操作をスポンサーするかどうかを指定する特定のアドレスを設定できます。
+
+1. 「Specify Callback」オプションをトグルします
+2. アドレスを設定します
+3. 保存します
+
+## 次のステップ
+
+ポリシーを設定した後は、以下を行う必要があります：
+- [支払いを管理する](/ja/developer-tools/aa-platform/payment-management)で戦略に十分な資金があることを確認します
+- [アプリケーションと統合する](/ja/developer-tools/aa-platform/integration-and-best-practices)で設定したポリシーの使用を開始します
+
+<PageFeedback path="/ja/developer-tools/aa-platform/configuring-policies" /> 

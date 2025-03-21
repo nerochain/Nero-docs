@@ -1,0 +1,218 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# Compile, Run and Deploy
+
+This guide walks you through compiling and running Nero.
+
+## Download
+
+Download the Nero source code using the following git command:
+
+```
+git clone https://github.com/nerochain/Nero.git
+```
+
+## Install Golang
+
+Before compiling Nero, make sure you have Golang installed on your system. Refer to the official Golang website ([https://go.dev/dl/](https://go.dev/dl/)) for download and installation instructions.
+
+## Compile
+
+1. Navigate to the directory where you cloned the Nero source code using:
+
+   ```
+   cd /path/to/Nero
+   ```
+
+2. Compile Nero by running the following command:
+
+   ```
+   make geth
+   ```
+
+   This will create a compiled binary in the `build/bin` folder.
+
+## Run
+
+1. Get a list of available options and their descriptions by running:
+
+   ```
+   ./build/bin/geth --help
+   ```
+
+2. Refer to the [Command-line Options documentation](./commandLineOptions.mdx) for specific usage details.
+
+**Custom Option:**
+
+Nero offers a custom option named `--traceaction`:
+
+```
+--traceaction value     (default: 0)
+    Trace internal tx call/create/suicide action, 0=no trace, 1=trace only native token > 0, 2=trace all
+```
+
+This option allows you to enable or disable custom JSON-RPC methods for tracing internal transactions.
+
+## Deployment
+
+Introduce systemd management configs.
+
+### Hardware
+
+#### Minimum
+
+```
+8core
+16g
+ssd iops>5k
+```
+
+#### Recommended
+
+```
+16core
+32g
+ssd iops>5k
+```
+
+#### Network & Port
+
+```
+External IP Address
+Port TCP/UDP 30303
+```
+
+### Chain Node
+
+- config.toml
+
+```
+[Eth]
+SyncMode = "snap"
+TrieTimeout = 1200000000000
+StateScheme = "hash"
+
+[Eth.Miner]
+GasCeil = 40000000
+Recommit = 3000000000
+Noverify = false
+
+[Eth.TxPool]
+NoLocals = true
+Journal = "transactions.rlp"
+Rejournal = 600000000000
+PriceLimit = 1000000000
+PriceBump = 10
+AccountSlots = 64
+GlobalSlots = 10240
+AccountQueue = 32
+GlobalQueue = 1024
+Lifetime = 1800000000000
+
+[Node]
+DataDir = "/data/nerochain/data"
+DBEngine = "leveldb"
+IPCPath = "geth.ipc"
+HTTPHost = "0.0.0.0"
+HTTPPort = 8545
+HTTPCors = ["*"]
+HTTPVirtualHosts = ["*"]
+HTTPModules = ['eth', 'net', 'web3', 'turbo', 'engine']
+
+WSHost = "0.0.0.0"
+WSPort = 8546
+WSModules = ['eth', 'net', 'web3', 'turbo', 'engine']
+
+AuthPort = 8552
+
+GraphQLVirtualHosts = ["localhost"]
+
+
+[Node.P2P]
+MaxPeers = 50
+ListenAddr = ":30306"
+EnableMsgEvents = false
+
+[Node.HTTPTimeouts]
+ReadTimeout = 30000000000
+WriteTimeout = 30000000000
+IdleTimeout = 120000000000
+```
+
+use snap sync in the config, if full needed - change this line
+
+```
+SyncMode = "snap"
+```
+
+to
+
+```
+SyncMode = "full"
+```
+
+### Start Bash
+
+> To show full detail help info of all flags, type `geth help` or `geth -h`
+
+- run.sh
+
+```
+#!/usr/bin/env bash
+/data/nero/chain/geth-linux-amd64 \
+--config /data/nero/chain/config.toml  \
+--log.file /data/nero/chain/logs/chain.log \
+--log.rotate=true \
+--traceaction 2 \
+--verbosity 3
+```
+
+if you need to use it as archive node, add:
+
+```
+--syncmode full \
+--gcmode archive \
+```
+
+so:
+
+```
+#!/usr/bin/env bash
+/data/nero/chain/geth-linux-amd64 \
+--config /data/nero/chain/config.toml  \
+--log.file /data/nero/chain/logs/chain.log \
+--log.rotate=true \
+--traceaction 2 \
+--syncmode full \
+--gcmode archive \
+--verbosity 3
+```
+
+If no network flags were provided, the node will connect the Nero mainnet by default. If you want to connect to Nero testnet, add:
+
+```
+--testnet
+```
+
+### systemd config
+
+```
+[Unit]
+Description=Nero chain service
+
+[Service]
+Type=simple
+ExecStart=/bin/sh /data/nero/chain/run.sh
+WorkingDirectory=/data/nero/chain
+TimeoutSec=600
+Restart=on-failure
+RestartSec=5s
+
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
+<PageFeedback path="/en/node-validators/compileAndRun" />

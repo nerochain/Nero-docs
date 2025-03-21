@@ -1,0 +1,300 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# Simple Token Selection for NERO Chain Transactions
+
+This tutorial explains how to implement a simple token selection UI for NERO Chain transactions, using NFT minting as our example operation.
+
+## What You'll Learn
+- How to retrieve supported tokens from the NERO Chain Paymaster
+- How to create a payment type selection workflow
+- How to select tokens for different payment methods
+- How to execute NFT minting transactions with your chosen payment approach
+
+## Prerequisites
+- Completed the [AA Wallet Integration](/en/tutorials/aa-wallet-integration) tutorial
+- Completed the [Sending UserOperations](/en/tutorials/sending-ops) tutorial
+- Completed the [Payment Methods](/en/tutorials/types-payments) tutorial
+
+## Overview
+
+In this tutorial, we'll create a simple interface where users first select a payment type (prepay or postpay), then choose from available tokens. This workflow helps users understand the payment flow before selecting a specific token. We'll use NFT minting as our practical example.
+
+## Step 1: Creating a Payment-First NFT Minting Component
+
+Let's create a component that first asks for payment type, then shows available tokens:
+
+```typescript
+// src/components/NFTMintWithPaymentSelector.tsx
+import React, { useState, useEffect } from 'react';
+import { 
+  getSigner, 
+  getSupportedTokens, 
+  executeOperation 
+} from '../utils/aaUtils';
+
+interface Token {
+  address: string;
+  symbol: string;
+  type?: number; // Optional as we don't use it for filtering
+}
+
+const NFTMintWithPaymentSelector: React.FC = () => {
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [paymentType, setPaymentType] = useState<number>(0); // Default to 0 (not selected)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [txHash, setTxHash] = useState('');
+  const [tokenId, setTokenId] = useState<string>('');
+  
+  // Load tokens
+  useEffect(() => {
+  const loadTokens = async () => {
+    try {
+      setIsLoading(true);
+      const signer = await getSigner();
+      
+        // Get supported tokens
+        const supportedTokens = await getSupportedTokens(signer);
+        console.log("Supported tokens:", supportedTokens);
+        
+        // Normalize token structure
+        const normalizedTokens = supportedTokens.map(token => ({
+          address: token.address || token.token,
+          symbol: token.symbol || "Unknown"
+        }));
+        
+        setTokens(normalizedTokens);
+      } catch (error) {
+      console.error("Error loading tokens:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+    loadTokens();
+  }, []);
+  
+  // Handle payment type selection
+  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedType = parseInt(e.target.value);
+    setPaymentType(selectedType);
+  };
+  
+  // Handle token selection
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedToken(e.target.value);
+  };
+  
+  // Handle NFT minting
+  const handleMintNFT = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (paymentType === 0 || !selectedToken) {
+      alert("Please select both payment type and token");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      const signer = await getSigner();
+      
+      // NFT contract address and ABI from previous tutorials
+      const nftContractAddress = "0x1234567890123456789012345678901234567890"; // Replace with your NFT contract
+      const nftContractAbi = [
+        "function mint(address to) external returns (uint256)"
+      ];
+      
+      // Execute NFT minting using the selected token and payment type
+      const result = await executeOperation(
+        signer,
+        nftContractAddress,
+        nftContractAbi,
+        "mint",
+        [await signer.getAddress()], // Mint to the signer's address
+        paymentType,
+        selectedToken
+      );
+      
+      setTxHash(result.transactionHash);
+      
+      // Extract token ID from transaction receipt or events
+      // This is simplified - in a real app, you would parse the event from the receipt
+      setTokenId(Math.floor(Math.random() * 1000).toString()); // Simulated token ID
+      
+      alert("NFT minted successfully!");
+    } catch (error: any) {
+      console.error("NFT minting error:", error);
+      alert("NFT minting failed: " + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  if (isLoading) {
+    return <p>Loading tokens...</p>;
+  }
+  
+  if (tokens.length === 0) {
+    return <p>No supported tokens found.</p>;
+  }
+  
+  // Determine if mint button should be enabled
+  const canMint = paymentType > 0 && selectedToken !== '';
+
+  return (
+    <div className="nft-mint-payment-selector">
+      <h2>Mint NFT with Token Payment</h2>
+      
+      <form onSubmit={handleMintNFT}>
+        <div className="form-group">
+          <label htmlFor="payment-type">Payment Type:</label>
+          <select
+            id="payment-type"
+            value={paymentType}
+            onChange={handlePaymentTypeChange}
+            disabled={isSubmitting}
+          >
+            <option value="0">Select payment type...</option>
+            <option value="1">Prepay (Pay before transaction)</option>
+            <option value="2">Postpay (Pay after transaction)</option>
+          </select>
+        </div>
+        
+        {paymentType > 0 && (
+          <div className="form-group">
+            <label htmlFor="token-select">Select Payment Token:</label>
+            {tokens.length > 0 ? (
+              <select
+                id="token-select"
+                value={selectedToken}
+                onChange={handleTokenChange}
+                disabled={isSubmitting}
+              >
+                <option value="">Select token...</option>
+                {tokens.map((token) => (
+                  <option key={token.address} value={token.address}>
+                    {token.symbol}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="no-tokens-message">
+                No tokens available. Please check your connection.
+              </p>
+            )}
+          </div>
+        )}
+        
+        <button 
+          type="submit" 
+          disabled={isSubmitting || !canMint}
+          className="mint-btn"
+        >
+          {isSubmitting ? "Minting..." : "Mint NFT"}
+        </button>
+      </form>
+      
+      {txHash && (
+        <div className="tx-success">
+          <p>NFT Minted Successfully!</p>
+          {tokenId && <p>Token ID: {tokenId}</p>}
+          <a 
+            href={`https://testnet.neroscan.io/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on Explorer
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NFTMintWithPaymentSelector;
+```
+
+## Step 2: Integrating in App.tsx
+
+Now, let's integrate this component into our application:
+
+```typescript
+// src/App.tsx
+import React, { useState } from 'react';
+import { getSigner, getAAWalletAddress } from './utils/aaUtils';
+import NFTMintWithPaymentSelector from './components/NFTMintWithPaymentSelector';
+
+const App: React.FC = () => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Simple connect wallet function
+  const connectWallet = async () => {
+    try {
+      setIsLoading(true);
+      
+      const signer = await getSigner();
+      await getAAWalletAddress(signer); // Initialize AA wallet
+      
+      setIsConnected(true);
+  } catch (error) {
+      console.error("Error connecting wallet:", error);
+      alert("Failed to connect wallet");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="app">
+      <header>
+        <h1>NERO Chain NFT Minter</h1>
+        
+        {!isConnected && (
+          <button 
+            onClick={connectWallet} 
+            disabled={isLoading}
+            className="connect-btn"
+          >
+            {isLoading ? "Connecting..." : "Connect Wallet"}
+          </button>
+        )}
+      </header>
+      
+      <main>
+        {isConnected ? (
+          <NFTMintWithPaymentSelector />
+        ) : (
+          <p className="connect-msg">Please connect your wallet to continue</p>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default App;
+```
+
+
+## How It Works
+
+1. **Payment Type Selection First**: The user starts by selecting their preferred payment method:
+   - Prepay: Pay for gas fees before the transaction is executed
+   - Postpay: Pay for gas fees after the transaction is executed
+
+2. **Token Selection**: After selecting a payment type, users can choose from any available token:
+   - All supported tokens are displayed regardless of payment type
+   - This simplifies the UI and gives users maximum flexibility
+
+3. **Conditional Display**: The token selection dropdown only appears after a payment type is selected, guiding the user through a logical flow.
+
+4. **Button Activation**: The "Mint NFT" button remains disabled until both a payment type and token are selected.
+
+5. **NFT Minting**: When all selections are made, the user can mint an NFT with their chosen payment method and token.
+
+## Next Steps
+
+Now that you understand how to implement a payment-first token selection interface for NFT minting, you're ready to build a complete dApp. Continue to the [Create Your First dApp](/en/tutorials/create-first-dapp) tutorial to build a comprehensive application that brings together all the concepts you've learned.
+
+<PageFeedback path="/en/tutorials/checking-sup-tokens" />

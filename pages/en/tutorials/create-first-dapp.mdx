@@ -1,0 +1,845 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# Creating Your First dApp on NERO Chain
+
+This recipe will guide you through building your first decentralized application (dApp) on NERO Chain using Account Abstraction. You'll create a simple NFT minting application that allows users to mint NFTs without needing NERO tokens for gas fees.
+
+## What You'll Learn
+- How to set up a complete React dApp that uses Account Abstraction
+- How to implement a seamless NFT minting experience with gasless transactions
+- How to provide multiple payment options for transaction gas fees
+- How to handle the full user journey from wallet connection to transaction confirmation
+- How to combine all the concepts from previous tutorials into a cohesive application
+
+## Prerequisites
+- Completed the following tutorials:
+  - [Deploying your first contract in NERO Chain](/en/tutorials/first-contract)
+  - [AA Wallet Integration](/en/tutorials/aa-wallet-integration)
+  - [Sending UserOperations](/en/tutorials/sending-ops)
+  - [Paymaster Integration](/en/tutorials/paymaster-integration)
+  - [Payment Methods](/en/tutorials/types-payments)
+  - [Token Support Check](/en/tutorials/checking-sup-tokens)
+- Basic knowledge of React and TypeScript
+- A code editor (VSCode recommended)
+- MetaMask or another Ethereum wallet extension
+- An API key from the [Nero AA Platform](https://aa-platform.nerochain.io): Check how to in the [Platform Section](/en/developer-tools/aa-platform/managing-api-keys)
+
+## Step 1: Setting Up Your Development Environment
+
+The easiest way to get started is by using our template repository which has everything pre-configured for NERO Chain and Account Abstraction.
+
+```bash
+# Clone the template repository
+git clone https://github.com/nerochain/simple-nero-template.git my-first-dapp
+cd my-first-dapp/react-ts/
+
+# Install dependencies
+npm install
+
+# Create your environment file
+cp .env.example .env
+```
+
+>**_NOTE_**: You can also create a react project from scratch, but it will be easier if you just clone the repository above. 
+
+Open the `.env` file and add your Paymaster API key:
+
+```
+REACT_APP_PAYMASTER_API_KEY=your_api_key_from_aa_platform
+```
+
+You'll also need to set the NFT contract address. For this recipe, you can use our example NFT contract on the NERO Chain testnet:
+
+```
+REACT_APP_NFT_CONTRACT=0xYourNFTContractAddress
+```
+
+## Step 2: Understanding the Project Structure
+
+The template provides a well-organized structure:
+
+```
+my-first-dapp/
+├── public/                  # Static assets
+├── src/
+│   ├── components/          # React components
+│   │   ├── WalletConnect.tsx     # Wallet connection component
+│   │   ├── NFTMinter.tsx         # NFT minting component
+│   │   └── PaymentTypeSelector.tsx  # Payment selection component
+│   ├── utils/
+│   │   ├── aaUtils.ts       # Account Abstraction utilities
+│   │   └── errorHandler.ts  # Error handling utilities
+│   ├── App.tsx              # Main application component
+│   ├── config.ts            # Configuration settings
+│   └── index.tsx            # Application entry point
+└── package.json             # Project dependencies
+```
+
+## Step 3: Implementing Wallet Connection
+
+The template includes placeholder implementations. Let's start by implementing the wallet connection feature.
+
+Open `src/utils/aaUtils.ts` and update the `getSigner` function:
+
+```typescript
+// Replace the placeholder implementation
+export const getSigner = async () => {
+  if (!window.ethereum) {
+    throw new Error("No crypto wallet found. Please install MetaMask.");
+  }
+  
+  try {
+    // Request account access
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    // Create provider and signer
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    // Verify the signer by getting its address
+    const address = await signer.getAddress();
+    console.log("Connected wallet address:", address);
+
+    return signer;
+  } catch (error) {
+    console.error("Error connecting to wallet:", error);
+    throw error;
+  }
+};
+```
+
+Also implement the `getAAWalletAddress` function:
+
+```typescript
+export const getAAWalletAddress = async (accountSigner: ethers.Signer) => {
+  try {
+    // Ensure we have a valid signer with getAddress method
+    if (!accountSigner || typeof accountSigner.getAddress !== 'function') {
+      throw new Error("Invalid signer object: must have a getAddress method");
+    }
+    
+    // Initialize the SimpleAccount builder
+    const simpleAccount = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Get the counterfactual address of the AA wallet
+    const address = await simpleAccount.getSender();
+    console.log("AA wallet address:", address);
+    
+    return address;
+  } catch (error) {
+    console.error("Error getting AA wallet address:", error);
+    throw error;
+  }
+};
+```
+
+Next, let's properly implement the wallet connection in the `WalletConnect` component. Open `src/components/WalletConnect.tsx` and update it to handle wallet state changes:
+
+```typescript
+import React, { useState, useEffect } from 'react';
+import { getSigner, getAAWalletAddress } from '../utils/aaUtils';
+import { ethers } from 'ethers';
+
+interface WalletConnectProps {
+  onWalletConnected?: (eoaAddress: string, aaAddress: string) => void;
+}
+
+const WalletConnect: React.FC<WalletConnectProps> = ({ onWalletConnected }) => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [eoaAddress, setEoaAddress] = useState('');
+  const [aaAddress, setAaAddress] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  
+  // Check if wallet is already connected on component mount
+  useEffect(() => {
+    const checkWalletConnection = async () => {
+      try {
+        if (window.ethereum) {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0) {
+            await connectWallet();
+          }
+        }
+      } catch (error) {
+        console.error("Error checking wallet connection:", error);
+      }
+    };
+    
+    checkWalletConnection();
+    
+    // Listen for account changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (accounts.length === 0) {
+          disconnectWallet();
+        } else {
+          connectWallet();
+        }
+      });
+    }
+    
+    return () => {
+      // Clean up event listeners
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', () => {});
+      }
+    };
+  }, []);
+
+  const connectWallet = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Get signer from wallet
+      const signer = await getSigner();
+      if (!signer) {
+        throw new Error("Failed to get signer from wallet");
+      }
+      
+      // Get EOA address
+      const address = await signer.getAddress();
+      setEoaAddress(address);
+      
+      // Get AA wallet address
+      const aaWalletAddress = await getAAWalletAddress(signer);
+      setAaAddress(aaWalletAddress);
+      
+      // Update state
+      setIsConnected(true);
+      
+      // Call callback if provided
+      if (onWalletConnected) {
+        onWalletConnected(address, aaWalletAddress);
+      }
+      
+    } catch (error: any) {
+      console.error("Error connecting wallet:", error);
+      setError(error.message || "Failed to connect wallet");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Rest of the component...
+};
+```
+
+Now, update `App.tsx` to properly handle wallet connection:
+
+```typescript
+import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import WalletConnect from './components/WalletConnect';
+import NFTMinter from './components/NFTMinter';
+import { ethers } from 'ethers';
+import { getSigner } from './utils/aaUtils';
+import './App.css';
+
+const App: React.FC = () => {
+  // State to track wallet connection
+  const [signer, setSigner] = useState<ethers.Signer | undefined>(undefined);
+  const [eoaAddress, setEoaAddress] = useState<string>('');
+  const [aaAddress, setAaAddress] = useState<string>('');
+  
+  /**
+   * Handle wallet connection - important to get a real signer!
+   */
+  const handleWalletConnected = async (eoaAddr: string, aaAddr: string) => {
+    try {
+      // Get the real signer from the wallet - don't use mock signers!
+      const realSigner = await getSigner();
+      
+      setEoaAddress(eoaAddr);
+      setAaAddress(aaAddr);
+      setSigner(realSigner);
+      
+      toast.success('Wallet connected successfully!');
+    } catch (error) {
+      console.error("Error getting signer:", error);
+      toast.error('Failed to get wallet signer. Please try again.');
+    }
+  };
+  
+  // Rest of the component...
+};
+```
+
+## Step 4: Setting Up the Paymaster Integration
+
+Now, implement the paymaster integration by updating the `initAABuilder` function:
+
+```typescript
+export const initAABuilder = async (accountSigner: ethers.Signer, apiKey?: string) => {
+  try {
+    // Ensure we have a valid signer with getAddress method
+    if (!accountSigner || typeof accountSigner.getAddress !== 'function') {
+      throw new Error("Invalid signer object: must have a getAddress method");
+    }
+
+    // Get the signer address to verify it's working
+    const signerAddress = await accountSigner.getAddress();
+    console.log("Initializing AA builder for address:", signerAddress);
+    
+    // Initialize the SimpleAccount builder
+    const builder = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Set API key for paymaster
+    const currentApiKey = apiKey || API_KEY;
+    
+    // Set paymaster options with API key
+    builder.setPaymasterOptions({
+      apikey: currentApiKey,
+      rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+      type: "0" // Default to free (sponsored gas)
+    });
+    
+    // Set gas parameters for the UserOperation
+    builder.setCallGasLimit(300000);
+    builder.setVerificationGasLimit(2000000);
+    builder.setPreVerificationGas(100000);
+    
+    return builder;
+  } catch (error) {
+    console.error("Error initializing AA builder:", error);
+    throw error;
+  }
+};
+```
+
+Next, implement the utility to set payment type:
+
+```typescript
+export const setPaymentType = (builder: any, paymentType: number, tokenAddress: string = '') => {
+  const paymasterOptions: any = { 
+    type: paymentType.toString(),
+    apikey: API_KEY,
+    rpc: AA_PLATFORM_CONFIG.paymasterRpc
+  };
+  
+  // Add token address if ERC20 payment is selected
+  if (paymentType > 0 && tokenAddress) {
+    paymasterOptions.token = tokenAddress;
+  }
+  
+  builder.setPaymasterOptions(paymasterOptions);
+  return builder;
+};
+```
+
+## Step 5: Implementing NFT Minting Logic
+
+Let's implement the NFT minting functionality. First, update the `aaUtils.ts` file with a function to execute operations:
+
+```typescript
+export const executeOperation = async (
+  accountSigner: ethers.Signer,
+  contractAddress: string,
+  contractAbi: any,
+  functionName: string,
+  functionParams: any[],
+  paymentType: number = 0,
+  selectedToken: string = '',
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Validate signer
+    if (!accountSigner || typeof accountSigner.getAddress !== 'function') {
+      throw new Error("Invalid signer: missing getAddress method");
+    }
+    
+    // Initialize client
+    const client = await initAAClient(accountSigner);
+
+    // Initialize builder with paymaster
+    const builder = await initAABuilder(accountSigner, options?.apiKey);
+
+    // Set payment type and token if specified
+    if (paymentType > 0 && selectedToken) {
+      // Set payment options for ERC20 tokens
+      builder.setPaymasterOptions({
+        apikey: options?.apiKey || API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: paymentType.toString(),
+        token: selectedToken
+      });
+    } else {
+      // Set default payment options (sponsored)
+      builder.setPaymasterOptions({
+        apikey: options?.apiKey || API_KEY,
+        rpc: AA_PLATFORM_CONFIG.paymasterRpc,
+        type: paymentType.toString()
+      });
+    }
+
+    // Create contract instance
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      getProvider()
+    );
+
+    // Encode function call data
+    const callData = contract.interface.encodeFunctionData(
+      functionName,
+      functionParams
+    );
+
+    // Set transaction data in the builder
+    const userOp = await builder.execute(contractAddress, 0, callData);
+
+    // Send the user operation
+    console.log("Sending UserOperation to bundler");
+    const res = await client.sendUserOperation(userOp);
+
+    console.log("UserOperation sent with hash:", res.userOpHash);
+
+    // Wait for the transaction to be included
+    const receipt = await res.wait();
+
+    // Log transaction hash when available
+    if (receipt && receipt.transactionHash) {
+      console.log("Transaction mined:", receipt.transactionHash);
+    }
+
+    // Return operation results
+    return {
+      userOpHash: res.userOpHash,
+      transactionHash: receipt?.transactionHash || '',
+      receipt: receipt
+    };
+  } catch (error) {
+    console.error("Error executing operation:", error);
+    throw error;
+  }
+};
+```
+
+Now, add the NFT minting function:
+
+```typescript
+// Add NFT ABI definition at the top of the file
+const NFT_ABI = [
+  "function mint(address to, string memory uri) external",
+  "function tokenURI(uint256 tokenId) external view returns (string memory)",
+  "function balanceOf(address owner) external view returns (uint256)"
+];
+
+export const mintNFT = async (
+  accountSigner: ethers.Signer,
+  recipientAddress: string,
+  metadataUri: string,
+  paymentType: number = 0,
+  selectedToken: string = '',
+  options?: {
+    apiKey?: string;
+    gasMultiplier?: number;
+  }
+) => {
+  try {
+    // Execute the mint function
+    return await executeOperation(
+      accountSigner,
+      CONTRACT_ADDRESSES.nftContract,
+      NFT_ABI,
+      'mint',
+      [recipientAddress, metadataUri],
+      paymentType,
+      selectedToken,
+      options
+    );
+  } catch (error) {
+    console.error("Error minting NFT:", error);
+    throw error;
+  }
+};
+```
+
+## Step 6: Adding Token Support for Gas Fees
+
+For prepay and postpay options, we need to fetch the supported tokens from the Paymaster. This is where common issues can occur, as different paymaster implementations may return tokens in different formats. Here's a robust implementation:
+
+```typescript
+export const getSupportedTokens = async (client: any, builder: any) => {
+  try {
+    // Make sure the builder is initialized
+    if (!builder) {
+      throw new Error("Builder not initialized");
+    }
+
+    // Get the AA wallet address
+    const sender = await builder.getSender();
+    console.log("Getting supported tokens for wallet:", sender);
+
+    // Create a minimal UserOp for querying tokens
+    const minimalUserOp = {
+      sender,
+      nonce: "0x0",
+      initCode: "0x",
+      callData: "0x",
+      callGasLimit: "0x88b8",
+      verificationGasLimit: "0x33450",
+      preVerificationGas: "0xc350",
+      maxFeePerGas: "0x2162553062",
+      maxPriorityFeePerGas: "0x40dbcf36",
+      paymasterAndData: "0x",
+      signature: "0x"
+    };
+
+    // Setup provider for paymaster API call
+    const provider = new ethers.providers.JsonRpcProvider(AA_PLATFORM_CONFIG.paymasterRpc);
+    console.log("Connecting to paymaster RPC at:", AA_PLATFORM_CONFIG.paymasterRpc);
+
+    // Log API key (redacted for security)
+    const maskedApiKey = API_KEY ? `${API_KEY.substring(0, 4)}...${API_KEY.substring(API_KEY.length - 4)}` : 'undefined';
+    console.log(`Using API key: ${maskedApiKey}`);
+    
+    // Try different parameter formats for the paymaster API
+    let tokensResponse;
+    
+    try {
+      // First format attempt: [userOp, apiKey, entryPoint]
+      console.log("Trying first parameter format for pm_supported_tokens");
+      tokensResponse = await provider.send("pm_supported_tokens", [
+        minimalUserOp,
+        API_KEY,
+        CONTRACT_ADDRESSES.entryPoint
+      ]);
+    } catch (formatError) {
+      console.warn("First parameter format failed:", formatError);
+      
+      try {
+        // Second format attempt: { userOp, entryPoint, apiKey }
+        console.log("Trying second parameter format for pm_supported_tokens");
+        tokensResponse = await provider.send("pm_supported_tokens", [{
+          userOp: minimalUserOp,
+          entryPoint: CONTRACT_ADDRESSES.entryPoint,
+          apiKey: API_KEY
+        }]);
+      } catch (format2Error) {
+        console.warn("Second parameter format failed:", format2Error);
+        
+        // Third format attempt: { op, entryPoint }
+        console.log("Trying third parameter format for pm_supported_tokens");
+        tokensResponse = await provider.send("pm_supported_tokens", [{
+          op: minimalUserOp,
+          entryPoint: CONTRACT_ADDRESSES.entryPoint
+        }]);
+      }
+    }
+
+    console.log("Tokens response:", tokensResponse);
+
+    // Transform and return the results
+    if (!tokensResponse) {
+      console.log("No tokens response received");
+      return [];
+    }
+    
+    // Handle different response formats
+    let tokens = [];
+    if (tokensResponse.tokens) {
+      tokens = tokensResponse.tokens;
+    } else if (Array.isArray(tokensResponse)) {
+      tokens = tokensResponse;
+    } else if (typeof tokensResponse === 'object') {
+      // Try to find tokens in the response object
+      const possibleTokensArray = Object.values(tokensResponse).find(val => Array.isArray(val));
+      if (possibleTokensArray && Array.isArray(possibleTokensArray)) {
+        tokens = possibleTokensArray as any[];
+      }
+    }
+    
+    if (tokens.length === 0) {
+      console.log("No tokens found in response");
+      return [];
+    }
+    
+    // Log the raw token response for debugging
+    console.log("Raw tokens response:", JSON.stringify(tokensResponse));
+    
+    // Try to find flags in the response that might indicate token types
+    const isArrayWithFreepayFlag = tokens.some((t: any) => 
+      'freepay' in t || 'prepay' in t || 'postpay' in t
+    );
+      
+    if (isArrayWithFreepayFlag) {
+      console.log("Detected payment type flags in token response");
+    }
+
+    const mappedTokens = tokens.map((token: any) => {
+      // Ensure token type is a valid number
+      let tokenType = 1; // Default to type 1 (prepay)
+      
+      // Check if this is from a response with prepay/postpay flags
+      if ('freepay' in token || 'prepay' in token || 'postpay' in token) {
+        if (token.freepay === true) {
+          tokenType = 0; // Sponsored
+        } else if (token.prepay === true) {
+          tokenType = 1; // Prepay
+        } else if (token.postpay === true) {
+          tokenType = 2; // Postpay
+        }
+      } 
+      // Try to parse the type if it exists
+      else if (token.type !== undefined) {
+        if (typeof token.type === 'number' && !isNaN(token.type)) {
+          tokenType = token.type;
+        } else if (typeof token.type === 'string') {
+          const parsedType = parseInt(token.type);
+          if (!isNaN(parsedType)) {
+            tokenType = parsedType;
+          }
+        }
+      }
+      
+      // Create the token object with normalized properties
+      return {
+        address: token.token || token.address,
+        decimal: parseInt(token.decimal || token.decimals || "18"),
+        symbol: token.symbol,
+        type: tokenType,
+        price: token.price ? parseFloat(token.price) : undefined,
+        // Add the original flags for debugging and alternative filtering
+        prepay: token.prepay === true,
+        postpay: token.postpay === true,
+        freepay: token.freepay === true
+      };
+    });
+
+    console.log("Mapped tokens:", mappedTokens);
+    return mappedTokens;
+  } catch (error) {
+    console.error("Error fetching supported tokens:", error);
+    // Include paymaster URL in error for debugging
+    console.error("Paymaster URL:", AA_PLATFORM_CONFIG.paymasterRpc);
+    return [];
+  }
+};
+```
+
+## Step 7: Enhancing Token Filtering in the UI
+
+Now, let's update the `PaymentTypeSelector` component to properly filter and display tokens:
+
+```typescript
+// In src/components/PaymentTypeSelector.tsx
+// Filter tokens based on payment type
+const getFilteredTokens = () => {
+  if (paymentType === 0) return [];
+
+  console.log("Payment type:", paymentType);
+  console.log("All supported tokens:", supportedTokens);
+  
+  // For each token, check if it matches the payment type
+  // If we can't determine the type, default to returning all tokens
+  const filtered = supportedTokens.filter(token => {
+    // If no tokens have the right type, return all tokens for selected payment type
+    if (token.type === undefined) return true;
+    
+    // Use loose equality (==) instead of strict equality (===) to match numeric types
+    return token.type == paymentType ||
+      // For prepay (1), also include tokens with prepay=true
+      (paymentType === 1 && token.prepay === true) ||
+      // For postpay (2), also include tokens with postpay=true  
+      (paymentType === 2 && token.postpay === true);
+  });
+  
+  console.log("Filtered tokens for payment type", paymentType, ":", filtered);
+  return filtered;
+};
+```
+
+## Step 8: Handling Errors
+
+Update the `errorHandler.ts` file to implement some of the basic error handling functions:
+
+```typescript
+export const extractErrorCode = (error: any): string | null => {
+  if (!error) return null;
+  
+  // Get the error message string
+  const errorMessage = error.message || error.toString();
+  
+  // Extract AA error codes (format: AA## or FailedOp(##, "..."))
+  const aaMatch = errorMessage.match(/AA(\d\d)/);
+  if (aaMatch) return `AA${aaMatch[1]}`;
+  
+  // Extract Paymaster error codes
+  const pmMatch = errorMessage.match(/PM(\d\d)/);
+  if (pmMatch) return `PM${pmMatch[1]}`;
+  
+  // Extract error from FailedOp format
+  const failedOpMatch = errorMessage.match(/FailedOp\((\d+),\s*"([^"]*)"/);
+  if (failedOpMatch) {
+    const code = parseInt(failedOpMatch[1]);
+    // Map code to AA error format
+    if (code >= 0 && code <= 99) {
+      return `AA${code.toString().padStart(2, '0')}`;
+    }
+  }
+  
+  return null;
+};
+
+export const getReadableErrorMessage = (error: any): string => {
+  // Extract error code
+  const errorCode = extractErrorCode(error);
+  
+  // Get error message from map if code exists
+  if (errorCode && AA_ERROR_CODES[errorCode]) {
+    return `${AA_ERROR_CODES[errorCode]} (${errorCode})`;
+  }
+  
+  // Handle other common Ethereum errors
+  const errorMessage = error.message || error.toString();
+  
+  if (errorMessage.includes("insufficient funds")) {
+    return "Insufficient funds to execute this transaction";
+  }
+  
+  if (errorMessage.includes("execution reverted")) {
+    // Try to extract the revert reason
+    const revertMatch = errorMessage.match(/execution reverted: (.*?)($|")/);
+    if (revertMatch) {
+      return `Transaction reverted: ${revertMatch[1]}`;
+    }
+    return "Transaction reverted - check the target contract";
+  }
+  
+  // If no specific error identified, return the original message
+  return errorMessage;
+};
+```
+
+## Step 9: Implementing NFTMinter Component with Robust Signer Handling
+
+Update the NFTMinter component to properly validate the signer and handle token fetching:
+
+```typescript
+// In src/components/NFTMinter.tsx
+// Load supported tokens when component mounts and signer is available
+useEffect(() => {
+  const loadTokens = async () => {
+    // Only run if signer is defined
+    if (signer) {
+      try {
+        // Check if signer has getAddress method
+        if (typeof signer.getAddress !== 'function') {
+          console.error("Invalid signer: missing getAddress method");
+          setError("Wallet connection issue: please reconnect your wallet");
+          return;
+        }
+        
+        // Verify signer is still connected by calling getAddress
+        await signer.getAddress();
+        
+        // If connected, fetch tokens
+        fetchSupportedTokens();
+      } catch (error) {
+        console.error("Signer validation error:", error);
+        setError("Wallet connection issue: please reconnect your wallet");
+      }
+    } else {
+      // Reset tokens if signer is not available
+      setSupportedTokens([]);
+      console.log("Signer not available, tokens reset");
+    }
+  };
+  
+  loadTokens();
+}, [signer]);
+```
+
+## Step 10: Running and Testing Your dApp
+
+Start your development server:
+
+```bash
+npm start
+```
+
+This will open your application at http://localhost:3000. To test your dApp:
+
+1. Connect your wallet using the "Connect Wallet" button
+2. Enter a name and description for your NFT
+3. Select a payment type:
+   - "Sponsored" for free minting
+   - "Prepay with ERC20 Token" to pay gas upfront
+   - "Postpay with ERC20 Token" to pay gas after transaction
+4. If choosing Prepay or Postpay, select a token from the dropdown
+5. Click the "Mint NFT" button
+6. Approve the transaction in your wallet
+7. Wait for confirmation and see the transaction hash
+
+### Troubleshooting Token Fetching Issues
+
+If tokens don't appear in the dropdown when selecting prepay or postpay options:
+
+1. **Check Browser Console**: Look for error messages or token response logs
+2. **Verify API Key**: Ensure your API key is valid and has permission to access tokens
+3. **Check Paymaster URL**: Verify the paymaster URL in your config file is correct
+4. **Token Type Handling**: The `getSupportedTokens` function includes robust handling of different token formats
+
+## Going Further
+
+This enhanced dApp demonstrates the key concepts of building with Account Abstraction on NERO Chain, with particular attention to properly handling token fetching and wallet integration. To enhance it further, you could:
+
+1. **Add NFT Viewing**: Implement functionality to view minted NFTs
+2. **Improve Token Handling**: Add balance checking for tokens
+3. **Enhance Error Handling**: Implement more robust error handling with retries
+4. **Add Batch Transactions**: Implement batching multiple operations in one UserOperation
+5. **Optimize Gas Usage**: Fine-tune gas parameters for different operations
+
+## Conclusion
+
+Congratulations! You've built your first dApp on NERO Chain using Account Abstraction. You've learned:
+
+- How to connect to users' wallets and generate AA wallets
+- How to integrate the NERO Chain Paymaster for gas fee sponsorship
+- How to execute smart contract calls through UserOperations
+- How to provide multiple payment options to users
+- How to properly handle token fetching and display
+
+This foundation will enable you to build more complex dApps with excellent user experiences by removing the traditional barriers of gas fees in blockchain applications.
+
+## Resources
+
+- [ERC-4337 Specification](https://eips.ethereum.org/EIPS/eip-4337)
+- [AA-UserOp SDK GitHub](https://github.com/nerochain/aa-userop-sdk)
+- [NERO Chain Block Explorer](https://testnet.neroscan.io/)
+
+## What We've Built
+
+Congratulations! You've successfully built a complete dApp on NERO Chain that leverages Account Abstraction for a seamless user experience. This application demonstrates:
+
+1. **Smart Contract Wallets**: Creating and managing AA wallets
+2. **Gasless Transactions**: Allowing users to interact without owning native tokens
+3. **Multiple Payment Options**: Supporting various gas payment methods
+4. **Token Integration**: Working with ERC20 tokens for gas payments
+5. **Modern Frontend**: Building a responsive and intuitive UI
+
+These concepts can be extended to create more complex applications for DeFi, gaming, social media, and more. The Account Abstraction capabilities of NERO Chain make it possible to build user-friendly dApps that feel like traditional web applications while maintaining all the benefits of blockchain technology. 
+
+<PageFeedback path="/en/tutorials/create-first-dapp" />

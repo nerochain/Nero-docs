@@ -1,0 +1,68 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# エラー処理
+
+UserOpSDKは操作中にさまざまなエラーを返す可能性があります。このセクションでは、一般的なエラーとその処理方法について説明します。
+
+## 一般的なエラータイプ
+
+```typescript
+try {
+  const result = await client.sendUserOperation(builder);
+  // 結果を処理
+} catch (error) {
+  if (error.message.includes('AA1')) {
+    console.error('アカウント作成に関連するエラーコード');
+    // 資金不足エラーを処理
+  } else if (error.message.includes('AA2')) {
+    console.error('ユーザー操作の送信者に関連するエラーコード');
+    // 検証エラーを処理
+  } else if (error.message.includes('AA3')) {
+    console.error('ペイマスターに関連するエラーコード');
+    // ペイマスターエラーを処理
+  } else if (error.message.includes('AA4')) {
+    console.error('一般的な検証に関連するエラーコード');
+    // ペイマスターエラーを処理
+  } else if (error.message.includes('AA5')) {
+    console.error('ユーザー操作が実行された後のアクションに関連するエラー');
+    // ペイマスターエラーを処理
+  } else {
+    console.error('不明なエラー:', error);
+    // その他のエラーを処理
+  }
+}
+```
+
+## エラーコードカテゴリ
+
+- **AA1** - アカウント作成エラー（例：反実仮想デプロイメントのための資金不足）
+- **AA2** - 送信者エラー（例：無効な署名）
+- **AA3** - ペイマスターエラー（例：預金不足、操作拒否）
+- **AA4** - 一般的な検証エラー
+- **AA5** - 実行後のエラー
+
+## ユーザーフレンドリーなエラー処理
+
+ユーザーインターフェースを構築する際は、技術的なエラーをユーザーフレンドリーなメッセージに変換します：
+
+```typescript
+function getUserFriendlyErrorMessage(error) {
+  if (error.message.includes('AA21')) {
+    return "このトランザクションを支払うのに十分な資金がありません。";
+  } else if (error.message.includes('AA23')) {
+    return "トランザクション署名が無効です。もう一度お試しください。";
+  } else if (error.message.includes('AA25')) {
+    return "ガス支払いの詳細が無効です。別の支払いオプションを選択してください。";
+  } else {
+    return "トランザクションの処理中にエラーが発生しました。もう一度お試しください。";
+  }
+}
+```
+
+## 次のステップ
+
+エラー処理を実装した後、以下のことを検討するかもしれません：
+- SDKを使用するための[ベストプラクティスを確認する](/ja/developer-tools/user-op-sdk/best-practices)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/error-handling" />
+

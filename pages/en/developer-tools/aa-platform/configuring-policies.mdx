@@ -1,0 +1,143 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Configuring Policies
+
+Policies determine how your application handles transaction fees for users. There are four main configurations to consider:
+
+- Enabling ERC20 Payments
+- Discounts per Address
+- Offers for all addresses
+- Specify Callbacks
+
+## Enabling ERC20 Payments
+
+1. Go to the "API Keys" tab and select the desired APIKey to configure
+2. Click in the "Policies" tab
+3. Click on the ERC-20 Payment toggle
+4. Select Between the Payment modes: Pre-Payment and Post Payment or only Pre-Payment
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/erc20.gif" 
+      alt="Configuring a Gas Policy"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 1: Configuring a Gas Policy
+  </figcaption>
+</div>
+
+### Selecting tokens that supports Gas Payment
+Here you can select any ERC20 token you wish to receive as Payment for Gas. 
+
+1. Click on the "Select" button
+2. Select the tokens on the list or Input a Token contract in the text field to make it appear on the list
+3. "Confirm" your selection
+4. Configure the Gas-Payment Floating rate.
+5. Click in the "Save" button at the end of the dashboard.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/erc20config.gif" 
+      alt="Configuring a Gas Policy"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 2: Selecting Tokens for Gas Supported.
+  </figcaption>
+</div>
+
+### Strategy Types Explained
+
+#### Free Gas (Type 0)
+
+With this strategy, you fully cover the gas costs for your users. This is ideal for:
+- Onboarding new users who don't own crypto
+- Promotional campaigns
+- Applications where you want to remove all friction
+- GameFi applications where you want to hide blockchain complexity
+
+#### ERC20 Prepay (Type 1)
+
+Users pay for gas using ERC20 tokens before the transaction is executed:
+- The full estimated amount is collected upfront
+- Any excess is refunded after execution
+- More secure for the developer as payment is guaranteed
+- Better suited for high-value operations
+
+#### ERC20 Postpay (Type 2)
+
+Users pay for gas using ERC20 tokens after the transaction is executed:
+- Only the exact gas cost is collected
+- Requires token approval before execution
+- Slightly better UX as users only pay what's needed
+- Has a risk of payment failure after execution
+
+## Giving Discounts per Address
+
+You can configure the total USD or native tokens you are willing to sponsor per address.
+
+1. On the Policies tab, toggle the "Discount per address" option
+2. Configure the amount of times per address per day, week , or month modes.
+3. Maximum free amount per new address : you can use this to set a total limit you can sponsor per address
+4. You can also set the amount of overral free times an address can be sponsored. 
+5. Click on the "Save" button.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/discount.gif" 
+      alt="Configuring Discounts"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 3: Configuring Discounts.
+  </figcaption>
+</div>
+
+## Offers for all addresses
+
+You can also have a similar configuration configured for all address at the same time.
+
+1. On the Policies tab, toggle the "All Addresses offer" option
+2. Configure the amount of times per address per day, week , or month modes.
+3. Maximum free amount per new address : you can use this to set a total limit you can sponsor per address
+4. You can also set the amount of overral free times an address can be sponsored. 
+5. Click on the "Save" button.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/alldiscount.gif" 
+      alt="Configuring Discounts for all addresses"
+      className="mx-auto rounded-lg shadow-md"
+    />
+  </figure>
+  <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 4: Configuring Discounts for all addresses.
+  </figcaption>
+</div>
+
+## Specify Callbacks
+
+You can set specific addresses wheter a user operation should be sponsored or not.
+
+1. Toggle the "Specify Callback" option.
+2. Set the address
+3. Save
+
+## Next Steps
+
+After configuring your policies, you should:
+- [Manage your payments](/en/developer-tools/aa-platform/payment-management) to ensure sufficient funds for your strategies
+- [Integrate with your application](/en/developer-tools/aa-platform/integration-and-best-practices) to start using your configured policies
+
+
+
+<PageFeedback path="/en/developer-tools/aa-platform/configuring-policies" />

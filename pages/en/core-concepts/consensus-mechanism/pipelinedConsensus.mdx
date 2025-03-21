@@ -1,0 +1,23 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# Pipelined Consensus
+
+In traditional blockchain systems such as Ethereum, the block generation process consists of several steps:
+
+- The miner (block proposer) packs the transaction and executes it;
+- The miner sets the execution results to the block header;
+- Block propagation;
+- Other nodes execute the transactions in the block;
+- And then validate the execution results of the block.
+
+It can be seen that a transaction undergoes two serial executions from the time it is packaged to the time it reaches network-wide consensus, in addition to a serial propagation process, which has a lot of room for optimization. We take a closer look at the structure of a block, which contains a batch of transactions and various Merkle roots associated with the execution results. The transaction list mainly represents the sequence of transaction execution, while the block header can be seen as the result of the block execution. We can consider separating the consensus of these two into a transaction sequence consensus and an execution result consensus.
+
+As depicted in Figure 4, if the block under consensus is denoted as block N, the BFT process does not consent to the entire content of block N. Instead, it agrees on the transaction list and certain metadata of block N, along with the block hash of block N - 2. Once the BFT process concludes, the consensus on block N + 1 proceeds, while block N is executed concurrently. Furthermore, given that block N contains the hash of block N - 2, the conclusion of consensus on block N also implies confirmation of block N - 2.
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/learn/figure4.png" alt="Figure 4" />
+  <p style={{ fontStyle: 'italic' }}>Figure 4: Pipelined processing of BFT, execution, and validation.</p>
+</div>
+
+<PageFeedback path="/en/core-concepts/consensus-mechanism/pipelinedConsensus" />

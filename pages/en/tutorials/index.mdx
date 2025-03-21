@@ -1,0 +1,82 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+
+# NERO Chain Cookbook
+
+Welcome to the NERO Chain Cookbook – your collection of practical, ready-to-use recipes for building on NERO Chain. Each recipe is designed to solve specific development challenges with copy-pastable code and step-by-step instructions.
+
+## Learning Path
+
+Our tutorials are organized in a logical progression to help you build your skills step by step. We recommend following this learning path:
+
+1. **Start with contract deployment** to understand the basics of deploying smart contracts on NERO Chain
+2. **Learn about AA wallet integration** to set up the foundation for account abstraction
+3. **Send your first UserOperations** to interact with the blockchain through AA wallets and use sponsored transactions
+4. **Explore payment methods** to implement alternative gas payment options with ERC20 tokens
+5. **Check supported tokens** to work with ERC20 tokens for gas payments
+6. **Build your first complete dApp** to bring everything together in a cohesive application
+
+## Getting Started
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 mb-6">
+  <a href="/en/tutorials/first-contract/using-remix" className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">
+      <span className="text-blue-600 mr-2">🔗</span>
+      Deploy with Remix
+    </h3>
+    <p className="text-gray-600 dark:text-gray-300 text-center">Launch your first contract using the Remix IDE.</p>
+  </a>
+  
+  <a href="/en/tutorials/first-contract/using-hardhat" className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">
+      <span className="text-yellow-500 mr-2">⚒️</span>
+      Deploy with Hardhat
+    </h3>
+    <p className="text-gray-600 dark:text-gray-300 text-center">Deploy contracts using Hardhat's development environment.</p>
+  </a>
+
+  <a href="" className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">
+      <span className="text-yellow-500 mr-2">⚒️</span>
+      Deploy with Foundry
+    </h3>
+    <p className="text-gray-600 dark:text-gray-300 text-center">Coming soon!</p>
+  </a>
+</div>
+
+## Account Abstraction Recipes
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+  <a href="/en/tutorials/aa-wallet-integration" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">👛 Integrate AA Wallets</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Add smart contract wallets to your React application for seamless UX.</p>
+  </a>
+
+  <a href="/en/tutorials/sending-ops" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">📨 Send UserOperations</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Execute transactions with sponsored gas through Account Abstraction.</p>
+  </a>
+
+  <a href="/en/tutorials/types-payments" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">💲 Payment Methods</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Implement different gas payment options in your dApp.</p>
+  </a>
+</div>
+
+## Advanced Topics
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+  <a href="/en/tutorials/checking-sup-tokens" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">🔍 Token Support Check</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Query and display tokens supported by the NERO Chain Paymaster.</p>
+  </a>
+
+  <a href="/en/tutorials/create-first-dapp" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">🚀 Create Your First dApp</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Build a complete NFT minting application with gasless transactions.</p>
+  </a>
+</div>
+
+
+
+<PageFeedback path="/en/tutorials/index" />

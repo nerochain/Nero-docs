@@ -1,0 +1,47 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Managing API Keys
+
+API keys are essential for authenticating your applications with the Paymaster service.
+
+## Creating an API Key
+
+1. Navigate to your project dashboard
+2. Go to the "API Keys" tab
+3. Click "Create"
+4. Select between Testnet or Mainnet
+5. Click on "Create ApiKey"
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/createapi.gif" 
+      alt="AA Platform Team Creation 2 Screen"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 1: Creating API Key.
+  </figcaption>
+  </figure>
+</div>
+
+## API Key Security
+
+Your API keys grant access to your gas sponsorship resources. To keep them secure:
+
+- Never expose API keys in client-side code
+- Use environment variables to store keys in your backend
+- Implement domain restrictions for production keys
+- Rotate keys periodically
+- Set appropriate usage limits
+
+## Next Steps
+
+After creating your API keys, you should:
+- [Configure your policies](/en/developer-tools/aa-platform/configuring-policies) to determine how users pay for gas
+- [Manage your payment](/en/developer-tools/aa-platform/payment-management) to ensure your services remain funded
+
+
+
+<PageFeedback path="/en/developer-tools/aa-platform/managing-api-keys" />

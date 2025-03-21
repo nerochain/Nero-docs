@@ -1,0 +1,97 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+
+# Key Features for Developers
+
+This section provides a high-level overview of NERO Chain's key features that make it an ideal platform for developers. Knowing these characteristics will enable you to fully use NERO Chain for developing your apps.
+
+## Native Account Abstraction
+
+Using a native ERC-4337 Account Abstraction implementation, NERO Chain provides developers with advanced tools allowing them to construct better user experiences:
+
+#### Smart Contract Wallets
+
+Unlike traditional Externally Owned Accounts (EOAs), smart contract wallets on NERO Chain provide:
+
+- **Programmable Authorization**: Implement any verification logic for transaction approval.
+- **Multi-signature Support**: Require multiple signers for transaction authorization.
+- **Social Recovery**: Enable account recovery through trusted friends or services.
+- **Session Keys**: Implement limited-use keys for specific applications or time periods.
+
+#### UserOperation and Bundlers
+
+At the core of Account Abstraction is the `UserOperation` object:
+
+- **Flexible Transaction Format**: Completely separates the user's intent from the transaction execution.
+- **Bundlers**: Specialized nodes that package multiple UserOperations into a single transaction.
+- **Mempool Management**: Dedicated mempool for UserOperations enhances predictability.
+
+
+## Paymaster System
+
+The Paymaster is a core component that enables flexible gas payment mechanisms. And the AA Platform gives the developer an easy-to-use way to configure everything on the fly. 
+
+#### Payment Options
+
+- **Sponsored Transactions (Free)**: Developers can fully cover gas costs for users.
+- **ERC20 Token Payments**: Users can pay gas fees using supported ERC20 tokens instead of NERO.
+- **Pre-fund/Post-fund Models**: Choose between upfront payments or after-execution settlements.
+  
+  
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/erc20config.gif" 
+      alt="Configuring a Gas Policy"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 1: Configuring tokens for gas fees on the AA Platform.
+    </figcaption>
+  </figure>
+</div>
+
+#### Integration Benefits
+
+- **Token Utility**: Increase your token's utility by enabling it for gas payments.
+- **User Experience**: Remove the need for users to own NERO tokens to interact with your dApp.
+- **Flexible Pricing Models**: Implement subscription models, free trials, or per-action pricing.
+
+## Blockspace 2.0
+
+Regarding fees, conventional blockchain systems handle every transaction the same. With Blockspace 2.0, a breakthrough approach to controlling transaction costs and resources, NERO Chain transforms that, guaranteeing flexibility, efficiency, and justice.
+
+#### Unique UX with Smarter Fees
+
+- **Custom price models**: Developers may create unique price models for their particular demands, therefore matching expenses with those of their consumers.
+- **Fee Sharing**: Should your dApp create transactions, users and developers stand to gain from a split of the network fees.
+- **Stable Pricing**: NERO's approach seeks a more predictable charge structure than wild fluctuations in conventional gas prices.
+
+#### Better Use of Resources 
+- Bundled Transactions - Consider it as carpooling for transactions; NERO arranges them to save unwarranted expenses.
+- Like an express lane on a freeway, urgent transactions are handled faster in priority lanes.
+- Effective resource allocation helps developers better estimate the processing power a software requires, therefore lessening surprises.
+
+With Blockspace 2.0, NERO Chain is creating smarter, more sustainable, and better for everyone rather than only lowering costs.
+
+  
+
+  
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/block2.png" 
+      alt="Blockspace 2.0 concept diagram"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 2: Blockspace 2.0 Architecture
+    </figcaption>
+  </figure>
+</div>
+
+
+
+
+<PageFeedback path="/en/getting-started/key-features" />

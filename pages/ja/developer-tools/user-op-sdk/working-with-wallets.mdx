@@ -1,0 +1,34 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# AAウォレットの操作
+
+アカウントアブストラクションウォレットは各EOAウォレットに対して決定論的に生成されます。このセクションでは、これらのAAウォレットの操作方法について説明します。
+
+## AAウォレットアドレスの取得
+
+各EOAウォレットには、決定論的に生成される対応するAAウォレットアドレスがあります：
+
+```typescript
+// Get the AA wallet address (works even if not yet deployed on-chain)
+const aaWalletAddress = await builder.getSender();
+console.log("AA Wallet Address:", aaWalletAddress);
+```
+
+## AAウォレットのデプロイ状態の確認
+
+AAウォレットが既にデプロイされているかどうかを確認できます：
+
+```typescript
+const provider = new ethers.providers.JsonRpcProvider(NERO_RPC_URL);
+const code = await provider.getCode(aaWalletAddress);
+const isDeployed = code !== '0x';
+console.log("Wallet deployed:", isDeployed);
+```
+
+## 次のステップ
+
+AAウォレットアドレスの操作後、次のことができます：
+- [UserOperationsの作成](/ja/developer-tools/user-op-sdk/creating-user-operations)
+- [Paymasterとの統合](/ja/developer-tools/user-op-sdk/paymaster-integration)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/working-with-wallets" /> 

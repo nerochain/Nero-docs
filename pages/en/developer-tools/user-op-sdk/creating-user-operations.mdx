@@ -1,0 +1,108 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Creating UserOperations
+
+This part walks over how to use the SDK to produce various kinds of UserOperations.
+
+## Understanding Minimal UserOperations
+
+User operations have a standard structure, hence it's crucial to know before starting certain transactions. A simple user operation includes all necessary fields even with placeholder values:
+
+```typescript
+// Create a minimal UserOp
+const minimalUserOp = {
+  sender: aaWalletAddress, // The AA wallet address
+  nonce: "0x0",            // Will be filled by the SDK or custom logic
+  initCode: "0x",          // Empty for existing wallets
+  callData: "0x",          // Will be filled with actual transaction data
+  callGasLimit: "0x0",     // Gas estimation
+  verificationGasLimit: "0x0",
+  preVerificationGas: "0x0",
+  maxFeePerGas: "0x0",
+  maxPriorityFeePerGas: "0x0",
+  paymasterAndData: "0x",  // Will be filled by Paymaster integration
+  signature: "0x"          // Will be filled with EOA signature
+};
+```
+
+This minimal structure is useful for:
+- Making RPC calls that require a UserOperation structure
+- Initializing a UserOperation before filling in specific details
+- Testing and debugging
+- Interacting with services like the Paymaster API
+
+The UserOpSDK will handle filling in most of these fields automatically, but understanding this structure is helpful when working with the SDK and developing your own utilities.
+
+## Simple Token Transfer
+
+To perform a simple ERC-20 token transfer, you'll start with the builder created in the [Basic Usage](/en/developer-tools/user-op-sdk/basic-usage) section and add your specific transaction:
+
+```typescript
+// 1. Start with the builder from previous setup
+// const builder = await Presets.Builder.SimpleAccount.init(...);
+
+// 2. Create an ERC-20 contract instance
+const tokenContract = new ethers.Contract(
+  tokenAddress,
+  ['function transfer(address to, uint256 amount) returns (bool)'],
+  accountSigner
+);
+
+// 3. Prepare the call data for transfer
+const callData = tokenContract.interface.encodeFunctionData(
+  'transfer',
+  [recipientAddress, ethers.utils.parseUnits(amount, decimals)]
+);
+
+// 4. Add the transaction to the builder
+// This will incorporate the transaction into a UserOperation
+builder.execute(tokenAddress, 0, callData);
+
+// 5. The builder now contains the UserOperation with your transfer
+// Under the hood, it fills in the parameters of the minimal UserOperation:
+// - sender: from builder.getSender()
+// - nonce: auto-retrieved from the AA wallet
+// - callData: your transfer function call
+// - gas parameters: estimated or set manually
+```
+
+When you call `builder.execute()`, the SDK takes care of incorporating your transaction into the UserOperation structure, eliminating the need to manually build each field of the minimal UserOperation.
+
+## Executing Multiple Transactions
+
+You can bundle multiple actions into a single UserOperation using the same builder pattern:
+
+```typescript
+// 1. Start with the same builder
+// const builder = await Presets.Builder.SimpleAccount.init(...);
+
+// 2. Prepare multiple call data and targets
+const callData = [
+  tokenContract.interface.encodeFunctionData('approve', [spender, amount]),
+  tokenContract.interface.encodeFunctionData('transfer', [recipient, amount])
+];
+const callTo = [tokenAddress, tokenAddress];
+
+// 3. Add batch execution to the builder
+// This bundles multiple transactions into a single UserOperation
+builder.executeBatch(callTo, callData);
+
+// 4. The builder now contains a UserOperation with multiple actions
+// The single UserOperation will:
+// - Approve tokens to be spent by another address
+// - Transfer tokens to the recipient
+// All in one atomic transaction
+```
+
+With the batch execution feature, multiple actions are combined into a single UserOperation's `callData` field, allowing you to perform complex operations efficiently.
+
+## Next Steps
+
+After creating UserOperations with the builder:
+- [Integrate with Paymaster](/en/developer-tools/user-op-sdk/paymaster-integration) to handle gas payments
+- [Send UserOperations](/en/developer-tools/user-op-sdk/sending-user-operations) to the network
+
+
+
+<PageFeedback path="/en/developer-tools/user-op-sdk/creating-user-operations" />

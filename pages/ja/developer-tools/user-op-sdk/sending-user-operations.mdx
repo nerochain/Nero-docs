@@ -1,0 +1,44 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# UserOperationsの送信
+
+UserOperationの設定が完了したら、それをネットワークに送信できます。このセクションでは、操作の送信と結果の処理について説明します。
+
+## UserOperationの送信
+
+```typescript
+try {
+  // UserOperationを送信
+  const result = await client.sendUserOperation(builder);
+  
+  // トランザクションハッシュを取得
+  const userOpHash = result.userOpHash;
+  console.log("UserOperation ハッシュ:", userOpHash);
+  
+  // トランザクションがマイニングされるのを待つ
+  const receipt = await result.wait();
+  console.log("トランザクションハッシュ:", receipt.transactionHash);
+  
+  return receipt;
+} catch (error) {
+  console.error("UserOperation送信エラー:", error);
+  throw error;
+}
+```
+
+## UserOperationのステータス監視
+
+UserOperationを送信した後、そのステータスを監視できます：
+
+1. まず、`sendUserOperation`の結果から`userOpHash`を取得します。
+2. 次に、操作がブロックに含まれるのを待つために結果に対して`wait()`を使用できます。
+3. レシートにはトランザクションハッシュが含まれており、これを使用してブロックエクスプローラーで詳細を検索できます。
+
+## 次のステップ
+
+UserOperationsの送信後、以下のことを検討するかもしれません：
+- カスタマイズのための[高度なオプションを探索する](/ja/developer-tools/user-op-sdk/advanced-usage)
+- より良いユーザーエクスペリエンスのための[エラー処理について学ぶ](/ja/developer-tools/user-op-sdk/error-handling)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/sending-user-operations" />
+

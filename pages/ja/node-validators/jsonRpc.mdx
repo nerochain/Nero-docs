@@ -1,0 +1,153 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# JSON-RPC
+
+NEROチェーンは[Ethereum](https://ethereum.org/developers/docs/apis/json-rpc#json-rpc-methods)に記載されているすべてのJSON-RPC APIメソッドを提供しています。
+
+## eth_getTraceActionByTxHash
+
+このメソッドは、トランザクションのハッシュによる内部トランザクションのログを返します。
+
+### パラメータ
+
+- `DATA`、32バイト：トランザクションのハッシュ。
+- `Object`：フィルタオプション：
+  - `fromUser`：`DATA|Array`、20バイト（オプション） - 送信者のアドレス。
+  - `toBlock`：`DATA|Array`、20バイト（オプション） - 受信者のアドレス。
+  - `opCode`：String（オプション） - トランザクションログのEVMオペコード。
+  - `minValue`：`QUANTITY|TAG`（オプション） - BRCで転送される最小値または金額。
+
+### 戻り値
+
+内部トランザクションのログを含むオブジェクト、またはログが見つからない場合は`null`：
+
+- `transactionHash`：`DATA`、32バイト - トランザクションのハッシュ。
+- `blockHash`：`DATA`、32バイト - ブロックのハッシュ（保留中の場合はnull）。
+- `blockNumber`：`QUANTITY` - トランザクションのブロック番号。
+- `logs`：トランザクションによって生成されたログオブジェクトの配列：
+  - `from`：`DATA`、20バイト - 送信者のアドレス。
+  - `to`：`DATA`、20バイト - 受信者のアドレス（コントラクト作成トランザクションの場合はnull）。
+  - `value`：`QUANTITY` - BRCで転送された値。
+  - `success`：Boolean - 呼び出しが成功したかどうかを示します。
+  - `opcode`：`DATA` - トランザクションログのEVMオペコード。
+  - `depth`：`QUANTITY` - EVMでのコールスタックの深さ。
+  - `gas`：`QUANTITY` - 送信者が提供したガス。
+  - `gas_used`：`QUANTITY` - トランザクションで使用されたガスの量。
+  - `input`：`DATA` - トランザクションと一緒に送信されたデータ。
+  - `trace_address`：`QUANTITY|Array` - 実行中のコールトレースの深さを表す配列。
+
+### 例
+
+リクエスト：
+
+```shell
+curl -X POST --data '{  "jsonrpc":"2.0",  "method":"eth_getTraceActionByTxHash",  "params":["0xce9a42b2d2e0c0a7984d9351793129b91dc0599b9b4401082b75afcbc6abd694"], "id":1}'
+```
+
+レスポンス：
+
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "transactionHash": "0xce9a42b2d2e0c0a7984d9351793129b91dc0599b9b4401082b75afcbc6abd694",
+      "blockHash": "0x80f5779b0348102d90f5463a9a494b7454d0e1f8d8b119cf090cd90e2d6105c3",
+      "blockNumber": 54,
+      "logs": [
+        {
+          "from": "0x2e46771cff3636a42f363826ff8a94d3a738e075",
+          "to": "0x000000000000000000000000000000000000f000",
+          "value": 0,
+          "success": true,
+          "opcode": "CALL",
+          "depth": 18446744073709551615,
+          "gas": 165629,
+          "gas_used": 162996,
+          "input": "0x6374299e0000000000000000000000009f01eb5eb4dbea8b2cecc679050819990ab68a1a000000000000000000000000000000000000000000295be96e64066972000000",
+          "trace_address": []
+        },
+        {
+          "from": "0x000000000000000000000000000000000000f000",
+          "to": "0x4b20bbf3652696b9afd27b8f88ff8b7c1f361336",
+          "value": 0,
+          "success": true,
+          "opcode": "STATICCALL",
+          "depth": 0,
+          "gas": 157800,
+          "gas_used": 2443,
+          "input": "0x00000000",
+          "output": "0x0000000000000000000000002e46771cff3636a42f363826ff8a94d3a738e075",
+          "trace_address": [0]
+        },
+        {
+          "from": "0x000000000000000000000000000000000000f000",
+          "to": "0xf4340cf5f3891a3827713b33f769b501a0b5b122",
+          "value": 0,
+          "success": true,
+          "opcode": "STATICCALL",
+          "depth": 0,
+          "gas": 150040,
+          "gas_used": 2814,
+          "input": "0x0000000000000000000000000000000000000000007c13bc4b2c133c560000000000000000000000000000000000000000000000007c13bc4b2c133c5600000000000000",
+          "output": "0x0000000000000000000000000000000000000000007c13bc4b2c133c56000000",
+          "trace_address": [1]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## eth_getTraceActionByBlockNumber
+
+ブロック番号による内部トランザクションのログを返します。
+
+### パラメータ
+
+1. QUANTITY|TAG - ブロック番号の整数
+
+2. Object - フィルタオプション：
+   - fromUser: DATA|Array, 20バイト -（オプション）送信者のアドレス。
+   - toBlock: DATA|Array, 20バイト -（オプション）受信者のアドレス。
+   - opCode: String -（オプション）トランザクションログのEVMオペコード。
+   - minValue: QUANTITY|TAG -（オプション）BRCで転送される最小値または金額。
+
+### 戻り値
+
+[eth_getTraceActionByTxHash](#returns)と同じ
+
+### 例
+
+リクエスト：
+
+```shell
+curl -X POST --data '{  "jsonrpc":"2.0",  "method":"eth_getTraceActionByBlockNumber",  "params":["0x36"],  "id":1}'
+```
+
+結果は[eth_getTraceActionByTxHash](#example)を参照
+
+## eth_getTraceActionByBlockHash
+
+ブロックハッシュによる内部トランザクションのログを返します。
+
+### パラメータ
+
+1. DATA、32バイト - ブロックのハッシュ。
+
+### 戻り値
+
+[eth_getTraceActionByTxHash](#returns)と同じ
+
+### 例
+
+リクエスト：
+
+```shell
+curl -X POST --data '{  "jsonrpc":"2.0",  "method":"eth_getTraceActionByBlockHash",  "params":["0x80f5779b0348102d90f5463a9a494b7454d0e1f8d8b119cf090cd90e2d6105c3"],  "id":1}'
+```
+
+結果は[eth_getTraceActionByTxHash](#example)を参照 
+
+<PageFeedback path="/ja/node-validators/jsonRpc" />

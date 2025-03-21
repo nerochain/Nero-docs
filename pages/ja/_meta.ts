@@ -1,8 +1,14 @@
 export default {
-  index: "ようこそ",
-  learn: "Learn",
-  aa: "NERO AA",
-  node_validators: "NodesとValidators",
-  building: "NERO Chain上での開発",
-  supports: "サポート＆お問い合わせ"
+  index: {
+    title: '',
+    type: 'page',
+    display: 'hidden'
+  },
+  'getting-started': '使い始める',
+  'core-concepts': 'ホワイトペーパー',
+  'developer-tools': '開発者ツール',
+  'tutorials': 'クックブック',
+  'node-validators': 'ノード・バリデーター',
+  faq: 'よくある質問',
+  supports: 'サポート'
 }

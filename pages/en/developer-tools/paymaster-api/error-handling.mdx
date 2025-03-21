@@ -1,0 +1,40 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Error Handling
+
+Proper error handling is essential when integrating with the Paymaster API. This section covers common errors you may encounter and best practices for a robust implementation.
+
+## Common Error Codes
+
+Interacting with the Paymaster API like sending transactions can return standard JSON-RPC errors in those scenarios. Here are common error codes and their meanings:
+
+
+Many of these errors will also be accompanied by an additional error message from the EntryPoint.
+
+|Code	| Description|
+|------------|-------------|
+|-32521	| Transaction reverted (or will revert) during execution phase.|
+|-32602	| Invalid UserOperation struct/fields.|
+|-32500	| Transaction rejected by entryPoint's simulateValidation, during account creation or validation.|
+|-32501	| Transaction rejected by paymaster's validatePaymasterUserOp.|
+|-32502	| Transaction rejected because of opcode validation.|
+|-32503	| UserOperation out of time-range: either account or paymaster returned a time-range, and it is already expired (or will expire soon).|
+|-32504	| Transaction rejected because paymaster (or signature aggregator) is throttled/banned.|
+|-32505	| Transaction rejected because paymaster (or signature aggregator) stake or unstake-delay is too low.|
+|-32506	| Transaction rejected because account specified unsupported signature aggregator.|
+|-32507	| Either validateUserOp or validatePaymasterUserOp returned an invalid signature check.|
+
+## Common Specific Errors
+
+Bundler error codes often are accompanied by an additional AAxx code provided by the EntryPoint to give additional guidance.
+
+- AA1x error codes relate to creating an account
+- AA2x error codes relate to the sender of the user operation
+- AA3x error codes relate to paymasters
+- AA4x error codes relate to verification generally
+- AA5x errors relate to actions after the user operation was executed
+
+
+
+<PageFeedback path="/en/developer-tools/paymaster-api/error-handling" />

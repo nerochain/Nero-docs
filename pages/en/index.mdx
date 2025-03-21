@@ -1,6 +1,243 @@
-# Welcome NEROChain Docs
+import PageFeedback from '../../components/PageFeedback'
 
-<div style={{ height: '2rem' }} />
-<div style={{ textAlign: 'center' }}>
-  <img src="/assets/nerohero.jpg" alt="Nero Chain" width="1000" />
+export const meta = {
+  title: ''
+}
+
+
+# Welcome to the NERO Chain Docs
+
+Welcome to the definitive reference for all things NERO Chain technology, ecosystem, and development. Whether you're a developer building applications, an operator running nodes, a researcher exploring the architecture, or just getting started with blockchain, this documentation will help you understand and leverage NERO Chain's unique features.
+
+## Builder Journeys
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-0">
+  <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+      </svg>
+      dApp Developers
+    </div>
+    <p className="mt-1 text-sm">Build dApps with unique NERO features.</p>
+    <a href="/en/getting-started/introduction" className="inline-block no-underline mt-2">
+      <svg width="115" height="28" viewBox="0 0 115 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0.5" y="0.5" width="114" height="27" rx="3.5" fill="white" stroke="#000000" className="dark:stroke-white" />
+        <text x="12" y="18" fontFamily="system-ui, sans-serif" fontSize="12" fill="#000000" className="dark:fill-white">Start building →</text>
+      </svg>
+    </a>
+  </div>
+  
+  <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" />
+      </svg>
+      Chain & Node Operators
+    </div>
+    <p className="mt-1 text-sm">Deploy and maintain NERO Chain networks and validator nodes.</p>
+    <a href="/en/node-validators/overview" className="inline-block no-underline mt-2">
+      <svg width="135" height="28" viewBox="0 0 135 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0.5" y="0.5" width="134" height="27" rx="3.5" fill="white" stroke="#000000" className="dark:stroke-white" />
+        <text x="10" y="18" fontFamily="system-ui, sans-serif" fontSize="12" fill="#000000" className="dark:fill-white">Run infrastructure →</text>
+      </svg>
+    </a>
+  </div>
+  
+  <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+      </svg>
+      Researchers & Developers
+    </div>
+    <p className="mt-1 text-sm">Explore technical architecture, innovations, and protocol details.</p>
+    <a href="/en/core-concepts" className="inline-block no-underline mt-2">
+      <svg width="135" height="28" viewBox="0 0 135 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0.5" y="0.5" width="134" height="27" rx="3.5" fill="white" stroke="#000000" className="dark:stroke-white" />
+        <text x="10" y="18" fontFamily="system-ui, sans-serif" fontSize="12" fill="#000000" className="dark:fill-white">Learn technology →</text>
+      </svg>
+    </a>
+  </div>
 </div>
+
+## Quick Start Guides
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+  <a href="/en/developer-tools" className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-nero-brand hover:shadow-md dark:hover:border-nero-brand transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      </svg>
+      Developer Tools
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-400">Understand NERO Chain's unique features.</p>
+  </a>
+  
+  <a href="/en/tutorials/" className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-nero-brand hover:shadow-md dark:hover:border-nero-brand transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+      </svg>
+      Developer Cookbook
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-400">Practical recipes for building on NERO Chain.</p>
+  </a>
+  
+  <a href="/en/faq" className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-nero-brand hover:shadow-md dark:hover:border-nero-brand transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+      </svg>
+      FAQ
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-400">Common challenges and their solutions.</p>
+  </a>
+</div>
+
+## Popular Development Guides
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+  <a href="/en/tutorials/first-contract/using-remix" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-nero-brand hover:shadow-md transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+      </svg>
+      Deploy First Contract
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Deploy a smart contract on NERO Chain.</p>
+  </a>
+  
+  <a href="/en/tutorials/create-first-dapp" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-nero-brand hover:shadow-md transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-green-600" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+      </svg>
+      Build Your First dApp
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Create an NFT minting dApp.</p>
+  </a>
+  
+  <a href="/en/tutorials/sending-ops" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-nero-brand hover:shadow-md transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-purple-600" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm4.707 3.707a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L8.414 9l1.293-1.293z" clipRule="evenodd" />
+      </svg>
+      Integrate Paymaster
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Enable gas sponsorship and token payments.</p>
+  </a>
+</div>
+
+## Account Abstraction Technologies
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+  <a href="/en/developer-tools/user-op-sdk/" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-nero-brand hover:shadow-md transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clipRule="evenodd" />
+      </svg>
+      UserOp SDK
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Create and send UserOperations with our JavaScript SDK.</p>
+  </a>
+  
+  <a href="/en/tutorials/aa-wallet-integration" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-nero-brand hover:shadow-md transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
+      </svg>
+      AA Wallet Integration
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Implement smart contract wallets in your applications.</p>
+  </a>
+  
+  <a href="/en/developer-tools/aa-platform" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-nero-brand hover:shadow-md transition-all no-underline text-current">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-red-500" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+      </svg>
+      AA Platform
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Manage gas sponsorship policies and payment strategies.</p>
+  </a>
+</div>
+
+
+## Essential Tools
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+  <a href="https://app.testnet.nerochain.io/" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 no-underline text-current hover:border-nero-brand hover:shadow-md transition-all">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+      </svg>
+      NERO Faucet
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Get testnet tokens to start building.</p>
+  </a>
+  
+  <a href="https://neroscan.io/home" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 no-underline text-current hover:border-nero-brand hover:shadow-md transition-all">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+      </svg>
+      NERO Explorer
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Explore blocks, transactions, and accounts.</p>
+  </a>
+  
+  <a href="https://aa-platform.nerochain.io/user/login" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 no-underline text-current hover:border-nero-brand hover:shadow-md transition-all">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
+      </svg>
+      Access Paymaster
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Manage gas fees for your users.</p>
+  </a>
+</div>
+
+## Technical Resources
+  
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+  <a href="/en/developer-tools/accessEntryPoint" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 no-underline text-current hover:border-nero-brand hover:shadow-md transition-all">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+      </svg>
+      Network Info
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Get testnet tokens to start building.</p>
+  </a>
+  
+  <a href="https://github.com/nerochain" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 no-underline text-current hover:border-nero-brand hover:shadow-md transition-all">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+      </svg>
+      GitHub Repos
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Explore blocks, transactions, and accounts.</p>
+  </a>
+
+  <a href="/en/supports" className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 no-underline text-current hover:border-nero-brand hover:shadow-md transition-all">
+    <div style={{margin: 0, padding: 0, fontSize: '1.125rem', fontWeight: 600, display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" style={{height: '1.25rem', width: '1.25rem', marginRight: '0.5rem'}} className="text-nero-brand" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+      </svg>
+      Support
+    </div>
+    <p className="text-sm text-gray-600 dark:text-gray-300">Manage gas fees for your users.</p>
+  </a>
+</div>
+
+## About NERO Chain
+
+Built as a modular blockchain, NERO Chain stresses providing value to applications over infrastructure-level storage. NERO Chain changes traditional blockchain economics by letting dApps gather and share transaction value, therefore ensuring that the success of an application benefits its developers and users instead of just the underlying network. With its complete EVM compatibility and high-performance settling layer, Nero offers amazing scalability and flexibility, including native account abstraction, paymaster-driven gas sponsorship, and current technologies like Blockspace 2.0 which provide developers with a flawless experience.
+
+
+
+
+<PageFeedback path="/en/index" />

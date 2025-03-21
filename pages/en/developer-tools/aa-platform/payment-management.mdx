@@ -1,0 +1,95 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Payment Management
+
+## Balance Management Features
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/figure10.png" 
+      alt="Payment Overview"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 1: Payment Overview.
+  </figcaption>
+  </figure>
+</div>
+
+
+### Remaining Request
+- Displays the number of remaining requests that Paymaster can process.
+- To increase the number of requests, please contact NERO.
+
+> **_NOTE:_**  If your API have 0 remaining requests, it means that even if your have enough funds, it won't be able to process any further requests. 
+
+### Remaining sponsor NERO balance
+- Display the current NERO balance.
+- Use the "Add" button to increase NERO.
+
+> **_NOTE:_**  Adding NERO here means the funds your API will use to pay for the Gas of your application requests.  
+
+### Token Balance Table
+
+The token balance table shows all the balances your API have. Primarly it shows the NERO Token balance, but it will also show the balance for any token that is configured as avaliable to be paid as Gas. When the users of your application starts to pay Gas in any token you configured, you will see the balance being changed in this table.
+
+#### Adding Funds
+
+To add NERO tokens to your APIKey, follow the steps:
+
+1. Click in the Add button
+2. Input amount of NERO to add.
+3. Click "Confirm" to start processing the transaction.
+4. Check the balance after a while.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/deposit.gif" 
+      alt="Payment Overview"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 2: Adding Funds.
+  </figcaption>
+  </figure>
+</div>
+
+> **_NOTE:_**  If the value in the dashboard doesn't update, refresh it a few times.
+
+
+#### Withdrawing Funds
+
+To Withdraw any fund tokens from your APIKey, follow the steps:
+
+1. Click in the "withdraw" icon on the funds table on the line of the token you want to withdraw. 
+2. Input amount of the token to withdraw.
+3. Click "Confirm" to start processing the transaction.
+4. Check the balance after a while.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/gifs/withdraw.gif" 
+      alt="Payment Overview"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600 text-center">
+      Figure 3: Withdrawing Funds.
+  </figcaption>
+  </figure>
+</div>
+
+> **_NOTE:_**  If the value in the dashboard doesn't update, refresh it a few times.
+
+## Next Steps
+
+After managing your payments, you can:
+- [Integrate with your application](/en/developer-tools/aa-platform/integration-and-best-practices) to start using your configured services
+- [Troubleshoot any issues](/en/developer-tools/aa-platform/troubleshooting) if you encounter problems
+
+
+
+<PageFeedback path="/en/developer-tools/aa-platform/payment-management" />

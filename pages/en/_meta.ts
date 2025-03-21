@@ -1,8 +1,14 @@
 export default {
-  index: "Welcome",
-  learn: "Learn",
-  aa: "NERO AA",
-  node_validators: "Nodes and Validators",
-  building: "Building on NERO Chain",
-  supports: "Support and Contact"
+  index: {
+    title: "",
+    type: "page",
+    display: "hidden"
+  },
+  'getting-started': "Getting Started",
+  'core-concepts': "White Paper",
+  'developer-tools': "Developer Tools",
+  'tutorials': "Cookbook",
+  'node-validators': "Node Validators",
+  faq: "FAQ",
+  supports: "Support"
 }

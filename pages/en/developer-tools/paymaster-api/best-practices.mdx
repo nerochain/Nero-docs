@@ -1,0 +1,38 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# Best Practices
+
+## 1. Make use of UserOpSDK.
+The SDK manages much of the complexity involved in interacting with the Paymaster API and UserOperations. Retries and built-in error handling help to greatly simplify integration.
+
+
+## 2. Cache Tokens Supported
+Periodically update the list of supported tokens to help to prevent frequent API requests. This lightens your servers' burden and enhances performance.
+
+## 3. Apply appropriate error handling.
+Depending on the kind of fault, always catch and treat them suitably. While certain mistakes—like network problems—might be _retryable_, others—like improper parameters—call for human action.
+
+## 4. Evaluate Token Approvals
+Verify users' authorized token spending for Type 1 and 2 payments before forwarding the User Operation. This enhances user experience and helps to eliminate pointless failures.
+
+## 5. safely save API keys
+Never show your API key in code written for a client. Keep it always safe on your backend systems.
+
+## 6. Track Consumption
+Track your sponsorship use on the AA Platform to prevent unplanned service outages brought on by exceeding quotas.
+
+## 7. Establish Appropriate Gas Restraints
+Get precise gas values for your UserOperations using the gas estimating approach. Appropriate restrictions maximize expenses and aid to minimize transaction failures.
+
+## 8. Rate Limitations and Quotas
+Your use of APIs is limited by the settings found in your AA Platform account:
+
+- Daily gas limits
+- Transaction count limits
+- Token allowlists
+- Gas price caps
+
+You can monitor and adjust these settings in the [AA Platform](https://aa-platform.nerochain.io).
+
+
+<PageFeedback path="/en/developer-tools/paymaster-api/best-practices" />

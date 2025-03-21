@@ -1,0 +1,54 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Advanced Usage
+
+This section covers advanced customization options for your UserOperations.
+
+## Custom Gas Parameters
+
+You can customize gas parameters for your UserOperations:
+
+```typescript
+// Set specific gas values
+builder.setCallGasLimit("0x88b8");
+builder.setVerificationGasLimit("0x33450");
+builder.setPreVerificationGas("0xc350");
+builder.setMaxFeePerGas("0x2162553062");
+builder.setMaxPriorityFeePerGas("0x40dbcf36");
+```
+
+## Custom Nonce Management
+
+If needed, you can manually set the nonce for your UserOperations:
+
+```typescript
+// Get the current nonce
+const aaWallet = new ethers.Contract(
+  aaWalletAddress,
+  ['function getNonce() view returns (uint256)'],
+  accountSigner
+);
+const nonce = await aaWallet.getNonce();
+
+// Set a custom nonce
+builder.setNonce(nonce.add(1));
+```
+
+## Additional Customization
+
+Beyond gas parameters and nonce management, you can also:
+
+- Customize the signature mechanism
+- Implement your own account abstraction logic
+- Create custom presets for specific use cases
+
+## Next Steps
+
+After learning about advanced customization options, you might want to:
+- [Learn about error handling](/en/developer-tools/user-op-sdk/error-handling)
+- [Review best practices](/en/developer-tools/user-op-sdk/best-practices)
+
+
+
+<PageFeedback path="/en/developer-tools/user-op-sdk/advanced-usage" />

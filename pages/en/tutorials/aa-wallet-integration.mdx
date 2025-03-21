@@ -1,0 +1,244 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# Integrating Account Abstraction Wallets in React
+
+This tutorial shows how to integrate Account Abstraction (AA) wallet creation and management into a React application using the NERO Chain AA platform.
+
+## What You'll Learn
+- What Account Abstraction wallets are and how they improve user experience
+- How to set up the configuration for NERO Chain AA platform
+- How to create utility functions for AA wallet integration
+- How to build a React component for wallet connection and AA address display
+- How counterfactual deployment works for AA wallets
+
+## Prerequisites
+- Basic knowledge of React and TypeScript
+- Completed the [Deploying your first contract in NERO Chain](/en/tutorials/first-contract) tutorial (recommended)
+- Access to the NERO Chain Testnet
+
+## Understanding Account Abstraction Wallets
+
+In the traditional Ethereum model, users need to own ETH to pay for gas fees. With Account Abstraction (AA), users can:
+
+- Execute transactions without holding the native token for gas
+- Use smart contract wallets with advanced features
+- Have transactions sponsored by a third party (Paymaster)
+
+
+## Pre-requisites
+
+You can either create a new react project with typescript or use our simple template repository to follow along. If you create a new project, be sure to install the below dependencies:
+
+```bash
+npm install github:nerochain/aa-userop-sdk
+```
+
+and 
+
+```bash
+npm install ethers@5.7.2
+```
+
+If you want to follow this using our template, use the below:
+
+```
+git clone https://github.com/souzavinny/application-templates-nero.git my-application
+cd my-application
+cd react-ts
+npm install
+```
+> **_NOTE_**: More components will be available in the template folder.
+
+## Step 1: Setting Up the Configuration
+
+First, create a configuration file that contains your chain information and AA contract addresses:
+
+```typescript
+// src/config.ts
+export const NERO_CHAIN_CONFIG = {
+  chainId: 689,
+  chainName: "NERO Chain Testnet",
+  rpcUrl: "https://rpc-testnet.nerochain.io",
+  currency: "NERO",
+  explorer: "https://testnet.neroscan.io"
+};
+
+export const AA_PLATFORM_CONFIG = {
+  bundlerRpc: "https://bundler.service.nerochain.io",
+  paymasterRpc: "https://paymaster-testnet.nerochain.io",
+};
+
+export const CONTRACT_ADDRESSES = {
+  entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+  accountFactory: "0x9406Cc6185a346906296840746125a0E44976454",
+};
+```
+
+## Step 2: Creating Utility Functions
+
+Create utility functions to interact with the AA wallet:
+
+```typescript
+// src/utils/aaUtils.ts
+import { ethers } from 'ethers';
+import { Client, Presets } from 'userop';
+import { NERO_CHAIN_CONFIG, AA_PLATFORM_CONFIG, CONTRACT_ADDRESSES } from '../config';
+
+// Get Ethereum provider
+export const getProvider = () => {
+  return new ethers.providers.JsonRpcProvider(NERO_CHAIN_CONFIG.rpcUrl);
+};
+
+// Get signer from browser wallet
+export const getSigner = async () => {
+  if (!window.ethereum) {
+    throw new Error("No crypto wallet found. Please install Metamask.");
+  }
+  
+  await window.ethereum.request({ method: 'eth_requestAccounts' });
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  return provider.getSigner();
+};
+
+// Initialize AA Client
+export const initAAClient = async (accountSigner: ethers.Signer) => {
+  return await Client.init(NERO_CHAIN_CONFIG.rpcUrl, {
+    overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+    entryPoint: CONTRACT_ADDRESSES.entryPoint,
+  });
+};
+
+// Get AA wallet address for a signer
+export const getAAWalletAddress = async (accountSigner: ethers.Signer, apiKey?: string) => {
+  try {
+    // Initialize the SimpleAccount builder
+    const simpleAccount = await Presets.Builder.SimpleAccount.init(
+      accountSigner,
+      NERO_CHAIN_CONFIG.rpcUrl,
+      {
+        overrideBundlerRpc: AA_PLATFORM_CONFIG.bundlerRpc,
+        entryPoint: CONTRACT_ADDRESSES.entryPoint,
+        factory: CONTRACT_ADDRESSES.accountFactory,
+      }
+    );
+    
+    // Get the counterfactual address of the AA wallet
+    const address = await simpleAccount.getSender();
+    console.log("AA wallet address:", address);
+    
+    return address;
+  } catch (error) {
+    console.error("Error getting AA wallet address:", error);
+    throw error;
+  }
+};
+```
+
+## Step 3: Create a types.d.ts file
+
+```
+interface Window {
+    ethereum?: {
+        isMetaMask?: boolean;
+        request: (request: { method: string; params?: any[] }) => Promise<any>;
+        on: (eventName: string, callback: (...args: any[]) => void) => void;
+        removeListener: (eventName: string, callback: (...args: any[]) => void) => void;
+    };
+} 
+```
+
+## Step 4: Creating a React Component
+
+Now, create a React component that allows users to connect their wallet and see their AA wallet address:
+
+```typescript
+// src/components/AAWalletConnect.tsx
+import React, { useState } from 'react';
+import { getSigner, getAAWalletAddress } from '../utils/aaUtils';
+
+const AAWalletConnect: React.FC = () => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [userAddress, setUserAddress] = useState('');
+  const [aaWalletAddress, setAAWalletAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const connectWallet = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get signer from browser wallet
+      const signer = await getSigner();
+      const address = await signer.getAddress();
+      setUserAddress(address);
+      
+      // Get AA wallet address
+      const aaAddress = await getAAWalletAddress(signer);
+      setAAWalletAddress(aaAddress);
+      
+      setIsConnected(true);
+    } catch (error: any) {
+      console.error("Error connecting wallet:", error);
+      alert(error.message || "Failed to connect wallet");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="wallet-container">
+      <h2>Account Abstraction Wallet</h2>
+      
+      <div className="connect-section">
+        <button 
+          onClick={connectWallet}
+          disabled={isLoading || isConnected}
+        >
+          {isLoading ? "Connecting..." : isConnected ? "Connected" : "Connect Wallet"}
+        </button>
+      </div>
+      
+      {isConnected && (
+        <div className="wallet-info">
+          <div className="address-item">
+            <strong>EOA Address:</strong> 
+            <span>{userAddress}</span>
+          </div>
+          <div className="address-item">
+            <strong>AA Wallet Address:</strong> 
+            <span>{aaWalletAddress}</span>
+          </div>
+          <p className="note">
+            This AA wallet is counterfactual and will be deployed on your first transaction.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AAWalletConnect;
+```
+
+## How AA Wallets Work
+
+1. **Counterfactual Deployment**: The AA wallet address is calculated before it's deployed on-chain
+2. **Lazy Deployment**: The wallet contract is deployed automatically on the first transaction
+3. **Deterministic Address**: The same EOA (user wallet) will always get the same AA wallet address
+
+## Testing Your Integration
+
+1. Add your `AAWalletConnect` component to your main App component
+2. Run your React application
+3. Click "Connect Wallet" and approve the connection in your browser wallet
+4. You should see both your EOA address and your AA wallet address displayed
+
+## Important Notes
+
+- AA wallets are unique per chain, so the same EOA will have different AA addresses on different chains
+- The wallet address is derived from the factory address, EOA address, and a salt value
+- The AA wallet is only deployed on the first transaction to save gas costs
+
+## Next Steps
+Now that you've set up your AA wallet integration, you're ready to learn how to send operations through these wallets. Continue to the next tutorial: [Sending UserOperations](/en/tutorials/sending-ops) to learn how to execute transactions using your AA wallet.
+
+<PageFeedback path="/en/tutorials/aa-wallet-integration" />

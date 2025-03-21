@@ -1,0 +1,52 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# 高度な使用法
+
+このセクションでは、UserOperationsの高度なカスタマイズオプションについて説明します。
+
+## カスタムガスパラメータ
+
+UserOperationsのガスパラメータをカスタマイズできます：
+
+```typescript
+// 特定のガス値を設定
+builder.setCallGasLimit("0x88b8");
+builder.setVerificationGasLimit("0x33450");
+builder.setPreVerificationGas("0xc350");
+builder.setMaxFeePerGas("0x2162553062");
+builder.setMaxPriorityFeePerGas("0x40dbcf36");
+```
+
+## カスタムナンス管理
+
+必要に応じて、UserOperationsのナンスを手動で設定できます：
+
+```typescript
+// 現在のナンスを取得
+const aaWallet = new ethers.Contract(
+  aaWalletAddress,
+  ['function getNonce() view returns (uint256)'],
+  accountSigner
+);
+const nonce = await aaWallet.getNonce();
+
+// カスタムナンスを設定
+builder.setNonce(nonce.add(1));
+```
+
+## 追加のカスタマイズ
+
+ガスパラメータとナンス管理以外にも、以下のことができます：
+
+- 署名メカニズムのカスタマイズ
+- 独自のアカウントアブストラクションロジックの実装
+- 特定のユースケース向けのカスタムプリセットの作成
+
+## 次のステップ
+
+高度なカスタマイズオプションについて学んだ後、以下のことを検討するかもしれません：
+- [エラー処理について学ぶ](/ja/developer-tools/user-op-sdk/error-handling)
+- [ベストプラクティスを確認する](/ja/developer-tools/user-op-sdk/best-practices)
+
+<PageFeedback path="/ja/developer-tools/user-op-sdk/advanced-usage" />
+

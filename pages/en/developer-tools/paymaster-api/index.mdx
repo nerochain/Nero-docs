@@ -1,0 +1,58 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Paymaster API
+
+By letting developers use gas abstraction in their dApps, the NERO Chain Paymaster API lets users pay gas costs using ERC20 tokens or have transactions sponsored totally. This guide addresses recommended practices for integration, request/response forms, and API endpoints.
+## Introduction
+
+The Paymaster API sits between your dApp and the NERO Chain blockchain, providing services to:
+
+1. Sponsor gas fees for your users.
+2. Allow users to pay for gas with ERC20 tokens.
+3. Validate and sign UserOperations before they're sent to the bundler.
+4. Apply your configured gas strategies to user transactions.
+
+<div className="mt-8 mb-8">
+  <figure className="text-center">
+    <img 
+      src="/assets/aaPlatform/figure2.jpeg" 
+      alt="Paymaster API Flow"
+      className="mx-auto rounded-lg shadow-md"
+    />
+    <figcaption className="mt-2 text-sm italic text-gray-600">
+      Figure 1: Paymaster API integration/usage flow
+    </figcaption>
+  </figure>
+</div>
+
+## API Endpoints
+
+### Base URL
+
+The Paymaster API is available at:
+
+```
+https://paymaster-testnet.nerochain.io
+```
+
+For mainnet:
+
+```
+https://paymaster-mainnet.nerochain.io
+```
+
+### Authentication
+
+All API requests require an API key created through the [AA Platform](https://aa-platform.nerochain.io). The API key should be included as a parameter in your RPC calls.
+
+## In This Section
+
+- [Core Methods](./paymaster-api/core-methods) - Detailed API reference for all Paymaster API methods
+- [Payment Types](./paymaster-api/payment-types) - Explanation of different payment types
+- [Error Handling](./paymaster-api/error-handling) - Common errors and troubleshooting
+- [Best Practices](./paymaster-api/best-practices) - What to keep in mind while integrating Paymaster
+
+
+
+<PageFeedback path="/en/developer-tools/paymaster-api/index" />

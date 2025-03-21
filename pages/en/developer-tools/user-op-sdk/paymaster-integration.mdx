@@ -1,0 +1,132 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Paymaster Integration
+
+The Paymaster service allows for flexible gas payment options for UserOperations.
+
+## Setting API Key for Paymaster
+
+To use the Paymaster service, set your API key:
+
+```typescript
+builder.setPaymasterOptions({
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+```
+
+## Getting Supported Tokens
+
+The SDK doesn't include a built-in method for retrieving supported tokens. You need to make a direct RPC call to the Paymaster API:
+
+```typescript
+// Create a helper function to get supported tokens
+async function getSupportedTokens(client, builder) {
+  try {
+    // Get the wallet address
+    const sender = await builder.getSender();
+    
+    // Create a minimal UserOp for the request
+    const minimalUserOp = {
+      sender,
+      nonce: "0x0",
+      initCode: "0x",
+      callData: "0x",
+      callGasLimit: "0x0",
+      verificationGasLimit: "0x0",
+      preVerificationGas: "0x0",
+      maxFeePerGas: "0x0",
+      maxPriorityFeePerGas: "0x0",
+      paymasterAndData: "0x",
+      signature: "0x"
+    };
+    
+    // Setup the provider for the paymaster RPC
+    const provider = new ethers.providers.JsonRpcProvider(PAYMASTER_URL);
+    
+    // Call the pm_supported_tokens method
+    const tokensResponse = await provider.send("pm_supported_tokens", [
+      minimalUserOp,
+      YOUR_API_KEY,
+      ENTRYPOINT_ADDRESS
+    ]);
+    
+    // Parse and return the token list
+    if (tokensResponse && tokensResponse.tokens) {
+      return tokensResponse.tokens.map(token => ({
+        address: token.token || token.address,
+        decimals: token.decimals,
+        symbol: token.symbol,
+        type: token.type
+      }));
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Error getting supported tokens:", error);
+    return [];
+  }
+}
+
+// Usage
+const supportedTokens = await getSupportedTokens(client, builder);
+console.log("Supported tokens:", supportedTokens);
+```
+
+Different Paymaster implementations may return tokens in different formats. A more robust implementation would include handling for various response formats as shown in this example:
+
+```typescript
+// Handle different response formats
+let tokens = [];
+if (tokensResponse.tokens) {
+  tokens = tokensResponse.tokens;
+} else if (Array.isArray(tokensResponse)) {
+  tokens = tokensResponse;
+} else if (typeof tokensResponse === 'object') {
+  // Try to find tokens in the response object
+  const possibleTokensArray = Object.values(tokensResponse).find(val => Array.isArray(val));
+  if (possibleTokensArray && Array.isArray(possibleTokensArray)) {
+    tokens = possibleTokensArray;
+  }
+}
+```
+
+## Setting Payment Type
+
+Configure how users will pay for gas:
+
+```typescript
+// Type 0: Free gas (developer sponsors)
+builder.setPaymasterOptions({ 
+  type: 0,
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+
+// Type 1: Prepay with ERC20 tokens
+builder.setPaymasterOptions({ 
+  type: 1,
+  token: TOKEN_ADDRESS, // The ERC20 token address
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+
+// Type 2: Postpay with ERC20 tokens
+builder.setPaymasterOptions({ 
+  type: 2,
+  token: TOKEN_ADDRESS, // The ERC20 token address
+  apikey: YOUR_API_KEY,
+  rpc: PAYMASTER_URL
+});
+```
+
+## Next Steps
+
+After configuring the Paymaster for your UserOperation, you can:
+- [Send UserOperations](/en/developer-tools/user-op-sdk/sending-user-operations) to the network
+- [Explore advanced options](/en/developer-tools/user-op-sdk/advanced-usage) for customization
+
+
+
+<PageFeedback path="/en/developer-tools/user-op-sdk/paymaster-integration" />

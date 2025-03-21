@@ -1,0 +1,156 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+import { Tabs } from "nextra/components";
+
+# スマートコントラクトのデプロイ
+
+このレシピでは、Hardhatを使用してNEROモジュラーチェーンテストネット上にシンプルなスマートコントラクトを作成、コンパイル、デプロイ、検証する方法を説明します。
+
+## Hardhat
+
+Hardhatは、スマートコントラクトのコンパイル、デプロイ、テスト、検証を可能にするツールセットです。
+
+## ワークスペースのセットアップ
+
+- Node.js(https://nodejs.org)
+
+## 新しいプロジェクトの開始
+
+新しいプロジェクトを開始するには、次のコマンドを実行します：
+
+<Tabs items={["npm", "yarn"]}>
+  <Tabs.Tab>``` npm init ```</Tabs.Tab>
+  <Tabs.Tab>``` yarn init ```</Tabs.Tab>
+</Tabs>
+
+プロジェクトにHardhatをインストールするには、次のコマンドを実行します：
+
+<Tabs items={["npm", "yarn"]}>
+  <Tabs.Tab>``` npm install --save-dev hardhat ```</Tabs.Tab>
+  <Tabs.Tab>``` yarn add --dev hardhat ```</Tabs.Tab>
+</Tabs>
+
+- プロジェクトディレクトリでnpx hardhatを実行してHardhatプロジェクトを作成します。
+- その後、プロジェクト作成のためのいくつかのオプションが表示されます。適切なオプションを選択してください。
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure1.png" alt="図1" />
+  <p style={{ fontStyle: "italic" }}>図1: npx hardhat</p>
+</div>
+
+## スマートコントラクトの作成
+
+独自のスマートコントラクトを作成するか、**Openzeppelinトークンスマートコントラクトテンプレート**(https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol)を使用し、プロジェクトのcontractsディレクトリに配置できます。
+
+## NEROのためのHardhatの修正
+
+`<hardhat-config-file>`と`./ignition/module/<deploy-file>`ファイルの更新は、次の例のようになります（具体的な内容は要件に応じて調整する必要があります）。
+
+次の内容の**変数**(https://hardhat.org/hardhat-runner/docs/guides/configuration-variables#configuration-variables)が必要です：
+
+```
+NERO_TESTNET_PROVIDER_URL=https://rpc-testnet.nerochain.io
+PRIVATE_KEY=自分の秘密鍵を追加
+API_KEY=自分のetherscan APIキーを追加
+```
+
+次の内容の**hardhat.config.js**と**hardhat.config.ts**が必要です：
+
+<Tabs items={["hardhat.config.js", "hardhat.config.ts"]}>
+  <Tabs.Tab>
+  ```javascript 
+    require("@nomicfoundation/hardhat-toolbox");
+    require("@nomicfoundation/hardhat-ignition-ethers");
+    const { vars } = require("hardhat/config");
+
+    const NERO_TESTNET_PROVIDER_URL = vars.get("NERO_TESTNET_PROVIDER_URL");
+    const PRIVATE_KEY = vars.get("PRIVATE_KEY");
+
+    module.exports = {
+    solidity: "0.8.24",
+    defaultNetwork: "nero_testnet",
+    networks: {
+        nero_testnet: {
+        url: NERO_TESTNET_PROVIDER_URL,
+        accounts: [PRIVATE_KEY],
+        },
+    },
+    etherscan: {
+        apiKey: API_KEY,
+        customChains: [
+        {
+            network: "nero_testnet",
+            chainId: 689,
+            urls: {
+            apiURL: "https://api-testnet.neroscan.io/api",
+            browserURL: "https://testnet.neroscan.io",
+            },
+        },
+        ],
+        enabled: true
+        },
+    };
+
+````
+</Tabs.Tab>
+<Tabs.Tab>
+```typescript
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-ignition-ethers";
+import { vars } from "hardhat/config";
+
+const NERO_TESTNET_PROVIDER_URL = vars.get("NERO_TESTNET_PROVIDER_URL");
+const PRIVATE_KEY = vars.get("PRIVATE_KEY");
+const API_KEY = vars.get("API_KEY");//(オプション)
+
+const config: HardhatUserConfig = {
+  solidity: "0.8.24",
+  defaultNetwork: "nero_testnet",
+  networks: {
+    nero_testnet: {
+      url: NERO_TESTNET_PROVIDER_URL,
+      accounts: [PRIVATE_KEY],
+    },
+  },
+  etherscan: {//(オプション)
+    apiKey: API_KEY,
+    customChains: [
+      {
+        network: "nero_testnet",
+        chainId: 689,
+        urls: {
+          apiURL: "https://api-testnet.neroscan.io/api",
+          browserURL: "https://testnet.neroscan.io",
+        },
+      },
+    ],
+    enabled: true
+  },
+};
+export default config;
+```
+</Tabs.Tab>
+</Tabs>
+
+> **_注意_**: このフォーセット(https://app.testnet.nerochain.io/faucet)からテストコインを取得できます
+
+## NEROネットワーク上でのスマートコントラクトのデプロイ
+
+1. ターミナルでnpx hardhat compileを実行してコントラクトをコンパイルします。
+2. プロジェクトディレクトリのルートで```npx hardhat ignition deploy ./ignition/modules/<deploy-file> --network <select-network>```を実行します。
+3. **テストネットエクスプローラー**(https://testnet.neroscan.io/)にアクセスしてデプロイされたコントラクトを表示します。
+
+おめでとうございます！独自のスマートコントラクトのデプロイに成功しました。
+
+<div style={{ height: '2rem' }} />
+<div style={{ textAlign: 'center' }}>
+  <img src="/assets/building/figure2.png" alt="図2" />
+  <p style={{ fontStyle: 'italic' }}>図2: NEROテストネットスキャン</p>
+</div>
+
+## 結論
+このレシピでは、Hardhatを使用した基本的なスマートコントラクトの作成とデプロイを説明しました。このレシピではテストネットを使用しましたが、メインネットでも同じプロセスを使用できます。 
+
+<PageFeedback path="/ja/tutorials/first-contract/using-hardhat" />

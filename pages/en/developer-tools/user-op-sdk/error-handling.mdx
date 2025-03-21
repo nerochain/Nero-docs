@@ -1,0 +1,70 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Error Handling
+
+The UserOpSDK may return various errors during operation. This section covers common errors and how to handle them.
+
+## Common Error Types
+
+```typescript
+try {
+  const result = await client.sendUserOperation(builder);
+  // Process result
+} catch (error) {
+  if (error.message.includes('AA1')) {
+    console.error('error codes relate to creating an account');
+    // Handle insufficient funds error
+  } else if (error.message.includes('AA2')) {
+    console.error('error codes relate to the sender of the user operation');
+    // Handle validation error
+  } else if (error.message.includes('AA3')) {
+    console.error('error codes relate to paymasters');
+    // Handle paymaster error
+  } else if (error.message.includes('AA4')) {
+    console.error('error codes relate to verification generally');
+    // Handle paymaster error
+  } else if (error.message.includes('AA5')) {
+    console.error('errors relate to actions after the user operation was executed');
+    // Handle paymaster error
+  } else {
+    console.error('Unknown error:', error);
+    // Handle other errors
+  }
+}
+```
+
+## Error Code Categories
+
+- **AA1** - Account creation errors (e.g., insufficient funds for counterfactual deployment)
+- **AA2** - Sender errors (e.g., invalid signature)
+- **AA3** - Paymaster errors (e.g., insufficient deposit, rejected operation)
+- **AA4** - General verification errors
+- **AA5** - Post-execution errors
+
+## User-Friendly Error Handling
+
+When building a user interface, translate technical errors into user-friendly messages:
+
+```typescript
+function getUserFriendlyErrorMessage(error) {
+  if (error.message.includes('AA21')) {
+    return "You don't have enough funds to pay for this transaction.";
+  } else if (error.message.includes('AA23')) {
+    return "The transaction signature is invalid. Please try again.";
+  } else if (error.message.includes('AA25')) {
+    return "The gas payment details are invalid. Please select a different payment option.";
+  } else {
+    return "An error occurred while processing your transaction. Please try again.";
+  }
+}
+```
+
+## Next Steps
+
+After implementing error handling, you might want to:
+- [Review best practices](/en/developer-tools/user-op-sdk/best-practices) for using the SDK
+
+
+
+<PageFeedback path="/en/developer-tools/user-op-sdk/error-handling" />

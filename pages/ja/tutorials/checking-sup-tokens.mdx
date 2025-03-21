@@ -1,0 +1,288 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# NERO Chainトランザクションのためのシンプルなトークン選択
+
+このチュートリアルでは、NFTミントを例として使用して、NERO Chainトランザクションのためのシンプルなトークン選択UIを実装する方法を説明します。
+
+## 学習内容
+- NERO Chain Paymasterからサポートされているトークンを取得する方法
+- 支払いタイプ選択ワークフローを作成する方法
+- 異なる支払い方法のためにトークンを選択する方法
+- 選択した支払い方法でNFTミントトランザクションを実行する方法
+
+## 前提条件
+- [AAウォレット統合](/ja/tutorials/aa-wallet-integration)チュートリアルを完了していること
+- [UserOperationsの送信](/ja/tutorials/sending-ops)チュートリアルを完了していること
+- [支払い方法](/ja/tutorials/types-payments)チュートリアルを完了していること
+
+## 概要
+
+このチュートリアルでは、ユーザーがまず支払いタイプ（前払いまたは後払い）を選択し、次に利用可能なトークンから選択するシンプルなインターフェースを作成します。このワークフローは、特定のトークンを選択する前に、ユーザーが支払いフローを理解するのに役立ちます。実用的な例としてNFTミントを使用します。
+
+## ステップ1：支払い優先のNFTミントコンポーネントの作成
+
+まず支払いタイプを求め、次に利用可能なトークンを表示するコンポーネントを作成しましょう：
+
+```typescript
+// src/components/NFTMintWithPaymentSelector.tsx
+import React, { useState, useEffect } from 'react';
+import { 
+  getSigner, 
+  getSupportedTokens, 
+  executeOperation 
+} from '../utils/aaUtils';
+
+interface Token {
+  address: string;
+  symbol: string;
+  type?: number; // フィルタリングに使用しないためオプショナル
+}
+
+const NFTMintWithPaymentSelector: React.FC = () => {
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [paymentType, setPaymentType] = useState<number>(0); // デフォルトは0（未選択）
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [txHash, setTxHash] = useState('');
+  const [tokenId, setTokenId] = useState<string>('');
+  
+  // トークンをロード
+  useEffect(() => {
+  const loadTokens = async () => {
+    try {
+      setIsLoading(true);
+      const signer = await getSigner();
+      
+        // サポートされているトークンを取得
+        const supportedTokens = await getSupportedTokens(signer);
+        console.log("サポートされているトークン:", supportedTokens);
+        
+        // トークン構造を正規化
+        const normalizedTokens = supportedTokens.map(token => ({
+          address: token.address || token.token,
+          symbol: token.symbol || "不明"
+        }));
+        
+        setTokens(normalizedTokens);
+      } catch (error) {
+      console.error("トークンのロード中にエラーが発生しました:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+    loadTokens();
+  }, []);
+  
+  // 支払いタイプ選択の処理
+  const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedType = parseInt(e.target.value);
+    setPaymentType(selectedType);
+  };
+  
+  // トークン選択の処理
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedToken(e.target.value);
+  };
+  
+  // NFTミントの処理
+  const handleMintNFT = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (paymentType === 0 || !selectedToken) {
+      alert("支払いタイプとトークンの両方を選択してください");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      const signer = await getSigner();
+      
+      // 前のチュートリアルからのNFTコントラクトアドレスとABI
+      const nftContractAddress = "0x1234567890123456789012345678901234567890"; // あなたのNFTコントラクトに置き換えてください
+      const nftContractAbi = [
+        "function mint(address to) external returns (uint256)"
+      ];
+      
+      // 選択したトークンと支払いタイプを使用してNFTミントを実行
+      const result = await executeOperation(
+        signer,
+        nftContractAddress,
+        nftContractAbi,
+        "mint",
+        [await signer.getAddress()], // 署名者のアドレスにミント
+        paymentType,
+        selectedToken
+      );
+      
+      setTxHash(result.transactionHash);
+      
+      // トランザクションレシートまたはイベントからトークンIDを抽出
+      // これは簡略化されています - 実際のアプリでは、レシートからイベントを解析します
+      setTokenId(Math.floor(Math.random() * 1000).toString()); // シミュレートされたトークンID
+      
+      alert("NFTが正常にミントされました！");
+    } catch (error: any) {
+      console.error("NFTミントエラー:", error);
+      alert("NFTミントに失敗しました: " + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  if (isLoading) {
+    return <p>トークンを読み込み中...</p>;
+  }
+  
+  if (tokens.length === 0) {
+    return <p>サポートされているトークンが見つかりません。</p>;
+  }
+  
+  // ミントボタンを有効にするかどうかを判断
+  const canMint = paymentType > 0 && selectedToken !== '';
+
+  return (
+    <div className="nft-mint-payment-selector">
+      <h2>トークン支払いでNFTをミント</h2>
+      
+      <form onSubmit={handleMintNFT}>
+        <div className="form-group">
+          <label htmlFor="payment-type">支払いタイプ:</label>
+          <select
+            id="payment-type"
+            value={paymentType}
+            onChange={handlePaymentTypeChange}
+            disabled={isSubmitting}
+          >
+            <option value="0">支払いタイプを選択...</option>
+            <option value="1">前払い（トランザクション前に支払い）</option>
+            <option value="2">後払い（トランザクション後に支払い）</option>
+          </select>
+        </div>
+        
+        {paymentType > 0 && (
+          <div className="form-group">
+            <label htmlFor="token-select">支払いトークンを選択:</label>
+            {tokens.length > 0 ? (
+              <select
+                id="token-select"
+                value={selectedToken}
+                onChange={handleTokenChange}
+                disabled={isSubmitting}
+              >
+                <option value="">トークンを選択...</option>
+                {tokens.map((token) => (
+                  <option key={token.address} value={token.address}>
+                    {token.symbol}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="no-tokens-message">
+                利用可能なトークンがありません。接続を確認してください。
+              </p>
+            )}
+          </div>
+        )}
+        
+        <button 
+          type="submit" 
+          disabled={isSubmitting || !canMint}
+          className="mint-btn"
+        >
+          {isSubmitting ? "ミント中..." : "NFTをミント"}
+        </button>
+      </form>
+      
+      {txHash && (
+        <div className="tx-success">
+          <p>NFTが正常にミントされました！</p>
+          {tokenId && <p>トークンID: {tokenId}</p>}
+          <a 
+            href={`https://testnet.neroscan.io/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            エクスプローラーで表示
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NFTMintWithPaymentSelector;
+```
+
+## ステップ2：App.tsxへの統合
+
+次に、このコンポーネントをアプリケーションに統合しましょう：
+
+```typescript
+// src/App.tsx
+import React, { useState } from 'react';
+import { getSigner, getAAWalletAddress } from './utils/aaUtils';
+import NFTMintWithPaymentSelector from './components/NFTMintWithPaymentSelector';
+
+const App: React.FC = () => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // シンプルなウォレット接続関数
+  const connectWallet = async () => {
+    try {
+      setIsLoading(true);
+      
+      const signer = await getSigner();
+      await getAAWalletAddress(signer); // AAウォレットを初期化
+      
+      setIsConnected(true);
+  } catch (error) {
+      console.error("ウォレット接続エラー:", error);
+      alert("ウォレットの接続に失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="app">
+      <header>
+        <h1>NERO Chain NFTミンター</h1>
+      </header>
+      <main>
+        {isConnected ? (
+          <NFTMintWithPaymentSelector />
+        ) : (
+          <button onClick={connectWallet}>ウォレットに接続</button>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default App;
+```
+## 仕組み
+
+1. **最初に支払いタイプを選択**: ユーザーは最初に希望の支払い方法を選択します。
+   - **前払い**: トランザクション実行前にガス料金を支払う
+   - **後払い**: トランザクション実行後にガス料金を支払う
+
+2. **トークンの選択**: 支払いタイプを選択した後、利用可能なトークンの中から選択できます。
+   - すべてのサポートされているトークンが、支払いタイプに関係なく表示されます。
+   - これによりUIが簡素化され、ユーザーの柔軟性が最大化されます。
+
+3. **条件付き表示**: トークン選択のドロップダウンは、支払いタイプが選択された後にのみ表示され、ユーザーを直感的なフローで導きます。
+
+4. **ボタンの有効化**: 「NFTをミント」ボタンは、支払いタイプとトークンの両方が選択されるまで無効のままとなります。
+
+5. **NFTミント**: すべての選択が完了すると、ユーザーは選択した支払い方法とトークンでNFTをミントできます。
+
+## 次のステップ
+
+NFTミントのための「支払い優先トークン選択」インターフェースの実装方法を理解したところで、次は完全なdAppを構築しましょう。すべての学習した概念を統合した包括的なアプリケーションを作成するために、[最初のdAppを作成する](/ja/tutorials/create-first-dapp) チュートリアルに進んでください。
+
+
+<PageFeedback path="/ja/tutorials/checking-sup-tokens" />

@@ -1,0 +1,30 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# Troubleshooting
+
+## Common Issues
+
+- **API Key Rate Limiting**: If you're seeing rate limit errors, check your key's usage patterns and consider increasing limits.
+- **Strategy Rejection**: If transactions are being rejected, verify that your strategy parameters match your application's needs.
+- **Insufficient Funds**: Ensure your sponsorship account is adequately funded for Type 0 strategies.
+- **User Payment Failure**: For Type 1/2 strategies, ensure users have sufficient token balances and have approved the paymaster contract.
+
+## Debugging Tips
+
+1. **Check API Key Status**: Verify the API key is active and has enough requests remaining
+2. **Verify Network Settings**: Confirm you're using the correct network endpoints (testnet vs mainnet)
+3. **Inspect Transaction Logs**: UserOperations failures often have detailed error codes that help diagnose issues
+4. **Monitor Dashboard**: The AA Platform dashboard provides usage statistics and error information
+
+## Support Resources
+
+If you encounter persistent issues that you cannot resolve, contact the NERO Chain support team through one of these channels:
+
+- [Discord Community](https://discord.gg/nerochainofficial)
+- [Support Email](mailto:support@nerochain.io)
+- [GitHub Issues](https://github.com/nerochain)
+
+
+
+<PageFeedback path="/en/developer-tools/aa-platform/troubleshooting" />
