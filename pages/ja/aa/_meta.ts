@@ -4,5 +4,6 @@ export default {
   userOpSdkUsage: "UerOp-SDKの使用方法",
   aaPlatformUsageGuide: "AAプラットフォーム使用ガイド",
   aaWalletUi: "AAウォレットのUI使用方法",
+  aaWallet: "AAウォレットの実装方法",
   accessEntryPoint: "エントリーポイント"
 }
