@@ -6,9 +6,10 @@ interface MessageBannerProps {
 }
 
 const messages = {
-  en: "NERO Chain x AKINDO Wavehack is coming! More info soon!",
-  ja: "NERO Chain × AKINDO Wavehack、まもなく開催！詳細は近日公開予定です。お楽しみに！"
+  en: "🚀 NERO Chain x AKINDO WaveHack has officially started! Join now: https://app.akindo.io/wave-hacks/VwQGxPraOF0zZJkX",
+  ja: "🚀 NERO Chain × AKINDO WaveHackがついに開幕！今すぐ参加しよう：https://app.akindo.io/wave-hacks/VwQGxPraOF0zZJkX"
 };
+
 
 const MessageBanner: React.FC<MessageBannerProps> = ({ message }) => {
   const router = useRouter();

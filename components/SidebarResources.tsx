@@ -127,18 +127,30 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
     {
       title: "Check the AA Plaform Website",
       url: "https://aa-platform.nerochain.io/user/login"
+    },
+    {
+      title: "Check the AA Platform Walkthrough",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/en/developer-tools/aa-platform/getting-started': [
     {
       title: "Check the AA Plaform Website",
       url: "https://aa-platform.nerochain.io/user/login"
+    },
+    {
+      title: "Check the AA Platform Walkthrough",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/en/developer-tools/aa-platform/managing-api-keys': [
     {
       title: "Check the AA Plaform Website",
       url: "https://aa-platform.nerochain.io/user/login"
+    },
+    {
+      title: "Check the AA Platform Walkthrough",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/en/developer-tools/aa-platform/configuring-policies': [
@@ -151,12 +163,20 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
     {
       title: "Check the AA Plaform Website",
       url: "https://aa-platform.nerochain.io/user/login"
+    },
+    {
+      title: "Check the AA Platform Walkthrough",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/en/developer-tools/aa-platform/integration-and-best-practices': [
     {
       title: "Check the AA Plaform Website",
       url: "https://aa-platform.nerochain.io/user/login"
+    },
+    {
+      title: "Check the AA Platform Walkthrough",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/en/developer-tools/aa-platform/troubleshooting': [
@@ -448,30 +468,45 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
     {
       title: "AA プラットフォームウェブサイトを確認する",
       url: "https://aa-platform.nerochain.io/user/login"
+    },{
+      title: "AAプラットフォームのチュートリアルを確認しよう",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/ja/developer-tools/aa-platform/getting-started': [
     {
       title: "AA プラットフォームウェブサイトを確認する",
       url: "https://aa-platform.nerochain.io/user/login"
+    },{
+      title: "AAプラットフォームのチュートリアルを確認しよう",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/ja/developer-tools/aa-platform/managing-api-keys': [
     {
       title: "AA プラットフォームウェブサイトを確認する",
       url: "https://aa-platform.nerochain.io/user/login"
+    },{
+      title: "AAプラットフォームのチュートリアルを確認しよう",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/ja/developer-tools/aa-platform/configuring-policies': [
     {
       title: "AA プラットフォームウェブサイトを確認する",
       url: "https://aa-platform.nerochain.io/user/login"
+    },{
+      title: "AAプラットフォームのチュートリアルを確認しよう",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/ja/developer-tools/aa-platform/payment-management': [
     {
       title: "AA プラットフォームウェブサイトを確認する",
       url: "https://aa-platform.nerochain.io/user/login"
+    },{
+      title: "AAプラットフォームのチュートリアルを確認しよう",
+      url: "https://www.youtube.com/watch?v=GyVSVmyf36o&ab_channel=NEROChain"
     }
   ],
   '/ja/developer-tools/aa-platform/integration-and-best-practices': [
