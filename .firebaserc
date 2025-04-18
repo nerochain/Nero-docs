@@ -1,5 +1,14 @@
 {
   "projects": {
-    "default": "nero-docs-568a4e"
+    "default": "app-site-mainnet-dea7"
+  },
+  "targets": {
+    "app-site-mainnet-dea7": {
+      "hosting": {
+        "NERO-Docs": [
+          "nero-docs-564a7ws"
+        ]
+      }
+    }
   }
 }

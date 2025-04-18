@@ -25,5 +25,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NERO_DOCS_568A4E }}
-          projectId: nero-docs-568a4e
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_APP_SITE_MAINNET_DEA7 }}
+          projectId: app-site-mainnet-dea7
+          target: NERO-Docs
