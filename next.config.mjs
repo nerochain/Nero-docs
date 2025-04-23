@@ -21,6 +21,7 @@ export default withNextra({
   images: {
     unoptimized: true,
   },
+  trailingSlash: false,
 });
 
 // If you have other Next.js configurations, you can pass them as the parameter:
