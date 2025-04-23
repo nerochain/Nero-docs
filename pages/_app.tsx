@@ -6,6 +6,7 @@ import { useRouter } from "nextra/hooks";
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 
+  // Hide sidebars on homepage
   useEffect(() => {
     const isHomepage =
       router.asPath === "/en" ||

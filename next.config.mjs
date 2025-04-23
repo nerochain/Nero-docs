@@ -9,11 +9,6 @@ const withNextra = nextra({
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
   },
-  i18n: {
-    locales: ["en", "ja"],
-    defaultLocale: "en",
-    localeDetection: true,
-  },
 });
 
 export default withNextra({
