@@ -15,11 +15,13 @@ export default withNextra({
   i18n: {
     locales: ["en", "ja"],
     defaultLocale: "en",
+    localeDetection: true,
   },
   output: "export",
   images: {
     unoptimized: true,
   },
+  trailingSlash: false,
 });
 
 // If you have other Next.js configurations, you can pass them as the parameter:
