@@ -9,14 +9,14 @@ const withNextra = nextra({
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
   },
-});
-
-export default withNextra({
   i18n: {
     locales: ["en", "ja"],
     defaultLocale: "en",
     localeDetection: true,
   },
+});
+
+export default withNextra({
   output: "export",
   images: {
     unoptimized: true,

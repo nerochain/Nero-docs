@@ -6,12 +6,6 @@ import { useRouter } from "nextra/hooks";
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 
-  React.useEffect(() => {
-    if (!router.locale && router.pathname !== "/") {
-      router.push(router.pathname, router.asPath, { locale: "en" });
-    }
-  }, [router.locale, router.pathname]);
-
   useEffect(() => {
     const isHomepage =
       router.asPath === "/en" ||

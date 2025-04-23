@@ -4,6 +4,16 @@
     "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "cleanUrls": true,
-    "trailingSlash": false
+    "trailingSlash": false,
+    "rewrites": [
+      {
+        "source": "/ja/**",
+        "destination": "/ja/index.html"
+      },
+      {
+        "source": "/en/**",
+        "destination": "/en/index.html"
+      }
+    ]
   }
 }
