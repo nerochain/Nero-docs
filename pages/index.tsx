@@ -5,7 +5,14 @@ export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
-    void router.replace("/en");
+
+    const userLang = navigator.language;
+
+    if (userLang.startsWith("ja")) {
+      void router.replace("/ja");
+    } else {
+      void router.replace("/en");
+    }
   }, [router]);
 
   return null;
