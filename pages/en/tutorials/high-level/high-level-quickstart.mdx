@@ -1,3 +1,4 @@
+import PageFeedback from '../../../../components/PageFeedback'
 
 # From Template to dApp: Adding NFT & Token Features to NERO Wallet Template
 
@@ -6,7 +7,7 @@ This tutorial will guide you through the process of enhancing the NERO Wallet te
 ## Requirements
 
 1. Create a project using our nero-aa-wallet template with:
-```bash
+```js
 git clone https://github.com/nerochain/nero-aa-wallet
 ```
 2. Have an AA-platform API Key. See how to here:
@@ -18,7 +19,7 @@ You can enable social logins in this example. Go to the web3auth website and gen
 
 First, familiarize yourself with the project structure:
 
-```
+```js
 ├── nerowallet.config.ts  # Wallet configuration with chain and API details
 ├── src/
 │   ├── App.tsx           # Main application component
@@ -36,7 +37,7 @@ First, familiarize yourself with the project structure:
 
 2.  Copy this basic structure for the component:
 
-```typescript
+```js
 import { useState, useEffect } from 'react';
 import { useSignature, useSendUserOp, useConfig } from '@/hooks';
 import { ERC20_ABI, ERC721_ABI } from '@/constants/abi';
@@ -55,7 +56,7 @@ const FREE_NFT_ADDRESS = '0x63f1f7c6a24294a874d7c8ea289e4624f84b48cb';
 
 Add the specific NeroNFT ABI to include the mint function:
 
-```typescript
+```js
 // Define NeroNFT ABI with the mint function
 const NERO_NFT_ABI = [
   // Basic ERC721 functions from the standard ABI
@@ -69,7 +70,7 @@ const NERO_NFT_ABI = [
 ## Step 4: Set Up React State and Hooks
 
 Add state variables and hooks to manage the functionality:
-```typescript
+```js
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState('mint-nft');
   const { AAaddress, isConnected } = useSignature();
@@ -94,7 +95,7 @@ const HomePage = () => {
 
 Add a function to handle tab switching:
 
-```typescript
+```js
 
 // Handle tab change
 const handleTabChange = (tab) => {
@@ -113,7 +114,7 @@ const handleTabChange = (tab) => {
 
 Add the function to mint ERC20 tokens:
 
-```typescript
+```js
 
 // Mint ERC20 token
 const handleMintToken = async () => {
@@ -159,7 +160,7 @@ const handleMintToken = async () => {
 ## Step 7: Implement NFT Minting
 
 Add the function to mint NFTs:
-```typescript
+```js
 // Mint NFT
 const handleMintNFT = async () => {
   if (!isConnected) {
@@ -223,7 +224,7 @@ const handleMintNFT = async () => {
 
 Add the function to fetch NFTs directly from the blockchain:
 
-```typescript
+```js
 // Fetch NFTs for the gallery using direct RPC calls
 const fetchNFTs = async () => {
   if (!isConnected || !AAaddress) return;
@@ -303,7 +304,7 @@ const fetchNFTs = async () => {
 
 Add the JSX for the UI components:
 
-```typescript
+```js
 return (
   <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
     <h1 className="text-2xl font-bold mb-6">NERO Chain dApp</h1>
@@ -349,7 +350,7 @@ return (
 ## Step 10: Add Content for Each Tab
 
 ### NFT Minting Tab
-```typescript
+```js
 {activeTab === 'mint-nft' && (
   <div>
     <h2 className="text-xl font-semibold mb-4">Mint a New NFT</h2>
@@ -396,7 +397,7 @@ return (
 )}
 ```
 ### Token Creation Tab
-```typescript
+```js
 {activeTab === 'mint-token' && (
   <div>
     <h2 className="text-xl font-semibold mb-4">Create a New Token</h2>
@@ -443,7 +444,7 @@ return (
 )}
 ```
 ### NFT Tab
-```typescript
+```js
 {activeTab === 'nft-gallery' && (
   <div>
     <h2 className="text-xl font-semibold mb-4">Your NFT Gallery</h2>
@@ -510,7 +511,7 @@ return (
 
 ## Step 11: Add Transaction Status Section
 
-```typescript
+```js
 {/* Transaction Status */}
 {txStatus && (
   <div className="mt-4 p-3 bg-gray-100 rounded-md">
@@ -529,7 +530,7 @@ return (
 ## Step 12: Complete the Component
 
 Finish by exporting the component:
-```typescript
+```js
 export default HomePage;
 ```
 ## Step 13: Update main.tsx
@@ -540,7 +541,7 @@ Replace the Sample component with your new HomePage component:
 
 2.  Update the imports
 
-```typescript
+```js
 import ReactDOM from 'react-dom/client'
 import HomePage from './HomePage'
 import neroConfig from '../nerowallet.config'
@@ -549,7 +550,7 @@ import '@rainbow-me/rainbowkit/styles.css'
 import '@/index.css'
 ```
 3. Replace
-```typescript
+```js
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <SocialWallet config={neroConfig} mode='sidebar'>
     <HomePage />
@@ -561,7 +562,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 Ensure the config has the correct type for the networkType field:
 
-```typescript
+```js
 import NEROLogoSquareIcon from './src/assets/NERO-Logo-square.svg'
 import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/base'
 
@@ -586,33 +587,31 @@ In the nerowallet.config.ts you should also paste the Paymaster API Key. If you 
 
 1.  Run your application:
     
-    ```bash
+    ```js
     yarn  install    
     yarn  dev
     ```
 
-1.  Connect your wallet using the sidebar connector
-
-1.  Try each feature:
+2.  Connect your wallet using the sidebar connector and try each feature:
 
 -   Mint a new NFT
-
 -   Create a new token
-
 -   View your NFT gallery
 
 ## Key Points to Remember
 
 1.  Contract Addresses: The NFT contract address is set to 0x63f1f7c6a24294a874d7c8ea289e4624f84b48cb. Ensure this is the correct address on your testnet.
 
-1.  User Operations vs. Direct RPC:
+2.  User Operations vs. Direct RPC:
 
 -   Use User Operations (with the execute function) for write operations like minting
 
 -   Use direct RPC calls (with ethers.js) for read operations like fetching NFTs
 
-1.  Error Handling: Always implement proper error handling and loading states for a better user experience.
+3.  Error Handling: Always implement proper error handling and loading states for a better user experience.
 
-1.  Paymaster API Key: Make sure you have added a valid Paymaster API key in the nerowallet.config.ts file.
+4.  Paymaster API Key: Make sure you have added a valid Paymaster API key in the nerowallet.config.ts file.
 
 Congratulations! You've successfully enhanced the NERO Wallet template with NFT and token features!
+
+<PageFeedback path="/en/tutorials/high-level/high-level-quickstart" />

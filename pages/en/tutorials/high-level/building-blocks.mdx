@@ -1,3 +1,4 @@
+import PageFeedback from '../../../../components/PageFeedback'
 
 # Quick Building Blocks
 
@@ -36,7 +37,7 @@ User → UserOp → Bundler → EntryPoint Contract → Smart Contract Wallet �
 
 ### For Write Operations (Mint NFT, Create Token):
 
-```javascript
+```js
 await execute({
   function: 'mint',
   contractAddress: FREE_NFT_ADDRESS,
@@ -55,7 +56,7 @@ await execute({
 
 ### For Read Operations (NFT Gallery):
 
-```javascript
+```js
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 const nftContract = new ethers.Contract(FREE_NFT_ADDRESS, NERO_NFT_ABI, provider);
 const balance = await nftContract.balanceOf(AAaddress);
@@ -76,7 +77,7 @@ The NERO Wallet leverages several key components:
 
 The wallet uses Web3Auth for social login capabilities, enabling users to log in with their Google/Facebook accounts instead of managing private keys.
 
-```javascript
+```js
 // From nerowallet.config.ts
 web3auth: {
   clientId: import.meta.env.VITE_TESTNET_WEB3AUTH_ID ?? '',
@@ -100,7 +101,7 @@ web3auth: {
 
 The wallet uses a configuration context to manage chain details, RPC URLs, and contract addresses. This allows the dApp to work across different networks (testnet/mainnet):
 
-```javascript
+```js
 const config = useConfig(); // Access RPC URL, chain info, etc.
 ```
 
@@ -109,14 +110,14 @@ const config = useConfig(); // Access RPC URL, chain info, etc.
 The wallet interacts with smart contracts in two ways:
 
 **For Write Operations (via useSendUserOp hook)**:
-```javascript
+```js
 const { execute, waitForUserOpResult } = useSendUserOp();
 await execute({/* operation details */});
 const result = await waitForUserOpResult();
 ```
 
 **For Read Operations (via ethers.js)**:
-```javascript
+```js
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 const contract = new ethers.Contract(address, abi, provider);
 const data = await contract.someReadFunction();
@@ -132,7 +133,7 @@ We implement NFT minting using UserOps because:
 2. **Gas Requirements**: Requires gas payment, which can be abstracted via a paymaster
 3. **Better UX**: Users don't need ETH/NERO tokens to mint an NFT
 
-```javascript
+```js
 // Execute the mint operation via a UserOp
 await execute({
   function: 'mint',
@@ -150,7 +151,7 @@ const result = await waitForUserOpResult();
 
 Similar to NFT minting, token creation is a state-changing operation requiring gas. Using UserOps allows for gas abstraction and a better user experience.
 
-```javascript
+```js
 await execute({
   function: 'createToken',
   contractAddress: TOKEN_FACTORY_ADDRESS,
@@ -168,7 +169,7 @@ For the NFT gallery, we use direct RPC calls because:
 2. **No Gas Required**: Read operations are free
 3. **Better Performance**: Direct calls are faster and simpler
 
-```javascript
+```js
 // Create a provider and contract
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 const nftContract = new ethers.Contract(FREE_NFT_ADDRESS, NERO_NFT_ABI, provider);
@@ -184,7 +185,7 @@ const tokenURI = await nftContract.tokenURI(tokenId);
 
 We needed to ensure the correct ABI included the `mint` function for the NeroNFT contract:
 
-```javascript
+```js
 const NERO_NFT_ABI = [
   ...ERC721_ABI,  // Include standard ERC721 functions
   'function mint(address to, string memory uri) returns (uint256)',
@@ -196,7 +197,7 @@ const NERO_NFT_ABI = [
 
 We implemented robust error handling for both UserOps and direct RPC calls:
 
-```javascript
+```js
 try {
   // Attempt operation
 } catch (error) {
@@ -213,7 +214,7 @@ try {
 
 For better UX, we update the UI optimistically after operations:
 
-```javascript
+```js
 if (result.result === true) {
   setTxStatus(`Success! NFT "${nftName}" minted!`);
   setIsPolling(false);
@@ -232,7 +233,7 @@ if (result.result === true) {
 
 The NERO Wallet configuration includes a paymaster that can sponsor gas fees:
 
-```javascript
+```js
 aa: {
   bundler: 'https://bundler.service.nerochain.io',
   paymaster: 'https://paymaster-testnet.nerochain.io',
@@ -246,7 +247,7 @@ This allows users to perform transactions without holding NERO tokens.
 
 The Web3Auth integration enables social login without private keys:
 
-```javascript
+```js
 loginConfig: {
   google: {
     name: 'google',
@@ -283,3 +284,5 @@ Though not implemented in our example, the NERO Wallet supports transaction batc
 ## Conclusion
 
 By understanding the concepts and implementation details behind the NERO Wallet, developers can build powerful dApps with account abstraction features. Understanding this you can jump to the next section and understand each step done in the process.
+
+<PageFeedback path="/en/tutorials/high-level/building-blocks" />
