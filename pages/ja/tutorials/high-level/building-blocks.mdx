@@ -1,0 +1,188 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# クイック・ビルディングブロック
+
+このガイドでは、次のセクションで紹介する NERO Wallet dApp の拡張における設計選択と実装の詳細について説明します。本ガイドは、チュートリアルであると同時に、アカウント抽象化（Account Abstraction）の概念を理解するための解説資料でもあります。
+
+## アカウント抽象化とは？
+
+アカウント抽象化（AA）とは、スマートコントラクトウォレットを、通常のユーザーアカウントのように動作させつつ、より高度な機能を持たせることを可能にする仕組みです。
+従来のEOA（Externally Owned Account）ウォレットは秘密鍵に依存していますが、AAウォレットはスマートコントラクトを利用してトランザクションを処理します。これにより、以下のような機能が実現できます：
+
+- マルチシグ認証
+- ガス代スポンサー（ユーザーがトークンを持たなくてもOK）
+- トランザクションのバッチ処理
+- アカウント復元メカニズム
+- プログラム可能なセキュリティルール
+
+## User Operation（UserOp）の理解
+
+NERO Wallet の実装では、ERC-4337標準に基づいてUser Operation（UserOp）という概念を導入しています。これは通常のトランザクションとは異なります：
+
+1. 通常のトランザクション：ブロックチェーンに直接送信され、送信者がガス代を支払う必要があります
+
+2. User Operation：専用のメモリプールに送信され、Bundler や Paymaster といったインフラによって処理されます
+
+UserOp の処理フローは以下のようになります：
+
+```
+User → UserOp → Bundler → EntryPoint Contract → Smart Contract Wallet (AA) → Target Contract
+```
+
+それぞれの役割は：
+
+- **Bundler**：UserOp を集めてブロックチェーンに送信
+- **Paymaster**：ユーザーの代わりにガス代を負担
+- **EntryPoint Contract**：UserOp を検証・実行する中心的なコントラクト
+
+## 書き込み操作における UserOps の利用
+
+以下の例は、高レベルテンプレートの useSendUserOp を用いた書き込み操作の方法です:
+
+```js
+await execute({
+  function: 'mint',
+  contractAddress: FREE_NFT_ADDRESS,
+  abi: NERO_NFT_ABI,
+  params: [AAaddress, nftImageUrl],
+  value: 0,
+});
+```
+
+**UserOp を使うメリット**:
+
+1. **ガスの抽象化**: ユーザーがガストークンを持っていなくても操作可能
+2. **バッチ処理**: 複数の操作を一括で実行できる
+3. **署名の抽象化**: 秘密鍵の代わりにソーシャルログインが利用可能
+4. **UX向上**: ユーザーにとって分かりやすく、簡単に操作できる
+
+## 読み取り操作におけるダイレクトRPCの使用
+
+読み取り操作は、「バニラスタイル」でシンプルにブロックチェーンから情報を取得できます。
+
+```js
+const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
+const nftContract = new ethers.Contract(FREE_NFT_ADDRESS, NERO_NFT_ABI, provider);
+const balance = await nftContract.balanceOf(AAaddress);
+```
+
+**Direct RPC を使うメリット**:
+
+1. **効率的**: 読み取り専用操作にUserOpは不要
+2. **無料**: 読み取りはガス代がかからない
+3. **高速**: BundlerやPaymasterを経由しないため速い
+4. **シンプル**: 実装やデバッグが簡単
+
+## The NERO Wallet Configuration
+
+The NERO Wallet leverages several key components for configuration:
+
+### 1. Web3Auth 統合
+
+ソーシャルログイン機能のために Web3Auth を利用しており、GoogleやFacebookなどのアカウントでログイン可能です。秘密鍵の管理が不要になります。
+
+```js
+// From nerowallet.config.ts
+web3auth: {
+  clientId: import.meta.env.VITE_TESTNET_WEB3AUTH_ID ?? '',
+  network: 'testnet',
+  uiConfig: {
+    appName: 'NERO',
+    // ... other config
+  },
+  loginConfig: {
+    google: {
+      // ... google config
+    },
+    facebook: {
+      // ... facebook config
+    }
+  }
+}
+```
+
+### 2. コンフィグレーションコンテキスト
+
+チェーン情報やRPC URL、コントラクトアドレスなどを一元管理するための設定コンテキストを使用しています。これにより、テストネット／メインネットどちらでも動作させることが可能です。
+
+```js
+const config = useConfig(); // Access RPC URL, chain info, etc.
+```
+
+### 3. スマートコントラクトとのやり取り
+
+ウォレットは以下の2つの方法でスマートコントラクトと通信します：
+
+**書き込み操作：useSendUserOp フックを使用**:
+
+```js
+const { execute, waitForUserOpResult } = useSendUserOp();
+await execute({/* operation details */});
+const result = await waitForUserOpResult();
+```
+
+**読み取り操作：ethers.js を直接使用**:
+
+```js
+const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
+const contract = new ethers.Contract(address, abi, provider);
+const data = await contract.someReadFunction();
+```
+
+## NERO Wallet の AA機能を最大限に活用するには
+
+### 1. ガス代のスポンサー機能
+
+Paymaster がガス代をユーザーの代わりに支払う設定になっており、NEROトークンを持っていないユーザーでもトランザクションを実行できます。
+
+```js
+aa: {
+  bundler: 'https://bundler.service.nerochain.io',
+  paymaster: 'https://paymaster-testnet.nerochain.io',
+  paymasterAPIKey: 'YOUR_API_KEY_HERE',
+},
+```
+
+### 2. Social Login
+
+Web3Auth の統合により、秘密鍵を使わずにソーシャルログインが可能です。
+
+```js
+loginConfig: {
+  google: {
+    name: 'google',
+    verifier: 'NeroTest-Google-Maintest',
+    typeOfLogin: 'google',
+    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  },
+  // ...other login methods
+}
+```
+
+### 3. Transaction Batching
+
+今回の例では未実装ですが、NERO Walletは複数の操作を1つのトランザクションにまとめるバッチ処理もサポートしています。
+
+## NERO Wallet 開発におけるベストプラクティス
+
+1.**書き込み操作にはUserOpを使う**：状態を変更する操作はUserOpを使用
+2.**読み取り操作にはRPCを使う**：UserOpを使わず効率よく読み取り
+3.**エラー処理を丁寧に**：わかりやすいエラーメッセージとフォールバック処理を用意
+4.**モバイルUI最適化**：多くのユーザーがモバイルからアクセスします
+5.**ユーザーデータの安全管理**：localStorageなどに機密情報を保存しない
+6.**複数ネットワークでのテスト**：テストネットとメインネット両方で動作確認を行う
+
+## 今後の拡張アイデア
+
+1.**マルチ送金機能**：複数の宛先に一括送金
+2.**NFTメタデータのIPFS保存**：より分散的な管理を実現
+3.**複数NFTの同時ミント**：バッチミント機能
+4.**WalletConnect対応**：ハードウェアウォレット接続のサポート
+6.**トランザクション履歴**：ユーザーが過去の操作履歴を確認可能に
+7.**トークンスワップ機能**：DEX機能の統合によるトークン交換
+
+## Conclusion
+
+NERO Walletの仕組みと実装の背景を理解することで、開発者はアカウント抽象化の機能を活かした強力なdAppを構築できます。この理解をもとに、次のセクションに進んで、各ステップの詳細を確認してみましょう。
+
+<PageFeedback path="/en/tutorials/high-level/building-blocks" />
