@@ -10,10 +10,9 @@ This tutorial will guide you through the process of enhancing the NERO Wallet te
 ```js
 git clone https://github.com/nerochain/nero-aa-wallet
 ```
-2. Have an AA-platform API Key. See how to here:
+2. Have an AA-platform API Key. See how to [here](/en/developer-tools/aa-platform/getting-started):
 
-### Optional
-You can enable social logins in this example. Go to the web3auth website and generate a clientId with your desired social provider (Google, Facebook, etc.). 
+>__**Note**__: You can enable social logins in this example. Go to the web3auth website and generate a clientId with your desired social provider (Google, Facebook, etc.). 
 
 ## Step 1: Understanding the Project Structure
 
@@ -33,9 +32,9 @@ First, familiarize yourself with the project structure:
 ```
 ## Step 2: Create the HomePage Component
 
-1.  Create a new file src/HomePage.tsx with three tabs: NFT Minting, Token Creation, and NFT Gallery.
+1.  Create a new file src/HomePage.tsx . We will code it with three tabs: NFT Minting, Token Creation, and NFT Gallery.
 
-2.  Copy this basic structure for the component:
+2.  Copy this starting imports for the on the HomePage.tsx:
 
 ```js
 import { useState, useEffect } from 'react';
@@ -45,7 +44,6 @@ import { ethers } from 'ethers';
 
 // Import ABIs
 import CreateTokenFactory from '@/abis/ERC20/CreateTokenFactory.json';
-import FreeNFTExtention from '@/abis/FreeNFT/FreeNFTExtention.json';
 
 // Define contract addresses
 const TOKEN_FACTORY_ADDRESS = '0x00ef47f5316A311870fe3F3431aA510C5c2c5a90';
@@ -69,7 +67,7 @@ const NERO_NFT_ABI = [
 
 ## Step 4: Set Up React State and Hooks
 
-Add state variables and hooks to manage the functionality:
+The project comes with implemented wallet hooks and states. Add these state variables and hooks to manage the functionality:
 ```js
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState('mint-nft');
@@ -112,7 +110,7 @@ const handleTabChange = (tab) => {
 
 ## Step 6: Implement Token Minting
 
-Add the function to mint ERC20 tokens:
+Let's start adding the function to create ERC20 tokens. The fuction should call the createToken function from the token factory using execute function from useSendUserOp. 
 
 ```js
 
@@ -159,7 +157,7 @@ const handleMintToken = async () => {
 
 ## Step 7: Implement NFT Minting
 
-Add the function to mint NFTs:
+And similar goes for the NFT Mint functionality, expect that a different contract is being called here.
 ```js
 // Mint NFT
 const handleMintNFT = async () => {
@@ -222,7 +220,7 @@ const handleMintNFT = async () => {
 
 ## Step 8: Implement NFT Gallery with Direct RPC Calls
 
-Add the function to fetch NFTs directly from the blockchain:
+Since we are minting NFT's , we will add the function to fetch NFTs directly from the blockchain. This can be in the "vanilla" style. 
 
 ```js
 // Fetch NFTs for the gallery using direct RPC calls
@@ -302,7 +300,7 @@ const fetchNFTs = async () => {
 
 ## Step 9: Create the UI for Tabs and Content
 
-Add the JSX for the UI components:
+Let's add the JSX for the UI components:
 
 ```js
 return (
@@ -593,7 +591,6 @@ In the nerowallet.config.ts you should also paste the Paymaster API Key. If you 
     ```
 
 2.  Connect your wallet using the sidebar connector and try each feature:
-
 -   Mint a new NFT
 -   Create a new token
 -   View your NFT gallery
@@ -612,6 +609,6 @@ In the nerowallet.config.ts you should also paste the Paymaster API Key. If you 
 
 4.  Paymaster API Key: Make sure you have added a valid Paymaster API key in the nerowallet.config.ts file.
 
-Congratulations! You've successfully enhanced the NERO Wallet template with NFT and token features!
+Congratulations! You've successfully enhanced the NERO Wallet template with NFT and token features! Use this foundation here to implement your own applications!
 
 <PageFeedback path="/en/tutorials/high-level/high-level-quickstart" />
