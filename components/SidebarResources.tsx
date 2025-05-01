@@ -67,7 +67,7 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
     }
   ],
 
-  '/en/tutorials/high-level/nero-wallet-template-quickstart': [
+  '/en/tutorials/high-level/high-level-quickstart': [
     {
       title: "NERO Wallet Template",
       url: "https://github.com/nerochain/nero-aa-wallet"
@@ -336,7 +336,7 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "https://medium.com/@souza.mvsl/d508f827910e"
     }
   ],
-  '/ja/tutorials/high-level/nero-wallet-template-quickstart': [
+  '/ja/tutorials/high-level/high-level-quickstart': [
     {
       title: "NERO Walletテンプレート",
       url: "https://github.com/nerochain/nero-aa-wallet"

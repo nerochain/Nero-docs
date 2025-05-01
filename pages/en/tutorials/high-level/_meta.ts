@@ -5,7 +5,7 @@ export default {
       breadcrumb: true
     }
   },
-  'nero-wallet-architecture': 'Configuring and Understanding NERO Wallet and Paymaster',
-  'nero-wallet-template-quickstart': 'From Template to dApp'
+  'building-blocks': 'Quick Building Blocks',
+  'high-level-quickstart': 'From Template to dApp'
   
 } 
