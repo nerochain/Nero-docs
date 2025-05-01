@@ -21,21 +21,21 @@ In the NERO Wallet implementation, we use the ERC-4337 standard which introduces
 1. **Regular Transaction**: Directly submitted to the blockchain, requiring gas fees paid by the sender.
 2. **User Operation**: Submitted to a separate mempool and processed by special infrastructure called bundlers and paymasters.
 
-### UserOp Structure Flow:
+That said, an UserOp structure flow goes as follows:
 
 ```
-User → UserOp → Bundler → EntryPoint Contract → Smart Contract Wallet → Target Contract
+User → UserOp → Bundler → EntryPoint Contract → Smart Contract Wallet (AA) → Target Contract
 ```
 
-### Key Components:
+Where:
 
 - **Bundler**: Collects UserOps and submits them to the blockchain
-- **Paymaster**: Sponsors gas fees on behalf of users
+- **Paymaster**: Sponsors gas fees on behalf of users.
 - **EntryPoint Contract**: Central contract that validates and executes UserOps
 
-## Why We Used UserOps for Write Operations but Direct RPC for Read Operations
+## Using UserOps for Write Operations 
 
-### For Write Operations (Mint NFT, Create Token):
+The example below shows how For write Operations, using the useSendUserOp from the high-level template:
 
 ```js
 await execute({
@@ -54,7 +54,9 @@ await execute({
 3. **Signature Abstraction**: Users can authenticate with social logins instead of private keys
 4. **Better UX**: Simplifies the interaction flow for users
 
-### For Read Operations (NFT Gallery):
+## Direct RPC for Read Operations For Read Operations
+
+We can go "vanilla style" for reading information from the chain. 
 
 ```js
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
@@ -121,110 +123,6 @@ const result = await waitForUserOpResult();
 const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 const contract = new ethers.Contract(address, abi, provider);
 const data = await contract.someReadFunction();
-```
-
-## Implementation Strategy Explained
-
-### 1. NFT Minting Strategy
-
-We implement NFT minting using UserOps because:
-
-1. **It's a State-Changing Operation**: Minting creates a new token and updates state
-2. **Gas Requirements**: Requires gas payment, which can be abstracted via a paymaster
-3. **Better UX**: Users don't need ETH/NERO tokens to mint an NFT
-
-```js
-// Execute the mint operation via a UserOp
-await execute({
-  function: 'mint',
-  contractAddress: FREE_NFT_ADDRESS,
-  abi: NERO_NFT_ABI,
-  params: [AAaddress, nftImageUrl],
-  value: 0,
-});
-
-// Wait for the result
-const result = await waitForUserOpResult();
-```
-
-### 2. Token Creation Strategy
-
-Similar to NFT minting, token creation is a state-changing operation requiring gas. Using UserOps allows for gas abstraction and a better user experience.
-
-```js
-await execute({
-  function: 'createToken',
-  contractAddress: TOKEN_FACTORY_ADDRESS,
-  abi: CreateTokenFactory.abi,
-  params: [tokenName, tokenSymbol, tokenSupply],
-  value: 0,
-});
-```
-
-### 3. NFT Gallery Strategy
-
-For the NFT gallery, we use direct RPC calls because:
-
-1. **No State Changes**: Just reading data, not modifying state
-2. **No Gas Required**: Read operations are free
-3. **Better Performance**: Direct calls are faster and simpler
-
-```js
-// Create a provider and contract
-const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
-const nftContract = new ethers.Contract(FREE_NFT_ADDRESS, NERO_NFT_ABI, provider);
-
-// Read the data directly
-const balance = await nftContract.balanceOf(AAaddress);
-const tokenURI = await nftContract.tokenURI(tokenId);
-```
-
-## Key Technical Challenges & Solutions
-
-### 1. ABI Handling
-
-We needed to ensure the correct ABI included the `mint` function for the NeroNFT contract:
-
-```js
-const NERO_NFT_ABI = [
-  ...ERC721_ABI,  // Include standard ERC721 functions
-  'function mint(address to, string memory uri) returns (uint256)',
-  'function tokenURI(uint256 tokenId) view returns (string memory)',
-];
-```
-
-### 2. Error Handling
-
-We implemented robust error handling for both UserOps and direct RPC calls:
-
-```js
-try {
-  // Attempt operation
-} catch (error) {
-  console.error('Error:', error);
-  setTxStatus('An error occurred');
-  // Fallback behavior for gallery
-  setNfts([/* sample NFTs */]);
-} finally {
-  setIsLoading(false);
-}
-```
-
-### 3. Optimistic UI Updates
-
-For better UX, we update the UI optimistically after operations:
-
-```js
-if (result.result === true) {
-  setTxStatus(`Success! NFT "${nftName}" minted!`);
-  setIsPolling(false);
-  // Reset form
-  setNftName('');
-  setNftDescription('');
-  setNftImageUrl('');
-  // Refresh NFT gallery
-  fetchNFTs();
-}
 ```
 
 ## Making the Most of NERO Wallet's Account Abstraction Features
