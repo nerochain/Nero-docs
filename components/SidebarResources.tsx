@@ -24,7 +24,7 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "https://github.com/souzavinny/dapp-samples-nero"
     }
   ], 
-  '/en/tutorials/aa-wallet-integration': [
+  '/en/tutorials/low-level/aa-wallet-integration': [
     {
       title: "Simple NERO Template",
       url: "https://github.com/souzavinny/application-templates-nero"
@@ -34,7 +34,7 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "/en/user-op-sdk/working-with-wallets"
     }
   ],
-  '/en/tutorials/checking-sup-tokens': [
+  '/en/tutorials/low-level/checking-sup-tokens': [
     {
       title: "Sample dApps for NERO Chain",
       url: "https://github.com/souzavinny/dapp-samples-nero"
@@ -44,19 +44,19 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "/en/developer-tools/user-op-sdk/paymaster-integration#getting-supported-tokens"
     }
   ],
-  '/en/tutorials/create-first-dapp': [
+  '/en/tutorials/low-level/create-first-dapp': [
     {
       title: "Full NERO dApp",
       url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
     }
   ],
-  '/en/tutorials/sending-ops': [
+  '/en/tutorials/low-level/sending-ops': [
     {
       title: "UserOps Guide",
       url: "/developer-tools/user-op-sdk/sending-user-operations"
     }
   ],
-  '/en/tutorials/types-payments': [
+  '/en/tutorials/low-level/types-payments': [
     {
       title: "Payment Types Documentation",
       url: "/en/developer-tools/user-op-sdk/paymaster-integration#setting-payment-type"
@@ -67,6 +67,16 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
     }
   ],
 
+  '/en/tutorials/high-level/high-level-quickstart': [
+    {
+      title: "NERO Wallet Template",
+      url: "https://github.com/nerochain/nero-aa-wallet"
+    },
+    {
+      title: "Full dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-wallet"
+    }
+  ],
   '/en/core-concepts/architecture/architecture': [
     {
       title: "Check the References section",
@@ -284,7 +294,7 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "https://github.com/souzavinny/dapp-samples-nero"
     }
   ], 
-  '/ja/tutorials/aa-wallet-integration': [
+  '/ja/tutorials/low-level/aa-wallet-integration': [
     {
       title: "シンプルなNEROテンプレート",
       url: "https://github.com/souzavinny/application-templates-nero"
@@ -294,7 +304,7 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "/en/user-op-sdk/working-with-wallets"
     }
   ],
-  '/ja/tutorials/checking-sup-tokens': [
+  '/ja/tutorials/low-level/checking-sup-tokens': [
     {
       title: "NERO Chain用のサンプルdApps",
       url: "https://github.com/souzavinny/dapp-samples-nero"
@@ -304,19 +314,19 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
       url: "/en/developer-tools/user-op-sdk/paymaster-integration#getting-supported-tokens"
     }
   ],
-  '/ja/tutorials/create-first-dapp': [
+  '/ja/tutorials/low-level/create-first-dapp': [
     {
       title: "完全なNERO dApp",
       url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-tutorial"
     }
   ],
-  '/ja/tutorials/sending-ops': [
+  '/ja/tutorials/low-level/sending-ops': [
     {
       title: "UserOpsガイド",
       url: "/developer-tools/user-op-sdk/sending-user-operations"
     }
   ],
-  '/ja/tutorials/types-payments': [
+  '/ja/tutorials/low-level/types-payments': [
     {
       title: "支払いタイプのドキュメント",
       url: "/en/developer-tools/user-op-sdk/paymaster-integration#setting-payment-type"
@@ -324,6 +334,16 @@ const resourceLinksMap: Record<string, ResourceLink[]> = {
     {
       title: "ERC-20ガス支払いの例",
       url: "https://medium.com/@souza.mvsl/d508f827910e"
+    }
+  ],
+  '/ja/tutorials/high-level/high-level-quickstart': [
+    {
+      title: "NERO Walletテンプレート",
+      url: "https://github.com/nerochain/nero-aa-wallet"
+    },
+    {
+      title: "Full dApp",
+      url: "https://github.com/souzavinny/dapp-samples-nero/tree/main/nero-aa-wallet"
     }
   ],
 

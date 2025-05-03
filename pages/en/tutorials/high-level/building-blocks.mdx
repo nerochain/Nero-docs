@@ -1,0 +1,186 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# Quick Building Blocks
+
+This guide explains the design choices and implementation details behind our NERO Wallet dApp enhancements om the next section. It serves as both a tutorial and an explanation of account abstraction concepts.
+
+## What is Account Abstraction?
+
+Account abstraction (AA) enables smart contract wallets to act like regular user accounts but with advanced features. Unlike traditional EOA (Externally Owned Account) wallets that rely on private keys, AA wallets use smart contracts to process transactions, enabling features like:
+
+- Multi-signature authentication
+- Gas sponsorship (no need for users to hold gas tokens)
+- Transaction batching
+- Account recovery mechanisms
+- Programmable security rules
+
+## Understanding User Operations (UserOps)
+
+In the NERO Wallet implementation, we use the ERC-4337 standard which introduces the concept of User Operations (UserOps). These differ from regular transactions:
+
+1. **Regular Transaction**: Directly submitted to the blockchain, requiring gas fees paid by the sender.
+2. **User Operation**: Submitted to a separate mempool and processed by special infrastructure called bundlers and paymasters.
+
+That said, an UserOp structure flow goes as follows:
+
+```
+User → UserOp → Bundler → EntryPoint Contract → Smart Contract Wallet (AA) → Target Contract
+```
+
+Where:
+
+- **Bundler**: Collects UserOps and submits them to the blockchain
+- **Paymaster**: Sponsors gas fees on behalf of users.
+- **EntryPoint Contract**: Central contract that validates and executes UserOps
+
+## Using UserOps for Write Operations 
+
+The example below shows how For write Operations, using the useSendUserOp from the high-level template:
+
+```js
+await execute({
+  function: 'mint',
+  contractAddress: FREE_NFT_ADDRESS,
+  abi: NERO_NFT_ABI,
+  params: [AAaddress, nftImageUrl],
+  value: 0,
+});
+```
+
+**Benefits of UserOps for Writing**:
+
+1. **Gas Abstraction**: Users don't need to hold native tokens to pay for gas
+2. **Batching**: Multiple operations can be combined (though we didn't implement this)
+3. **Signature Abstraction**: Users can authenticate with social logins instead of private keys
+4. **Better UX**: Simplifies the interaction flow for users
+
+## Direct RPC for Read Operations For Read Operations
+
+We can go "vanilla style" for reading information from the chain. 
+
+```js
+const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
+const nftContract = new ethers.Contract(FREE_NFT_ADDRESS, NERO_NFT_ABI, provider);
+const balance = await nftContract.balanceOf(AAaddress);
+```
+
+**Benefits of Direct RPC for Reading**:
+
+1. **Efficiency**: No need to create UserOps for read-only operations
+2. **Cost**: Read operations are free and don't require gas
+3. **Speed**: Direct RPC calls are faster as they bypass the bundler/paymaster infrastructure
+4. **Simplicity**: Easier to implement and debug
+
+## The NERO Wallet Configuration
+
+The NERO Wallet leverages several key components for configuration:
+
+### 1. Web3Auth Integration
+
+The wallet uses Web3Auth for social login capabilities, enabling users to log in with their Google/Facebook accounts instead of managing private keys.
+
+```js
+// From nerowallet.config.ts
+web3auth: {
+  clientId: import.meta.env.VITE_TESTNET_WEB3AUTH_ID ?? '',
+  network: 'testnet',
+  uiConfig: {
+    appName: 'NERO',
+    // ... other config
+  },
+  loginConfig: {
+    google: {
+      // ... google config
+    },
+    facebook: {
+      // ... facebook config
+    }
+  }
+}
+```
+
+### 2. Configuration Context
+
+The wallet uses a configuration context to manage chain details, RPC URLs, and contract addresses. This allows the dApp to work across different networks (testnet/mainnet):
+
+```js
+const config = useConfig(); // Access RPC URL, chain info, etc.
+```
+
+### 3. Smart Contract Interaction
+
+The wallet interacts with smart contracts in two ways:
+
+**For Write Operations (via useSendUserOp hook)**:
+```js
+const { execute, waitForUserOpResult } = useSendUserOp();
+await execute({/* operation details */});
+const result = await waitForUserOpResult();
+```
+
+**For Read Operations (via ethers.js)**:
+```js
+const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
+const contract = new ethers.Contract(address, abi, provider);
+const data = await contract.someReadFunction();
+```
+
+## Making the Most of NERO Wallet's Account Abstraction Features
+
+### 1. Gas Sponsorship
+
+The NERO Wallet configuration includes a paymaster that can sponsor gas fees:
+
+```js
+aa: {
+  bundler: 'https://bundler.service.nerochain.io',
+  paymaster: 'https://paymaster-testnet.nerochain.io',
+  paymasterAPIKey: 'YOUR_API_KEY_HERE',
+},
+```
+
+This allows users to perform transactions without holding NERO tokens.
+
+### 2. Social Login
+
+The Web3Auth integration enables social login without private keys:
+
+```js
+loginConfig: {
+  google: {
+    name: 'google',
+    verifier: 'NeroTest-Google-Maintest',
+    typeOfLogin: 'google',
+    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  },
+  // ...other login methods
+}
+```
+
+### 3. Transaction Batching
+
+Though not implemented in our example, the NERO Wallet supports transaction batching, allowing multiple operations to be executed in a single transaction.
+
+## Best Practices for NERO Wallet Development
+
+1. **Use UserOps for Write Operations**: Any operation that changes state should use UserOps
+2. **Use Direct RPC for Read Operations**: Reading data should bypass UserOps for efficiency
+3. **Handle Errors Gracefully**: Provide fallbacks and clear error messages
+4. **Optimize UI for Mobile**: Many users will access the wallet from mobile devices
+5. **Secure User Data**: Don't store sensitive data in local storage
+6. **Test on Multiple Networks**: Ensure your dApp works on both testnet and mainnet
+
+## Further Expansion Possibilities
+
+1. **Multi-send Feature**: Allow users to send tokens to multiple recipients in one transaction
+2. **NFT Metadata Storage**: Store NFT metadata on IPFS for proper decentralization
+3. **Batch Minting**: Allow users to mint multiple NFTs in a single operation
+4. **Wallet Connect Integration**: Add support for connecting hardware wallets
+5. **Transaction History**: Show users their past transactions
+6. **Token Swapping**: Integrate DEX functionality for token swapping
+
+## Conclusion
+
+By understanding the concepts and implementation details behind the NERO Wallet, developers can build powerful dApps with account abstraction features. Understanding this you can jump to the next section and understand each step done in the process.
+
+<PageFeedback path="/en/tutorials/high-level/building-blocks" />

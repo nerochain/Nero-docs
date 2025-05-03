@@ -972,7 +972,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/react@npm:^3.0.0":
+"@mdx-js/react@npm:^3.0.0, @mdx-js/react@npm:^3.1.0":
   version: 3.1.0
   resolution: "@mdx-js/react@npm:3.1.0"
   dependencies:
@@ -4771,6 +4771,7 @@ __metadata:
   resolution: "nero-docs@workspace:."
   dependencies:
     "@heroicons/react": ^1.0.6
+    "@mdx-js/react": ^3.1.0
     "@types/node": 22.10.1
     "@types/react": 19.0.0
     firebase: ^11.6.0

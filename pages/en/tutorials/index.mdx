@@ -10,11 +10,12 @@ Welcome to the NERO Chain Cookbook – your collection of practical, ready-to-us
 Our tutorials are organized in a logical progression to help you build your skills step by step. We recommend following this learning path:
 
 1. **Start with contract deployment** to understand the basics of deploying smart contracts on NERO Chain
-2. **Learn about AA wallet integration** to set up the foundation for account abstraction
-3. **Send your first UserOperations** to interact with the blockchain through AA wallets and use sponsored transactions
-4. **Explore payment methods** to implement alternative gas payment options with ERC20 tokens
-5. **Check supported tokens** to work with ERC20 tokens for gas payments
-6. **Build your first complete dApp** to bring everything together in a cohesive application
+
+Then, choose one of the integration approaches.
+
+- Component-Level Integration (low-level): Where you can build your AA wallet integration from individual components for maximum customization.
+
+- Template-Based Development (high-level): Get started quickly with our pre-built wallet template that abstracts the complexity.
 
 ## Getting Started
 
@@ -44,36 +45,46 @@ Our tutorials are organized in a logical progression to help you build your skil
   </a>
 </div>
 
-## Account Abstraction Recipes
+## Low-Level Recipes
 
 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-  <a href="/en/tutorials/aa-wallet-integration" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+  <a href="/en/tutorials/low-level/aa-wallet-integration" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
     <h3 className="text-lg font-semibold mb-2 text-center">👛 Integrate AA Wallets</h3>
     <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Add smart contract wallets to your React application for seamless UX.</p>
   </a>
 
-  <a href="/en/tutorials/sending-ops" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+  <a href="/en/tutorials/low-level/sending-ops" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
     <h3 className="text-lg font-semibold mb-2 text-center">📨 Send UserOperations</h3>
     <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Execute transactions with sponsored gas through Account Abstraction.</p>
   </a>
 
-  <a href="/en/tutorials/types-payments" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+  <a href="/en/tutorials/low-level/types-payments" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
     <h3 className="text-lg font-semibold mb-2 text-center">💲 Payment Methods</h3>
     <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Implement different gas payment options in your dApp.</p>
   </a>
-</div>
 
-## Advanced Topics
-
-<div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-  <a href="/en/tutorials/checking-sup-tokens" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+  <a href="/en/tutorials/low-level/checking-sup-tokens" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
     <h3 className="text-lg font-semibold mb-2 text-center">🔍 Token Support Check</h3>
     <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Query and display tokens supported by the NERO Chain Paymaster.</p>
   </a>
 
-  <a href="/en/tutorials/create-first-dapp" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+  <a href="/en/tutorials/low-level/create-first-dapp" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
     <h3 className="text-lg font-semibold mb-2 text-center">🚀 Create Your First dApp</h3>
     <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Build a complete NFT minting application with gasless transactions.</p>
+  </a>
+</div>
+
+## High-Level Recipes
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+  <a href="/en/tutorials/high-level/build-blocks" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">👛 NERO Wallet and Paymaster</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Undestand how to implement features on top of the high-level template.</p>
+  </a>
+
+  <a href="/en/tutorials/high-level/high-level-quickstart" className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:shadow-md dark:hover:border-blue-400 transition-all no-underline text-current">
+    <h3 className="text-lg font-semibold mb-2 text-center">💲 Create Your First dApp</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Using our Nero Wallet Template.</p>
   </a>
 </div>
 
