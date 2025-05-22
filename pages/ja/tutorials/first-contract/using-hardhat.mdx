@@ -16,28 +16,35 @@ import { Tabs } from "nextra/components";
 
 まず、新しいディレクトリを作成しプロジェクトを初期化します：
 
-<Tabs items={["npm", "yarn"]}>
-  <Tabs.Tab>
-  ```bash
-  mkdir nero-project
-  cd nero-project
-  npm init -y
-  npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
-  npm install dotenv @nomicfoundation/hardhat-ignition-ethers
-  npx hardhat init
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```bash
-  mkdir nero-project
-  cd nero-project
-  yarn init -y
-  yarn add --dev hardhat @nomicfoundation/hardhat-toolbox
-  yarn add dotenv @nomicfoundation/hardhat-ignition-ethers
-  npx hardhat init
-  ```
-  </Tabs.Tab>
-</Tabs>
+```javascript
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+module.exports = {
+  defaultNetwork: "nero",
+  networks: {
+    nero: {
+      url: "https://rpc-testnet.nerochain.io",
+      chainId: 689,
+      accounts: [process.env.PRIVATE_KEY]
+    },
+  },
+  solidity: "0.8.17",
+  etherscan: {
+    apiKey: "dummy", 
+    customChains: [
+      {
+        network: "nero",
+        chainId: 689,
+        urls: {
+          apiURL: "https://api-testnet.neroscan.io/api",
+          browserURL: "https://testnet.neroscan.io/"
+        }
+      }
+    ]
+  }
+};
+```
 
 プロンプトが表示されたら、プロジェクトに適したオプションを選択します：
 
