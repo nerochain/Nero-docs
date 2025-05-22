@@ -1,0 +1,73 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# Verifying Smart Contracts through the NERO Explorer
+
+This guide walks you through the process of verifying your smart contract on the NERO Chain Testnet using the block explorer interface. Contract verification makes your source code publicly viewable and allows users to interact with your contract directly through the explorer.
+
+## Prerequisites
+
+- A deployed smart contract on NERO Chain
+- The contract's source code
+- The contract's deployment address
+- Deployment parameters (compiler version, optimization settings, etc.)
+
+## Step 1: Access the NERO Chain Explorer
+
+Navigate to the [NERO Testnet Explorer](https://testnet.neroscan.io/) in your web browser.
+
+## Step 2: Locate Your Contract
+
+Enter your contract's deployment address in the search box at the top of the explorer page.
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure3.png" alt="Figure 3" />
+  <p style={{ fontStyle: "italic" }}>Figure 3: Searching for your contract by address</p>
+</div>
+
+## Step 3: Access the Verification Page
+
+On the contract details page, locate and click the "Verify and Publish" button.
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure4.png" alt="Figure 4" />
+  <p style={{ fontStyle: "italic" }}>Figure 4: Contract details page with verification option</p>
+</div>
+
+## Step 4: Enter Contract Information
+
+Complete the verification form with your contract details:
+
+1. **Contract Name**: Enter the exact name of your contract
+2. **Compiler Version**: Select the same version used during deployment
+3. **Optimization**: Match your deployment settings
+4. **Source Code**: Paste your complete contract source code
+5. **Constructor Arguments**: Enter ABI-encoded constructor arguments (if applicable)
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure5.png" alt="Figure 5" />
+  <p style={{ fontStyle: "italic" }}>Figure 5: Contract verification form</p>
+</div>
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure6.png" alt="Figure 6" />
+  <p style={{ fontStyle: "italic" }}>Figure 6: Detailed contract verification settings</p>
+</div>
+
+## Step 5: Complete the Verification
+
+Click the "Verify and Publish" button to submit your information. If successful, your contract's source code will be publicly viewable on the explorer.
+
+## What's Next?
+
+Once verified, users can:
+- Read your contract's source code
+- Interact with your contract directly through the explorer interface
+- Have greater confidence in your contract's security and functionality
+
+For programmatic verification options, see our [Hardhat verification guide](/en/tutorials/first-contract/using-hardhat).
+
+<PageFeedback path="/en/tutorials/first-contract/verifyExplorer" />

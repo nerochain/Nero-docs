@@ -6,5 +6,6 @@ export default {
     }
   },
   'using-remix': "Using Remix",
-  'using-hardhat': "Using Hardhat"
+  'using-hardhat': "Using Hardhat",
+  'verifyExplorer': "Verify on Explorer"
 } 
