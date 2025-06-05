@@ -1,0 +1,73 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+# NEROエクスプローラーを通じたスマートコントラクトの検証
+
+このガイドでは、NEROチェーンテストネット上のスマートコントラクトをブロックエクスプローラーインターフェースで検証するプロセスについて説明します。コントラクト検証により、ソースコードが公開され、ユーザーはエクスプローラーから直接コントラクトとやり取りできるようになります。
+
+## 前提条件
+
+- NEROチェーン上にデプロイされたスマートコントラクト
+- コントラクトのソースコード
+- コントラクトのデプロイアドレス
+- デプロイパラメータ（コンパイラバージョン、最適化設定など）
+
+## ステップ1: NEROチェーンエクスプローラーへのアクセス
+
+Webブラウザで[NEROテストネットエクスプローラー](https://testnet.neroscan.io/)にアクセスします。
+
+## ステップ2: コントラクトの検索
+
+エクスプローラーページ上部の検索ボックスにコントラクトのデプロイアドレスを入力します。
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure3.png" alt="図3" />
+  <p style={{ fontStyle: "italic" }}>図3: アドレスによるコントラクトの検索</p>
+</div>
+
+## ステップ3: 検証ページへのアクセス
+
+コントラクト詳細ページで「Verify and Publish」ボタンを見つけてクリックします。
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure4.png" alt="図4" />
+  <p style={{ fontStyle: "italic" }}>図4: 検証オプション付きのコントラクト詳細ページ</p>
+</div>
+
+## ステップ4: コントラクト情報の入力
+
+検証フォームにコントラクトの詳細を入力します：
+
+1. **コントラクト名**: 正確なコントラクト名を入力
+2. **コンパイラバージョン**: デプロイ時に使用したバージョンを選択
+3. **最適化**: デプロイ設定と一致させる
+4. **ソースコード**: 完全なコントラクトソースコードを貼り付け
+5. **コンストラクタ引数**: ABIエンコードされたコンストラクタ引数を入力（該当する場合）
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure5.png" alt="図5" />
+  <p style={{ fontStyle: "italic" }}>図5: コントラクト検証フォーム</p>
+</div>
+
+<div style={{ height: "2rem" }} />
+<div style={{ textAlign: "center" }}>
+  <img src="/assets/building/figure6.png" alt="図6" />
+  <p style={{ fontStyle: "italic" }}>図6: 詳細なコントラクト検証設定</p>
+</div>
+
+## ステップ5: 検証の完了
+
+「Verify and Publish」ボタンをクリックして情報を送信します。成功すると、コントラクトのソースコードがエクスプローラー上で公開されます。
+
+## 次のステップ
+
+検証が完了すると、ユーザーは以下のことができるようになります：
+- コントラクトのソースコードを読む
+- エクスプローラーインターフェースから直接コントラクトとやり取りする
+- コントラクトのセキュリティと機能性に対する信頼性が向上する
+
+プログラムによる検証オプションについては、[Hardhat検証ガイド](/ja/tutorials/first-contract/using-hardhat)を参照してください。
+
+<PageFeedback path="/ja/tutorials/first-contract/verifyExplorer" />
