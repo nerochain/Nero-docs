@@ -2,11 +2,11 @@ import PageFeedback from '../../../components/PageFeedback'
 
 # コンパイル、実行とデプロイ
 
-このガイドでは、Neroのコンパイルと実行の手順を説明します。
+このガイドでは、NEROのコンパイルと実行の手順を説明します。
 
 ## ダウンロード
 
-以下のgitコマンドを使用してNeroのソースコードをダウンロードします：
+以下のgitコマンドを使用してNEROのソースコードをダウンロードします：
 
 ```
 git clone https://github.com/nerochain/Nero.git
@@ -14,17 +14,17 @@ git clone https://github.com/nerochain/Nero.git
 
 ## Golangのインストール
 
-Neroをコンパイルする前に、システムにGolangがインストールされていることを確認してください。ダウンロードとインストール手順については、Golangの公式ウェブサイト（[https://go.dev/dl/](https://go.dev/dl/)）を参照してください。
+NEROをコンパイルする前に、システムにGolangがインストールされていることを確認してください。ダウンロードとインストール手順については、Golangの公式ウェブサイト（[https://go.dev/dl/](https://go.dev/dl/)）を参照してください。
 
 ## コンパイル
 
-1. 以下のコマンドを使用して、Neroのソースコードをクローンしたディレクトリに移動します：
+1. 以下のコマンドを使用して、NEROのソースコードをクローンしたディレクトリに移動します：
 
    ```
    cd /path/to/Nero
    ```
 
-2. 以下のコマンドを実行してNeroをコンパイルします：
+2. 以下のコマンドを実行してNEROをコンパイルします：
 
    ```
    make geth
@@ -44,7 +44,7 @@ Neroをコンパイルする前に、システムにGolangがインストール�
 
 **カスタムオプション：**
 
-Neroは`--traceaction`というカスタムオプションを提供しています：
+NEROは`--traceaction`というカスタムオプションを提供しています：
 
 ```
 --traceaction value     (デフォルト: 0)
@@ -188,7 +188,7 @@ SyncMode = "full"
 --verbosity 3
 ```
 
-ネットワークフラグが提供されていない場合、ノードはデフォルトでNeroメインネットに接続します。Neroテストネットに接続したい場合は、以下を追加します：
+ネットワークフラグが提供されていない場合、ノードはデフォルトでNEROメインネットに接続します。NEROテストネットに接続したい場合は、以下を追加します：
 
 ```
 --testnet
@@ -198,7 +198,7 @@ SyncMode = "full"
 
 ```
 [Unit]
-Description=Nero chain service
+Description=NERO chain service
 
 [Service]
 Type=simple
