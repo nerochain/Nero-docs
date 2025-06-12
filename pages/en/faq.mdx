@@ -83,6 +83,27 @@ Common reasons for deployment failures:
 ### What Solidity version should I use?
 NERO Chain supports all Solidity versions that are compatible with the Ethereum London fork. We recommend using Solidity ^0.8.12 for optimal compatibility and security.
 
+**Important**: For contract verification on Neroscan, please ensure you use Solidity version ≤ 0.8.29. Due to various factors including EVM version dependencies, Neroscan may not support newer Solidity versions in a timely manner.
+
+### Why is my OpenZeppelin proxy contract verification failing?
+OpenZeppelin proxy contracts may encounter specific verification challenges on Neroscan:
+
+**Common Issue**: You receive an "Invalid compilerVersion" error when attempting to verify TransparentUpgradeableProxy or ProxyAdmin contracts, even though your implementation contract verifies successfully.
+
+**Root Cause**: The block explorer's verification infrastructure has limitations with OpenZeppelin proxy contract compilation settings and version compatibility.
+
+**Solution**:
+- **Use Solidity ≤ 0.8.29**: The testnet/mainnet block explorer now supports Solidity version up to 0.8.29
+- **OpenZeppelin v5 Support**: The explorer supports OpenZeppelin v5 proxy contracts that use precompiled bytecodes with Solidity 0.8.29
+- **Verification Order**: Always verify your implementation contract first, then attempt proxy contract verification
+
+**Key Points**:
+- Implementation contracts typically verify without issues
+- Proxy contracts (TransparentUpgradeableProxy, ProxyAdmin) require the supported Solidity versions
+- Due to EVM version updates and other factors, Neroscan may not immediately support the latest Solidity versions
+
+If you continue experiencing verification issues with proxy contracts, ensure your development environment uses Solidity 0.8.29 or earlier for both compilation and deployment.
+
 ## Wallet Integration
 
 ### Why can't I generate an AA wallet address?
