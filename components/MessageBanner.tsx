@@ -77,7 +77,14 @@ const MessageBanner: React.FC<MessageBannerProps> = ({ message }) => {
             style={{ 
               color: 'inherit', 
               textDecoration: 'underline',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              transition: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.textDecoration = 'underline';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.textDecoration = 'underline';
             }}
           >
             {messageData.linkText}
