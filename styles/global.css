@@ -333,6 +333,10 @@
     animation: slideMessage 15s linear infinite;
   }
 
+  .message-banner:hover span {
+    animation-play-state: paused;
+  }
+
   @keyframes slideMessage {
     0% {
       transform: translateX(100%);
