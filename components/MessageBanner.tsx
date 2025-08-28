@@ -7,14 +7,14 @@ interface MessageBannerProps {
 
 const messages = {
   en: {
-    text: "🗾 Join us at NERO Chain's Tokyo WebX Side Event! Register now",
-    linkText: "here",
-    url: "https://lu.ma/e60eeg9g"
+    text: "Join NEROChain Communities and stay tuned for more!",
+    linkText: "",
+    url: ""
   },
   ja: {
-    text: "🗾 NERO ChainのTokyo WebXサイドイベントにご参加ください！",
-    linkText: "今すぐ登録",
-    url: "https://lu.ma/e60eeg9g"
+    text: "NEROChainコミュニティに参加して、今後の情報をお待ちください！",
+    linkText: "",
+    url: ""
   }
 };
 
@@ -69,27 +69,32 @@ const MessageBanner: React.FC<MessageBannerProps> = ({ message }) => {
         <span>{message}</span>
       ) : (
         <span>
-          {messageData.text}{' '}
-          <a 
-            href={messageData.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ 
-              color: 'inherit', 
-              textDecoration: 'underline',
-              fontWeight: 'bold',
-              transition: 'none'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.textDecoration = 'underline';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.textDecoration = 'underline';
-            }}
-          >
-            {messageData.linkText}
-          </a>
-          !
+          {messageData.text}
+          {messageData.linkText && messageData.url && (
+            <>
+              {' '}
+              <a 
+                href={messageData.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ 
+                  color: 'inherit', 
+                  textDecoration: 'underline',
+                  fontWeight: 'bold',
+                  transition: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.textDecoration = 'underline';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.textDecoration = 'underline';
+                }}
+              >
+                {messageData.linkText}
+              </a>
+              !
+            </>
+          )}
         </span>
       )}
     </div>
