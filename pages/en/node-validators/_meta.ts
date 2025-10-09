@@ -3,5 +3,6 @@ export default {
   compileAndRun: "Compile And Run",
   runningValidatorNode: "Running Validator Node",
   jsonRpc: "JSON-RPC",
-  commandLineOptions: "Command Line Options"
+  commandLineOptions: "Command Line Options",
+  systemContract: "System Contract",
 }

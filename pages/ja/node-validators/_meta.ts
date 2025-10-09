@@ -3,5 +3,6 @@ export default {
   compileAndRun: 'コンパイルと実行',
   runningValidatorNode: 'バリデーターノードの実行',
   jsonRpc: 'JSON-RPC',
-  commandLineOptions: 'コマンドラインオプション'
+  commandLineOptions: 'コマンドラインオプション',
+  systemContract: 'システムコントラクト'
 }
