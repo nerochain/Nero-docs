@@ -1,0 +1,363 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# システムコントラクト
+
+## 概要
+
+Nero ブロックチェーンのバリデーターシステムは、`Validator`コントラクトと`Staking`コントラクトの 2 つの主要コンポーネントで構成されています。各バリデーターは独自の`Validator`コントラクトインスタンスを持ち、`Staking`コントラクトが全体を統括する委任型プルーフ・オブ・ステーク（DPoS）コンセンサスメカニズムを実装しています。
+
+## コントラクトアーキテクチャ
+
+### Staking コントラクト
+
+中央オーケストレーターとして機能し、以下の役割を担います：
+
+- バリデーター登録・管理
+- 報酬分配
+- 罰則システムの実行
+- アクティブバリデーターセットの管理
+
+### Validator コントラクト
+
+各バリデーター固有の状態と委任を管理します：
+
+- バリデーター固有のステーク管理
+- 委任者の管理
+- 報酬計算
+- アンボンディング処理
+
+## 主要機能の仕組み
+
+### ステーキング機能
+
+#### バリデーター登録
+
+バリデーターの登録は`registerValidator()`関数を通じて行われます：
+
+- 最小自己ステーク：`MinSelfStakes`（1,000 万 NERO）
+- コミッション率：0-100%の範囲
+- 委任受付の可否設定
+
+#### 委任メカニズム
+
+委任者は`addDelegation()`を通じてバリデーターにステークを委任できます：
+
+- バリデーターの委任受付設定確認
+- 総ステーク上限チェック（`MaxStakes`: 2 億 NERO）
+- 新規委任者の登録
+- 罰則処理の実行
+- 報酬精算と債務更新
+
+#### アンボンディングシステム
+
+ステーク削除時の処理：
+
+- **期間**：`UnboundLockPeriod`（21 日間）
+- **管理**：`UnboundRecord`構造体で追跡
+- **引き出し**：期間経過後に`claimableUnbound()`で計算
+
+### 報酬システム
+
+#### 報酬計算メカニズム
+
+債務ベースのシステムで公平な報酬分配を実現：
+
+- `accRewardsPerStake`による累積報酬計算
+- コミッション率に基づく手数料分配
+- 精度向上のため COEFFICIENT（1e18）倍で処理
+
+#### ブロック報酬分配
+
+`distributeBlockFee()`により実行：
+
+- アクティブバリデーター間で均等分配
+- 各バリデーターの`incomeFees`に加算
+
+#### ステーキング報酬
+
+`updateRewardsRecord()`で更新：
+
+- ブロックごとに`rewardsPerBlock`を分配
+- `accRewardsPerStake`の累積更新
+- 総ステーキング報酬からの減算
+
+### バリデーター状態管理
+
+バリデーターは以下の 4 つの状態を持ちます：
+
+| 状態      | 説明                 | 条件                                                                  |
+| --------- | -------------------- | --------------------------------------------------------------------- |
+| **Idle**  | 初期状態             | `totalStake` < `ThresholdStakes`                                      |
+| **Ready** | コンセンサス参加可能 | `totalStake` >= `ThresholdStakes` かつ `selfStake` >= `MinSelfStakes` |
+| **Jail**  | 罰則状態             | 罰則適用時、`JailPeriod`（86,400 秒）間コンセンサス参加不可           |
+| **Exit**  | 退出状態             | 全ステークのアンボンディング中                                        |
+
+#### 状態遷移
+
+- **Idle → Ready**：ステーク条件満足時
+- **Ready → Jail**：罰則適用時
+- **Jail → Ready**：罰則期間経過＋ステーク条件満足時
+- **Any → Exit**：`exitStaking()`呼び出し時
+
+### 罰則システム
+
+#### Lazy Punishment（怠惰な罰則）
+
+ブロック提案を逃した場合の罰則：
+
+- **閾値**：`LazyPunishThreshold`（48 ブロック）連続
+- **罰則率**：`LazyPunishFactor`（0.5%）
+- **カウンター減少**：エポックごとに 2 ずつ減少
+- **実行**：`lazyPunish()`により自動実行
+
+#### Evil Punishment（悪意ある罰則）
+
+二重署名などの悪意ある行動への罰則：
+
+- **罰則率**：`EvilPunishFactor`（5%）
+- **実行**：`doubleSignPunish()`により即座に適用
+- **制限**：同一バリデーターに対して一度のみ
+
+#### 罰則実行プロセス
+
+`punish()`関数の実行フロー：
+
+1. 報酬精算とバリデーターの`selfSettledRewards`更新
+2. `totalUnWithdrawn`から罰則額計算
+3. `totalStake`から削減
+4. バリデーターの自己ステークから削減、不足分はアンボンディング中のステークから削減
+5. `accPunishFactor`更新
+6. 状態を Jail に遷移
+
+#### 委任者への罰則適用
+
+- `accPunishFactor - punishFree`の差分のみ適用
+- 罰則額は`(totalDelegation * deltaFactor) / PunishBase`で計算
+- アクティブステークから削減、不足分はアンボンディング中のステークから削減
+- 報酬は罰則前後のステーク比率で調整
+
+## 重要機能
+
+### ReStaking/ReDelegation
+
+ステーク移動機能：
+
+- **reStaking**：バリデーターが自己ステークを別のバリデーターに委任として移動
+- **reDelegation**：委任者が委任先を変更
+- **利点**：アンボンディング期間なしで即座に移動
+
+### Founder Locking System
+
+創設者バリデーター向けの特別なロック機構：
+
+- `basicLockEnd`まで完全ロック
+- その後、`releasePeriod`ごとに段階的解放
+- 全期間経過後に完全解放
+
+### SortedLinkedList によるランキング管理
+
+総ステーク量に基づくバリデーターランキング：
+
+- **Up**：ステーク増加時のランキング上昇
+- **Down**：ステーク減少時のランキング下降
+- **Remove**：Ready 状態から外れる時のリスト削除
+
+### Permission 管理
+
+2 つの動作モード：
+
+- **Permission mode**（`isOpened = false`）：管理者のみ登録可能
+- **Permissionless mode**（`isOpened = true`）：誰でも`MinSelfStakes`以上で登録可能
+- **注意**：`removePermission()`は不可逆的操作
+
+### 操作制限メカニズム
+
+重要な操作に対する制限：
+
+- **onlyOperateOnce**：同一ブロック内で一度のみ実行
+- **onlyBlockEpoch**：エポック境界でのみ実行
+- **ReentrancyGuard**：再入攻撃防止
+
+## システムパラメータ
+
+| パラメータ            | 値             | 説明                             |
+| --------------------- | -------------- | -------------------------------- |
+| `MaxValidators`       | 25             | 最大アクティブバリデーター数     |
+| `MaxStakes`           | 2 億 NERO      | バリデーターあたりの最大ステーク |
+| `ThresholdStakes`     | 1,000 万 NERO  | 候補者になるための最小ステーク   |
+| `MinSelfStakes`       | 1,000 万 NERO  | 登録に必要な最小自己ステーク     |
+| `UnboundLockPeriod`   | 21 日間        | アンボンディング期間             |
+| `JailPeriod`          | 86,400 秒      | 罰則期間（24 時間）              |
+| `LazyPunishThreshold` | 48 ブロック    | 怠惰な罰則の閾値                 |
+| `LazyPunishFactor`    | 5/1000（0.5%） | 怠惰な罰則率                     |
+| `EvilPunishFactor`    | 50/1000（5%）  | 悪意ある罰則率                   |
+| `StakeUnit`           | 1 NERO         | ステーク操作の最小単位           |
+
+## ステーク単位の制約
+
+全てのステーク操作は 1 NERO 単位で制限されています：
+
+- **最小単位**：`StakeUnit`（1 NERO）以上
+- **単位制限**：1 NERO の整数倍のみ
+- **検証**：`mustConvertStake()`関数による自動チェック
+
+## Exit 状態での強制引き出し
+
+バリデーターが Exit 状態で`exitLockEnd`を過ぎた場合：
+
+- **委任者の権限**：強制的にステークを引き出し可能
+- **目的**：バリデーターが応答しなくても資金回収可能
+- **安全性**：委任者資産の保護
+
+## セキュリティ機能
+
+### ReentrancyGuard 保護
+
+重要なクレーム操作には再入攻撃防止が実装：
+
+- `validatorClaimAny()`
+- `delegatorClaimAny()`
+- `reStaking()`
+- `reDelegation()`
+
+### 操作制限メカニズム
+
+Nero Engine からの呼び出しに重要な制限：
+
+- **onlyOperateOnce**：同一ブロック内で一度のみ実行
+- **onlyBlockEpoch**：エポック境界でのみ実行
+- **対象**：`distributeBlockFee()`、`updateActiveValidatorSet()`等
+
+## コントラクト関数リファレンス
+
+### Read Contract（読み取り専用関数）
+
+#### Validator コントラクト
+
+**基本情報取得**
+
+- `state()`：バリデーターの現在の状態（Idle/Ready/Jail/Exit）
+- `validator()`：バリデーターアドレス
+- `manager()`：管理者アドレス
+- `totalStake()`：総ステーク量
+
+**報酬・引き出し計算**
+
+- `anyClaimable()`：引き出し可能な総額（報酬+ステーク）
+- `claimableRewards()`：引き出し可能な報酬のみ
+- `getPendingUnboundRecord()`：特定のアンボンディングレコード取得
+- `getAllDelegatorsLength()`：委任者の総数
+
+#### Staking コントラクト
+
+**システム状態**
+
+- `valMaps(address)`：バリデーターアドレスから Validator コントラクトインスタンス取得
+- `valInfos(address)`：バリデーター情報（ValidatorInfo 構造体）取得
+- `founders(address)`：創設者ロック情報取得
+- `totalStake()`：システム全体の総ステーク量
+- `isOpened()`：パーミッションレスモードかどうか
+
+**報酬情報**
+
+- `rewardsPerBlock()`：ブロックあたりの報酬量
+- `accRewardsPerStake()`：累積報酬/ステーク比率
+
+#### GenesisLock コントラクト
+
+- `getClaimableAmount(address)`：引き出し可能な金額と期間
+- `getClaimablePeriod(address)`：引き出し可能な期間数計算
+
+### Write Contract（状態変更関数）
+
+#### Validator コントラクト
+
+**バリデーター操作**
+
+- `addStake(uint256)`：自己ステークを追加
+- `subStake(uint256, bool)`：自己ステークを削減
+- `exitStaking()`：バリデーターを退出状態に遷移
+- `validatorClaimAny(address payable)`：バリデーターの報酬とステークを引き出し
+
+**委任操作**
+
+- `addDelegation(uint256, address)`：委任を追加
+- `subDelegation(uint256, address, bool)`：委任を削減
+- `exitDelegation(address)`：委任を完全に退出
+- `delegatorClaimAny(address payable)`：委任者の報酬とステークを引き出し
+
+**罰則**
+
+- `punish(uint)`：罰則を適用（Staking コントラクトから呼び出し）
+
+#### Staking コントラクト
+
+**初期化・設定**
+
+- `initialize()`：コントラクトを初期化
+- `removePermission()`：パーミッションレスモードに移行（不可逆）
+
+**バリデーター管理**
+
+- `registerValidator(address, uint, bool)`：新規バリデーター登録
+- `addStake(address)`：バリデーターの自己ステーク追加
+- `subStake(address, uint256)`：バリデーターの自己ステーク削減
+- `exitStaking(address)`：バリデーター退出
+
+**委任管理**
+
+- `addDelegation(address)`：委任を追加
+- `subDelegation(address, uint256)`：委任を削減
+- `exitDelegation(address)`：委任を完全退出
+
+**ステーク移動**
+
+- `reStaking(address, address)`：バリデーターの自己ステークを別のバリデーターに委任として移動
+- `reDelegation(address, address)`：委任先を変更
+
+**引き出し**
+
+- `validatorClaimAny(address)`：バリデーターの報酬とステークを引き出し
+- `delegatorClaimAny(address)`：委任者の報酬とステークを引き出し
+
+**Engine 専用操作**
+
+- `updateActiveValidatorSet(address[])`：アクティブバリデーターセットを更新
+- `distributeBlockFee()`：ブロック報酬を分配
+- `lazyPunish(address)`：怠惰な罰則を適用
+- `decreaseMissedBlocksCounter()`：罰則カウンターを減少
+- `doubleSignPunish(address, bytes32)`：二重署名罰則を適用
+
+#### GenesisLock コントラクト
+
+- `initialize(uint256)`：コントラクトを初期化
+- `init()`：ユーザーデータを一括初期化
+- `appendLockRecord()`：新規ロックレコードを追加
+- `claim()`：ロック解除された資産を引き出し
+
+## 重要な注意事項
+
+### 委任者の罰則保護
+
+- 委任者は`punishFree`フィールドで罰則から部分的に保護
+- 新規委任者には現時点の`accPunishFactor`が記録
+- 既存委任者には差分のみが適用される
+
+### 精度処理
+
+- 報酬計算は COEFFICIENT（1e18）倍で拡大処理
+- 精度向上により公平な報酬分配を実現
+
+### アクセス制御
+
+- 全ての状態変更関数は適切なアクセス制御修飾子で保護
+- Validator コントラクトの関数は基本的に Staking コントラクトからのみ呼び出し
+- エンドユーザーは Staking コントラクトを通じて操作
+
+### 初期化プロセス
+
+- ジェネシスブロックでのみ`initValidator()`を使用して創設者バリデーターを登録
+- 創設者バリデーターは自動的に`State.Ready`で作成
+- `founders`マッピングに登録され、特別なロック機構が適用
+
+<PageFeedback path="/ja/node-validators/systemContract" />

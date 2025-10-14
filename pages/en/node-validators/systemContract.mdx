@@ -1,0 +1,363 @@
+import PageFeedback from '../../../components/PageFeedback'
+
+# System Contracts
+
+## Overview
+
+The Nero blockchain validator system consists of two main components: the `Validator` contract and the `Staking` contract. Each validator has its own `Validator` contract instance, while the `Staking` contract serves as the central orchestrator for the Delegated Proof of Stake (DPoS) consensus mechanism.
+
+## Contract Architecture
+
+### Staking Contract
+
+Functions as the central orchestrator with the following responsibilities:
+
+- Validator registration and management
+- Reward distribution
+- Penalty system execution
+- Active validator set management
+
+### Validator Contract
+
+Manages validator-specific state and delegation:
+
+- Validator-specific stake management
+- Delegator management
+- Reward calculation
+- Unbonding processing
+
+## Core Functionality
+
+### Staking Features
+
+#### Validator Registration
+
+Validator registration is performed through the `registerValidator()` function:
+
+- Minimum self-stake: `MinSelfStakes` (10 million NERO)
+- Commission rate: 0-100% range
+- Delegation acceptance settings
+
+#### Delegation Mechanism
+
+Delegators can delegate stakes to validators through `addDelegation()`:
+
+- Validator delegation acceptance verification
+- Total stake limit check (`MaxStakes`: 200 million NERO)
+- New delegator registration
+- Penalty processing execution
+- Reward settlement and debt update
+
+#### Unbonding System
+
+Stake removal processing:
+
+- **Period**: `UnboundLockPeriod` (21 days)
+- **Management**: Tracked via `UnboundRecord` structure
+- **Withdrawal**: Calculated with `claimableUnbound()` after period expiration
+
+### Reward System
+
+#### Reward Calculation Mechanism
+
+Debt-based system ensuring fair reward distribution:
+
+- Cumulative reward calculation via `accRewardsPerStake`
+- Fee distribution based on commission rates
+- Processing with COEFFICIENT (1e18) multiplication for precision improvement
+
+#### Block Reward Distribution
+
+Executed via `distributeBlockFee()`:
+
+- Equal distribution among active validators
+- Addition to each validator's `incomeFees`
+
+#### Staking Rewards
+
+Updated via `updateRewardsRecord()`:
+
+- Distribution of `rewardsPerBlock` per block
+- Cumulative update of `accRewardsPerStake`
+- Deduction from total staking rewards
+
+### Validator State Management
+
+Validators have the following 4 states:
+
+| State     | Description             | Conditions                                                                         |
+| --------- | ----------------------- | ---------------------------------------------------------------------------------- |
+| **Idle**  | Initial state           | `totalStake` < `ThresholdStakes`                                                   |
+| **Ready** | Consensus participation | `totalStake` >= `ThresholdStakes` and `selfStake` >= `MinSelfStakes`               |
+| **Jail**  | Penalty state           | Penalty applied, consensus participation blocked for `JailPeriod` (86,400 seconds) |
+| **Exit**  | Exit state              | All stakes in unbonding process                                                    |
+
+#### State Transitions
+
+- **Idle → Ready**: When stake conditions are satisfied
+- **Ready → Jail**: When penalty is applied
+- **Jail → Ready**: After penalty period expiration + stake conditions satisfied
+- **Any → Exit**: When `exitStaking()` is called
+
+### Penalty System
+
+#### Lazy Punishment
+
+Penalty for missing block proposals:
+
+- **Threshold**: `LazyPunishThreshold` (48 blocks) consecutive
+- **Penalty Rate**: `LazyPunishFactor` (0.5%)
+- **Counter Decrease**: Decreases by 2 per epoch
+- **Execution**: Automatic execution via `lazyPunish()`
+
+#### Evil Punishment
+
+Penalty for malicious behavior such as double signing:
+
+- **Penalty Rate**: `EvilPunishFactor` (5%)
+- **Execution**: Immediate application via `doubleSignPunish()`
+- **Limitation**: Once per validator only
+
+#### Penalty Execution Process
+
+`punish()` function execution flow:
+
+1. Reward settlement and validator's `selfSettledRewards` update
+2. Penalty amount calculation from `totalUnWithdrawn`
+3. Reduction from `totalStake`
+4. Reduction from validator's self-stake, insufficient amount from unbonding stakes
+5. `accPunishFactor` update
+6. State transition to Jail
+
+#### Penalty Application to Delegators
+
+- Only the difference of `accPunishFactor - punishFree` is applied
+- Penalty amount calculated as `(totalDelegation * deltaFactor) / PunishBase`
+- Reduction from active stakes, insufficient amount from unbonding stakes
+- Rewards adjusted by stake ratio before and after penalty
+
+## Advanced Features
+
+### ReStaking/ReDelegation
+
+Stake movement functionality:
+
+- **reStaking**: Validator moves self-stake as delegation to another validator
+- **reDelegation**: Delegator changes delegation target
+- **Advantage**: Immediate movement without unbonding period
+
+### Founder Locking System
+
+Special locking mechanism for founder validators:
+
+- Complete lock until `basicLockEnd`
+- Gradual release per `releasePeriod` thereafter
+- Complete release after full period expiration
+
+### SortedLinkedList Ranking Management
+
+Validator ranking based on total stake amount:
+
+- **Up**: Ranking increase when stake increases
+- **Down**: Ranking decrease when stake decreases
+- **Remove**: List removal when exiting Ready state
+
+### Permission Management
+
+Two operation modes:
+
+- **Permission mode** (`isOpened = false`): Only administrators can register
+- **Permissionless mode** (`isOpened = true`): Anyone with `MinSelfStakes` or more can register
+- **Note**: `removePermission()` is irreversible operation
+
+### Operation Restriction Mechanisms
+
+Restrictions on important operations:
+
+- **onlyOperateOnce**: Execute only once within the same block
+- **onlyBlockEpoch**: Execute only at epoch boundaries
+- **ReentrancyGuard**: Reentrancy attack prevention
+
+## System Parameters
+
+| Parameter             | Value          | Description                                  |
+| --------------------- | -------------- | -------------------------------------------- |
+| `MaxValidators`       | 25             | Maximum number of active validators          |
+| `MaxStakes`           | 200M NERO      | Maximum stake per validator                  |
+| `ThresholdStakes`     | 10M NERO       | Minimum stake to become candidate            |
+| `MinSelfStakes`       | 10M NERO       | Minimum self-stake required for registration |
+| `UnboundLockPeriod`   | 21 days        | Unbonding period                             |
+| `JailPeriod`          | 86,400 seconds | Penalty period (24 hours)                    |
+| `LazyPunishThreshold` | 48 blocks      | Threshold for lazy punishment                |
+| `LazyPunishFactor`    | 5/1000 (0.5%)  | Lazy punishment rate                         |
+| `EvilPunishFactor`    | 50/1000 (5%)   | Evil punishment rate                         |
+| `StakeUnit`           | 1 NERO         | Minimum unit for stake operations            |
+
+## Stake Unit Constraints
+
+All stake operations are restricted to 1 NERO units:
+
+- **Minimum Unit**: `StakeUnit` (1 NERO) or more
+- **Unit Restriction**: Integer multiples of 1 NERO only
+- **Verification**: Automatic check via `mustConvertStake()` function
+
+## Forced Withdrawal in Exit State
+
+When validator is in Exit state and `exitLockEnd` has passed:
+
+- **Delegator Rights**: Can forcibly withdraw stakes
+- **Purpose**: Fund recovery even if validator becomes unresponsive
+- **Safety**: Protection of delegator assets
+
+## Security Features
+
+### ReentrancyGuard Protection
+
+Reentrancy attack prevention implemented for important claim operations:
+
+- `validatorClaimAny()`
+- `delegatorClaimAny()`
+- `reStaking()`
+- `reDelegation()`
+
+### Operation Restriction Mechanisms
+
+Important restrictions on calls from Nero Engine:
+
+- **onlyOperateOnce**: Execute only once within the same block
+- **onlyBlockEpoch**: Execute only at epoch boundaries
+- **Target**: `distributeBlockFee()`, `updateActiveValidatorSet()`, etc.
+
+## Contract Function Reference
+
+### Read Contract (View Functions)
+
+#### Validator Contract
+
+**Basic Information Retrieval**
+
+- `state()`: Current validator state (Idle/Ready/Jail/Exit)
+- `validator()`: Validator address
+- `manager()`: Manager address
+- `totalStake()`: Total stake amount
+
+**Reward & Withdrawal Calculation**
+
+- `anyClaimable()`: Total claimable amount (rewards + stake)
+- `claimableRewards()`: Claimable rewards only
+- `getPendingUnboundRecord()`: Get specific unbonding record
+- `getAllDelegatorsLength()`: Total number of delegators
+
+#### Staking Contract
+
+**System State**
+
+- `valMaps(address)`: Get Validator contract instance from validator address
+- `valInfos(address)`: Get validator information (ValidatorInfo struct)
+- `founders(address)`: Get founder lock information
+- `totalStake()`: Total stake amount of entire system
+- `isOpened()`: Whether in permissionless mode
+
+**Reward Information**
+
+- `rewardsPerBlock()`: Reward amount per block
+- `accRewardsPerStake()`: Cumulative reward/stake ratio
+
+#### GenesisLock Contract
+
+- `getClaimableAmount(address)`: Claimable amount and period
+- `getClaimablePeriod(address)`: Calculate claimable period count
+
+### Write Contract (State-Changing Functions)
+
+#### Validator Contract
+
+**Validator Operations**
+
+- `addStake(uint256)`: Add self-stake
+- `subStake(uint256, bool)`: Reduce self-stake
+- `exitStaking()`: Transition validator to exit state
+- `validatorClaimAny(address payable)`: Withdraw validator rewards and stakes
+
+**Delegation Operations**
+
+- `addDelegation(uint256, address)`: Add delegation
+- `subDelegation(uint256, address, bool)`: Reduce delegation
+- `exitDelegation(address)`: Complete delegation exit
+- `delegatorClaimAny(address payable)`: Withdraw delegator rewards and stakes
+
+**Penalty**
+
+- `punish(uint)`: Apply penalty (called from Staking contract)
+
+#### Staking Contract
+
+**Initialization & Settings**
+
+- `initialize()`: Initialize contract
+- `removePermission()`: Transition to permissionless mode (irreversible)
+
+**Validator Management**
+
+- `registerValidator(address, uint, bool)`: Register new validator
+- `addStake(address)`: Add validator self-stake
+- `subStake(address, uint256)`: Reduce validator self-stake
+- `exitStaking(address)`: Exit validator
+
+**Delegation Management**
+
+- `addDelegation(address)`: Add delegation
+- `subDelegation(address, uint256)`: Reduce delegation
+- `exitDelegation(address)`: Complete delegation exit
+
+**Stake Movement**
+
+- `reStaking(address, address)`: Move validator self-stake as delegation to another validator
+- `reDelegation(address, address)`: Change delegation target
+
+**Withdrawal**
+
+- `validatorClaimAny(address)`: Withdraw validator rewards and stakes
+- `delegatorClaimAny(address)`: Withdraw delegator rewards and stakes
+
+**Engine-Exclusive Operations**
+
+- `updateActiveValidatorSet(address[])`: Update active validator set
+- `distributeBlockFee()`: Distribute block rewards
+- `lazyPunish(address)`: Apply lazy punishment
+- `decreaseMissedBlocksCounter()`: Decrease penalty counter
+- `doubleSignPunish(address, bytes32)`: Apply double sign penalty
+
+#### GenesisLock Contract
+
+- `initialize(uint256)`: Initialize contract
+- `init()`: Batch initialize user data
+- `appendLockRecord()`: Add new lock record
+- `claim()`: Withdraw unlocked assets
+
+## Important Notes
+
+### Delegator Penalty Protection
+
+- Delegators are partially protected from penalties via `punishFree` field
+- New delegators have current `accPunishFactor` recorded
+- Existing delegators only have the difference applied
+
+### Precision Processing
+
+- Reward calculations are processed with COEFFICIENT (1e18) multiplication
+- Precision improvement enables fair reward distribution
+
+### Access Control
+
+- All state-changing functions are protected with appropriate access control modifiers
+- Validator contract functions are basically called only from Staking contract
+- End users operate through the Staking contract
+
+### Initialization Process
+
+- Founder validators can only be registered using `initValidator()` in genesis block
+- Founder validators are automatically created in `State.Ready`
+- Registered in `founders` mapping with special locking mechanism applied
+
+<PageFeedback path="/en/node-validators/systemContract" />
