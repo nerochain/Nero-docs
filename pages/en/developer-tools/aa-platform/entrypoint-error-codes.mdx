@@ -1,0 +1,109 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# EntryPoint Error Codes Documentation
+
+This document provides a comprehensive reference for all error codes used in the EntryPoint contract. Error codes follow the pattern `AAmn`, where:
+
+- `m` indicates the category:
+  - `1` = Factory/InitCode issues
+  - `2` = Account issues
+  - `3` = Paymaster issues
+  - `4` = Gas/Validation issues
+  - `5` = PostOp issues
+  - `9` = Other/Internal issues
+
+- `n` is a specific error number within that category
+
+## Error Codes Reference Table
+
+| Code | Category | Error Message | Description | Location | Common Causes | Resolution |
+|------|----------|---------------|-------------|-----------|----------------|------------|
+| **AA10** | Factory | `"AA10 sender already constructed"` | Sender account contract already exists at the specified address | `_createSenderIfNeeded()` | UserOperation includes `initCode` but account already deployed | Remove `initCode` or use different sender address |
+| **AA13** | Factory | `"AA13 initCode failed or OOG"` | Account creation via `initCode` failed | `_createSenderIfNeeded()` | Factory reverts, insufficient gas, or returns `address(0)` | Check factory contract, ensure sufficient `verificationGasLimit` |
+| **AA14** | Factory | `"AA14 initCode must return sender"` | Factory returned address doesn't match expected sender | `_createSenderIfNeeded()` | Factory returns different address than calculated | Ensure factory uses correct address calculation method |
+| **AA15** | Factory | `"AA15 initCode must create sender"` | No code deployed at sender address after `initCode` execution | `_createSenderIfNeeded()` | Factory execution completed but no contract code exists | Verify factory properly deploys account contract |
+| **AA20** | Account | `"AA20 account not deployed"` | Account contract doesn't exist and no `initCode` provided | `_validateSenderAndPaymaster()` (simulation only) | Account not deployed, no `initCode` | Provide `initCode` or ensure account is deployed |
+| **AA21** | Account | `"AA21 didn't pay prefund"` | Account deposit insufficient to cover required prefund | `_validateAccountPrepayment()` | Account deposit < required prefund | Deposit sufficient funds to EntryPoint for account |
+| **AA22** | Account | `"AA22 expired or not due"` | UserOperation outside valid time range | `_validateAccountAndPaymasterValidationData()` | Block timestamp after `validUntil` or before `validAfter` | Submit within valid time window |
+| **AA23** | Account | `"AA23 reverted: <reason>"` or `"AA23 reverted (or OOG)"` | Account's `validateUserOp` reverted | `_validateAccountPrepayment()` | Signature validation failure, custom validation logic, or OOG | Check revert reason, verify signature, ensure sufficient gas |
+| **AA24** | Account | `"AA24 signature error"` | Signature aggregator mismatch indicates signature validation failure | `_validateAccountAndPaymasterValidationData()` | Account validation returns different aggregator than expected | Verify signature is correct, check aggregator configuration |
+| **AA25** | Account | `"AA25 invalid account nonce"` | Nonce in UserOperation doesn't match account's expected nonce | `_validatePrepayment()` | Nonce already used or out of sequence | Use correct nonce value, query account's current nonce |
+| **AA30** | Paymaster | `"AA30 paymaster not deployed"` | Paymaster contract doesn't exist | `_validateSenderAndPaymaster()` (simulation only) | Paymaster address has no code | Deploy paymaster contract or use valid address |
+| **AA31** | Paymaster | `"AA31 paymaster deposit too low"` | Paymaster deposit insufficient to cover required prefund | `_validatePaymasterPrepayment()` | Paymaster deposit < required prefund | Deposit sufficient funds to EntryPoint for paymaster |
+| **AA32** | Paymaster | `"AA32 paymaster expired or not due"` | UserOperation outside paymaster's valid time range | `_validateAccountAndPaymasterValidationData()` | Block timestamp after paymaster's `validUntil` or before `validAfter` | Submit within valid time window |
+| **AA33** | Paymaster | `"AA33 reverted: <reason>"` or `"AA33 reverted (or OOG)"` | Paymaster's `validatePaymasterUserOp` reverted | `_validatePaymasterPrepayment()` | Validation logic failure, insufficient balance, or OOG | Check revert reason, verify paymaster balance, ensure sufficient gas |
+| **AA34** | Paymaster | `"AA34 signature error"` | Paymaster signature validation failed | `_validateAccountAndPaymasterValidationData()` | Paymaster validation returns non-zero aggregator | Verify paymaster signature, check signature data in `paymasterAndData` |
+| **AA40** | Gas | `"AA40 over verificationGasLimit"` | Actual gas used during validation exceeds `verificationGasLimit` | `_validatePrepayment()` | Account or paymaster validation used more gas than limit | Increase `verificationGasLimit`, optimize validation logic |
+| **AA41** | Gas | `"AA41 too little verificationGas"` | Remaining gas after account validation insufficient for paymaster | `_validatePaymasterPrepayment()` | Account validation used too much gas | Increase `verificationGasLimit`, optimize account validation |
+| **AA50** | PostOp | `"AA50 postOp reverted: <reason>"` or `"AA50 postOp revert"` | Paymaster's `postOp` function reverted | `_handlePostOp()` | PostOp logic fails (token transfer, accounting, etc.) | Check revert reason, verify paymaster balance, review `postOp` implementation |
+| **AA51** | PostOp | `"AA51 prefund below actualGasCost"` | Prefund amount less than actual gas cost | `_handlePostOp()` | Actual gas exceeds prefund, gas price increased | Internal error - check gas price stability, verify prefund calculation |
+| **AA90** | Other | `"AA90 invalid beneficiary"` | Beneficiary address is zero address | `_compensate()` | Zero address passed as beneficiary | Provide valid non-zero beneficiary address |
+| **AA91** | Other | `"AA91 failed send to beneficiary"` | Transfer of collected fees to beneficiary failed | `_compensate()` | Beneficiary contract reverts on receive | Use valid beneficiary address that can receive ETH |
+| **AA92** | Other | `"AA92 internal call only"` | `innerHandleOp` called externally instead of internally | `innerHandleOp()` | External call to `innerHandleOp` | Function should only be called internally by EntryPoint |
+| **AA93** | Other | `"AA93 invalid paymasterAndData"` | `paymasterAndData` length invalid (must be 0 or ≥20 bytes) | `_copyUserOpToMemory()` | `paymasterAndData` length between 1-19 bytes | Use empty bytes or ensure ≥20 bytes with valid paymaster address |
+| **AA94** | Other | `"AA94 gas values overflow"` | Gas values exceed uint120.max | `_validatePrepayment()` | One or more gas values > uint120.max | Reduce gas values to be within uint120.max |
+| **AA95** | Other | `"AA95 out of gas"` | `handleOps` transaction called with insufficient gas limit | `_executeUserOp()` | Entire bundle runs out of gas | Increase gas limit for `handleOps`, reduce bundle size |
+| **AA96** | Other | `"AA96 invalid aggregator"` | Aggregator address is `address(1)` (signature error marker) | `handleAggregatedOps()` | Aggregator set to signature error marker | Check signature aggregation logic, verify aggregator configuration |
+
+## Notes
+
+- All error codes are returned via the `FailedOp` error type in the EntryPoint contract
+
+- Error codes starting with "AA" are specific to Account Abstraction (EIP-4337)
+
+- During simulation (`simulateValidation`), errors AA20 and AA30 are used to prevent warm/cold storage differentiation
+
+- Most errors should be caught during off-chain simulation and should not occur during on-chain execution
+
+- Error codes help identify which entity (factory, account, or paymaster) is responsible for the failure
+
+## Quick Reference by Category
+
+### Factory/InitCode Errors (AA1x)
+
+- **AA10**: Sender already constructed
+- **AA13**: InitCode failed or OOG
+- **AA14**: InitCode must return sender
+- **AA15**: InitCode must create sender
+
+### Account Errors (AA2x)
+
+- **AA20**: Account not deployed
+- **AA21**: Didn't pay prefund
+- **AA22**: Expired or not due
+- **AA23**: Account reverted
+- **AA24**: Signature error
+- **AA25**: Invalid account nonce
+
+### Paymaster Errors (AA3x)
+
+- **AA30**: Paymaster not deployed
+- **AA31**: Paymaster deposit too low
+- **AA32**: Paymaster expired or not due
+- **AA33**: Paymaster reverted
+- **AA34**: Paymaster signature error
+
+### Gas/Validation Errors (AA4x)
+
+- **AA40**: Over verificationGasLimit
+- **AA41**: Too little verificationGas
+
+### PostOp Errors (AA5x)
+
+- **AA50**: PostOp reverted
+- **AA51**: Prefund below actualGasCost
+
+### Other/Internal Errors (AA9x)
+
+- **AA90**: Invalid beneficiary
+- **AA91**: Failed send to beneficiary
+- **AA92**: Internal call only
+- **AA93**: Invalid paymasterAndData
+- **AA94**: Gas values overflow
+- **AA95**: Out of gas
+- **AA96**: Invalid aggregator
+
+
+<PageFeedback path="/en/developer-tools/aa-platform/entrypoint-error-codes" />
+
