@@ -5,5 +5,6 @@ export default {
   'configuring-policies': 'ポリシーの設定',
   'payment-management': '支払い管理',
   'integration-and-best-practices': '統合とベストプラクティス',
-  'troubleshooting': 'トラブルシューティング'
+  'troubleshooting': 'トラブルシューティング',
+  'spacify-callback': 'コールバック'
 } 
