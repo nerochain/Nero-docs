@@ -5,5 +5,6 @@ export default {
   "configuring-policies": "Configuring Policies",
   "payment-management": "Payment Management",
   "integration-and-best-practices": "Integration & Best Practices",
-  "troubleshooting": "Troubleshooting"
+  "troubleshooting": "Troubleshooting",
+  "entrypoint-error-codes": "EntryPoint Error Codes"
 } 
