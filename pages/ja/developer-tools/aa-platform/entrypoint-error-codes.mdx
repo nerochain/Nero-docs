@@ -1,0 +1,135 @@
+import PageFeedback from '../../../../components/PageFeedback'
+
+
+# EntryPoint エラーコード ドキュメント
+
+このドキュメントは、EntryPointコントラクトで使用されるすべてのエラーコードの包括的なリファレンスを提供します。エラーコードは `AAmn` というパターンに従います。ここで：
+
+- `m` はカテゴリを示します：
+
+  - `1` = Factory/InitCodeの問題
+
+  - `2` = アカウントの問題
+
+  - `3` = Paymasterの問題
+
+  - `4` = ガス/検証の問題
+
+  - `5` = PostOpの問題
+
+  - `9` = その他/内部の問題
+
+- `n` はそのカテゴリ内の特定のエラー番号です
+
+## エラーコード リファレンス表
+
+| コード | カテゴリ | エラーメッセージ | 説明 | 場所 | 一般的な原因 | 解決方法 |
+|------|----------|---------------|-------------|-----------|----------------|------------|
+| **AA10** | Factory | `"AA10 sender already constructed"` | 指定されたアドレスに送信者アカウントコントラクトが既に存在 | `_createSenderIfNeeded()` | UserOperationに`initCode`が含まれているが、アカウントが既にデプロイ済み | `initCode`を削除するか、異なる送信者アドレスを使用 |
+| **AA13** | Factory | `"AA13 initCode failed or OOG"` | `initCode`によるアカウント作成が失敗 | `_createSenderIfNeeded()` | Factoryがリバート、ガス不足、または`address(0)`を返す | Factoryコントラクトを確認し、十分な`verificationGasLimit`を確保 |
+| **AA14** | Factory | `"AA14 initCode must return sender"` | Factoryが返したアドレスが期待される送信者と一致しない | `_createSenderIfNeeded()` | Factoryが計算されたものとは異なるアドレスを返す | Factoryが正しいアドレス計算方法を使用していることを確認 |
+| **AA15** | Factory | `"AA15 initCode must create sender"` | `initCode`実行後、送信者アドレスにコードがデプロイされていない | `_createSenderIfNeeded()` | Factory実行は完了したが、コントラクトコードが存在しない | Factoryがアカウントコントラクトを適切にデプロイしていることを確認 |
+| **AA20** | Account | `"AA20 account not deployed"` | アカウントコントラクトが存在せず、`initCode`も提供されていない | `_validateSenderAndPaymaster()` (シミュレーションのみ) | アカウントがデプロイされておらず、`initCode`がない | `initCode`を提供するか、アカウントがデプロイされていることを確認 |
+| **AA21** | Account | `"AA21 didn't pay prefund"` | アカウントのデポジットが必要なprefundをカバーするのに不十分 | `_validateAccountPrepayment()` | アカウントのデポジット < 必要なprefund | EntryPointにアカウント用の十分な資金をデポジット |
+| **AA22** | Account | `"AA22 expired or not due"` | UserOperationが有効な時間範囲外 | `_validateAccountAndPaymasterValidationData()` | ブロックタイムスタンプが`validUntil`より後、または`validAfter`より前 | 有効な時間ウィンドウ内で送信 |
+| **AA23** | Account | `"AA23 reverted: <reason>"` または `"AA23 reverted (or OOG)"` | アカウントの`validateUserOp`がリバート | `_validateAccountPrepayment()` | 署名検証の失敗、カスタム検証ロジック、またはOOG | リバート理由を確認、署名を検証、十分なガスを確保 |
+| **AA24** | Account | `"AA24 signature error"` | 署名アグリゲーターの不一致が署名検証の失敗を示す | `_validateAccountAndPaymasterValidationData()` | アカウント検証が期待とは異なるアグリゲーターを返す | 署名が正しいことを確認、アグリゲーター設定を確認 |
+| **AA25** | Account | `"AA25 invalid account nonce"` | UserOperationのnonceがアカウントの期待されるnonceと一致しない | `_validatePrepayment()` | Nonceが既に使用されているか、順序が乱れている | 正しいnonce値を使用し、アカウントの現在のnonceをクエリ |
+| **AA30** | Paymaster | `"AA30 paymaster not deployed"` | Paymasterコントラクトが存在しない | `_validateSenderAndPaymaster()` (シミュレーションのみ) | Paymasterアドレスにコードがない | Paymasterコントラクトをデプロイするか、有効なアドレスを使用 |
+| **AA31** | Paymaster | `"AA31 paymaster deposit too low"` | Paymasterのデポジットが必要なprefundをカバーするのに不十分 | `_validatePaymasterPrepayment()` | Paymasterのデポジット < 必要なprefund | EntryPointにPaymaster用の十分な資金をデポジット |
+| **AA32** | Paymaster | `"AA32 paymaster expired or not due"` | UserOperationがPaymasterの有効な時間範囲外 | `_validateAccountAndPaymasterValidationData()` | ブロックタイムスタンプがPaymasterの`validUntil`より後、または`validAfter`より前 | 有効な時間ウィンドウ内で送信 |
+| **AA33** | Paymaster | `"AA33 reverted: <reason>"` または `"AA33 reverted (or OOG)"` | Paymasterの`validatePaymasterUserOp`がリバート | `_validatePaymasterPrepayment()` | 検証ロジックの失敗、残高不足、またはOOG | リバート理由を確認、Paymasterの残高を確認、十分なガスを確保 |
+| **AA34** | Paymaster | `"AA34 signature error"` | Paymasterの署名検証が失敗 | `_validateAccountAndPaymasterValidationData()` | Paymaster検証が非ゼロのアグリゲーターを返す | Paymasterの署名を確認、`paymasterAndData`の署名データを確認 |
+| **AA40** | Gas | `"AA40 over verificationGasLimit"` | 検証中に使用された実際のガスが`verificationGasLimit`を超える | `_validatePrepayment()` | アカウントまたはPaymasterの検証が制限を超えるガスを使用 | `verificationGasLimit`を増やす、検証ロジックを最適化 |
+| **AA41** | Gas | `"AA41 too little verificationGas"` | アカウント検証後の残りガスがPaymasterに不十分 | `_validatePaymasterPrepayment()` | アカウント検証がガスを使いすぎた | `verificationGasLimit`を増やす、アカウント検証を最適化 |
+| **AA50** | PostOp | `"AA50 postOp reverted: <reason>"` または `"AA50 postOp revert"` | Paymasterの`postOp`関数がリバート | `_handlePostOp()` | PostOpロジックが失敗（トークン転送、会計など） | リバート理由を確認、Paymasterの残高を確認、`postOp`実装を確認 |
+| **AA51** | PostOp | `"AA51 prefund below actualGasCost"` | Prefund額が実際のガスコストより少ない | `_handlePostOp()` | 実際のガスがprefundを超える、ガス価格が上昇 | 内部エラー - ガス価格の安定性を確認、prefund計算を確認 |
+| **AA90** | Other | `"AA90 invalid beneficiary"` | 受益者アドレスがゼロアドレス | `_compensate()` | 受益者としてゼロアドレスが渡された | 有効な非ゼロの受益者アドレスを提供 |
+| **AA91** | Other | `"AA91 failed send to beneficiary"` | 収集された手数料の受益者への転送が失敗 | `_compensate()` | 受益者コントラクトが受信時にリバート | ETHを受信できる有効な受益者アドレスを使用 |
+| **AA92** | Other | `"AA92 internal call only"` | `innerHandleOp`が内部的ではなく外部的に呼び出された | `innerHandleOp()` | `innerHandleOp`への外部呼び出し | 関数はEntryPointによって内部的にのみ呼び出されるべき |
+| **AA93** | Other | `"AA93 invalid paymasterAndData"` | `paymasterAndData`の長さが無効（0または≥20バイトでなければならない） | `_copyUserOpToMemory()` | `paymasterAndData`の長さが1-19バイトの間 | 空のバイトを使用するか、有効なPaymasterアドレスで≥20バイトを確保 |
+| **AA94** | Other | `"AA94 gas values overflow"` | ガス値がuint120.maxを超える | `_validatePrepayment()` | 1つ以上のガス値 > uint120.max | ガス値をuint120.max以内に減らす |
+| **AA95** | Other | `"AA95 out of gas"` | `handleOps`トランザクションが不十分なガス制限で呼び出された | `_executeUserOp()` | バンドル全体がガス不足 | `handleOps`のガス制限を増やす、バンドルサイズを減らす |
+| **AA96** | Other | `"AA96 invalid aggregator"` | アグリゲーターアドレスが`address(1)`（署名エラーマーカー） | `handleAggregatedOps()` | アグリゲーターが署名エラーマーカーに設定されている | 署名集約ロジックを確認、アグリゲーター設定を確認 |
+
+## 注意事項
+
+- すべてのエラーコードは、EntryPointコントラクトの`FailedOp`エラータイプを通じて返されます
+
+- "AA"で始まるエラーコードは、アカウント抽象化（EIP-4337）に固有です
+
+- シミュレーション（`simulateValidation`）中、エラーAA20とAA30は、ウォーム/コールドストレージの区別を防ぐために使用されます
+
+- ほとんどのエラーはオフチェーンシミュレーション中にキャッチされるべきであり、オンチェーン実行中に発生すべきではありません
+
+- エラーコードは、どのエンティティ（factory、アカウント、またはPaymaster）が失敗の責任があるかを識別するのに役立ちます
+
+## カテゴリ別クイックリファレンス
+
+### Factory/InitCodeエラー (AA1x)
+
+- **AA10**: 送信者が既に構築済み
+
+- **AA13**: InitCodeが失敗またはOOG
+
+- **AA14**: InitCodeは送信者を返す必要がある
+
+- **AA15**: InitCodeは送信者を作成する必要がある
+
+### アカウントエラー (AA2x)
+
+- **AA20**: アカウントがデプロイされていない
+
+- **AA21**: Prefundを支払わなかった
+
+- **AA22**: 期限切れまたは期限前
+
+- **AA23**: アカウントがリバート
+
+- **AA24**: 署名エラー
+
+- **AA25**: 無効なアカウントnonce
+
+### Paymasterエラー (AA3x)
+
+- **AA30**: Paymasterがデプロイされていない
+
+- **AA31**: Paymasterのデポジットが低すぎる
+
+- **AA32**: Paymasterが期限切れまたは期限前
+
+- **AA33**: Paymasterがリバート
+
+- **AA34**: Paymaster署名エラー
+
+### ガス/検証エラー (AA4x)
+
+- **AA40**: verificationGasLimitを超過
+
+- **AA41**: verificationGasが少なすぎる
+
+### PostOpエラー (AA5x)
+
+- **AA50**: PostOpがリバート
+
+- **AA51**: PrefundがactualGasCostより低い
+
+### その他/内部エラー (AA9x)
+
+- **AA90**: 無効な受益者
+
+- **AA91**: 受益者への送信に失敗
+
+- **AA92**: 内部呼び出しのみ
+
+- **AA93**: 無効なpaymasterAndData
+
+- **AA94**: ガス値のオーバーフロー
+
+- **AA95**: ガス不足
+
+- **AA96**: 無効なアグリゲーター
+
+
+<PageFeedback path="/ja/developer-tools/aa-platform/entrypoint-error-codes" />
+

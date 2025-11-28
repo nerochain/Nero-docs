@@ -6,5 +6,6 @@ export default {
   'payment-management': '支払い管理',
   'integration-and-best-practices': '統合とベストプラクティス',
   'troubleshooting': 'トラブルシューティング',
-  'spacify-callback': 'コールバック'
+  'spacify-callback': 'コールバック',
+  'entrypoint-error-codes': 'EntryPoint エラーコード'
 } 

@@ -6,5 +6,6 @@ export default {
   "payment-management": "Payment Management",
   "integration-and-best-practices": "Integration & Best Practices",
   "troubleshooting": "Troubleshooting",
-  "spacify-callback": "Spacify Callback"
+  "spacify-callback": "Spacify Callback",
+  "entrypoint-error-codes": "EntryPoint Error Codes"
 } 
