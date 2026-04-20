@@ -1,10 +1,162 @@
 [
   {
+    "topic": "quickstart",
+    "title": "Quickstart: install + .env + minimum app",
+    "description": "Fresh Next.js / React app talking to NERO Chain via Web3Auth social login + account abstraction + paymaster in ~30 lines. Start here.",
+    "language": "bash",
+    "code": "# 1. Install\nnpm install @web3auth/modal ethers wagmi @tanstack/react-query \\\n  @ethersproject/providers @ethersproject/units\nnpm install userop@https://github.com/nerochain/aa-userop-sdk.git\n\n# 2. .env.local (testnet)\ncat > .env.local <<'EOF'\nNEXT_PUBLIC_WEB3AUTH_CLIENT_ID=your-web3auth-client-id\nNEXT_PUBLIC_WEB3AUTH_NETWORK=SAPPHIRE_DEVNET\nNEXT_PUBLIC_CHAIN_ID=0x2B1\nNEXT_PUBLIC_RPC_URL=https://rpc-testnet.nerochain.io\nNEXT_PUBLIC_BUNDLER_URL=https://bundler-testnet.nerochain.io\nNEXT_PUBLIC_PAYMASTER_URL=https://paymaster-testnet.nerochain.io\nNEXT_PUBLIC_PAYMASTER_API=your-paymaster-api-key\nNEXT_PUBLIC_ENTRY_POINT=0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\nNEXT_PUBLIC_ACCOUNT_FACTORY=0x9406Cc6185a346906296840746125a0E44976454\nEOF\n\n# 3. Run it\nnpm run dev\n\n# See topics: providers-setup, wallet-hook, builder-with-paymaster-hook\n# for the wiring.",
+    "docs": "https://docs.nerochain.io/en/ai-resources"
+  },
+  {
+    "topic": "providers-setup",
+    "title": "Web3Auth + Wagmi + React Query provider stack",
+    "description": "Exact provider nesting (Web3AuthProvider → QueryClientProvider → WagmiProvider) required by @web3auth/modal v10+ on NERO Chain. Includes Next.js App Router SSR hydration.",
+    "language": "typescript",
+    "code": "// src/app/providers.tsx\n\"use client\";\nimport { QueryClient, QueryClientProvider } from \"@tanstack/react-query\";\nimport {\n  type IWeb3AuthState,\n  MFA_LEVELS,\n  WALLET_CONNECTORS,\n} from \"@web3auth/modal\";\nimport {\n  type Web3AuthContextConfig,\n  Web3AuthProvider,\n} from \"@web3auth/modal/react\";\nimport { WagmiProvider } from \"@web3auth/modal/react/wagmi\";\nimport { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from \"@web3auth/modal\";\nimport type React from \"react\";\n\nconst neroChain = {\n  chainNamespace: CHAIN_NAMESPACES.EIP155,\n  chainId: process.env.NEXT_PUBLIC_CHAIN_ID || \"0x2B1\",\n  rpcTarget: process.env.NEXT_PUBLIC_RPC_URL || \"https://rpc-testnet.nerochain.io\",\n  displayName: \"NERO Testnet\",\n  blockExplorerUrl: \"https://testnet.neroscan.io\",\n  ticker: \"NERO\",\n  tickerName: \"NERO\",\n  decimals: 18,\n};\n\nconst queryClient = new QueryClient();\n\nconst web3AuthContextConfig: Web3AuthContextConfig = {\n  web3AuthOptions: {\n    clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID!,\n    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,\n    ssr: true,\n    chains: [neroChain],\n    defaultChainId: neroChain.chainId,\n    mfaLevel: MFA_LEVELS.NONE,\n    uiConfig: { mode: \"light\", useLogoLoader: true, defaultLanguage: \"en\", uxMode: \"redirect\" },\n    modalConfig: {\n      connectors: {\n        [WALLET_CONNECTORS.AUTH]: {\n          label: \"Social Login\",\n          showOnModal: true,\n          loginMethods: {\n            google: { showOnModal: true },\n            twitter: { showOnModal: true },\n          },\n        },\n      },\n    },\n  },\n};\n\nexport default function Provider({\n  children,\n  web3authInitialState,\n}: {\n  children: React.ReactNode;\n  web3authInitialState: IWeb3AuthState | undefined;\n}) {\n  return (\n    <Web3AuthProvider config={web3AuthContextConfig} initialState={web3authInitialState}>\n      <QueryClientProvider client={queryClient}>\n        <WagmiProvider>{children}</WagmiProvider>\n      </QueryClientProvider>\n    </Web3AuthProvider>\n  );\n}\n\n// src/app/layout.tsx (SSR cookie hydration)\nimport { cookieToWeb3AuthState } from \"@web3auth/modal\";\nimport { headers } from \"next/headers\";\nimport Provider from \"./providers\";\n\nexport default async function RootLayout({ children }: { children: React.ReactNode }) {\n  const headersList = await headers();\n  const web3authInitialState = cookieToWeb3AuthState(headersList.get(\"cookie\"));\n  return (\n    <html lang=\"en\">\n      <body>\n        <Provider web3authInitialState={web3authInitialState}>{children}</Provider>\n      </body>\n    </html>\n  );\n}",
+    "docs": "https://docs.nerochain.io/en/developer-tools/aa-wallet-ui-usage"
+  },
+  {
+    "topic": "builder-with-paymaster-hook",
+    "title": "useBuilderWithPaymaster hook (SimpleAccount + paymaster)",
+    "description": "Reusable React hook that wires userop's SimpleAccount builder to NERO's bundler + paymaster. Supports Type 0 (sponsored), Type 1+ (ERC-20), and no-paymaster modes.",
+    "language": "typescript",
+    "code": "// src/hooks/useBuilderWithPaymaster.ts\nimport { WALLET_CONFIG } from \"@/constants/wallet\";\nimport type { JsonRpcSigner } from \"@ethersproject/providers\";\nimport type { ethers } from \"ethers\";\nimport { useCallback } from \"react\";\nimport { Client, Presets } from \"userop\";\n\nexport type BuilderConfig = {\n  rpcUrl: string;\n  bundlerUrl?: string;\n  entryPoint?: string;\n  accountFactory?: string;\n  paymasterApi?: string;\n  paymasterUrl?: string;\n};\n\nexport type PaymasterOptions = {\n  apikey?: string;\n  rpc?: string;\n  type?: number;    // 0 = sponsored, 1+ = ERC-20\n  token?: string;   // ERC-20 address for type 1+\n};\n\nexport const useBuilderWithPaymaster = (\n  signer?: ethers.Signer | JsonRpcSigner,\n  config?: BuilderConfig,\n) => {\n  const initBuilder = useCallback(\n    async (usePaymaster: boolean, paymasterTokenAddress?: string, type = 0) => {\n      const cfg = config ?? WALLET_CONFIG;\n      if (!signer || !cfg) return undefined;\n\n      const builder = await Presets.Builder.SimpleAccount.init(signer, cfg.rpcUrl, {\n        overrideBundlerRpc: cfg.bundlerUrl,\n        entryPoint: cfg.entryPoint,\n        factory: cfg.accountFactory,\n      });\n\n      if (usePaymaster) {\n        builder.setPaymasterOptions({\n          apikey: cfg.paymasterApi,\n          rpc: cfg.paymasterUrl,\n          type,\n          ...(type !== 0 && paymasterTokenAddress ? { token: paymasterTokenAddress } : {}),\n        });\n      } else {\n        builder.setPaymasterOptions(undefined);\n      }\n      return builder;\n    },\n    [signer, config],\n  );\n\n  const sendUserOp = useCallback(\n    async (builder: Presets.Builder.SimpleAccount, opts?: { dryRun?: boolean }) => {\n      const cfg = config ?? WALLET_CONFIG;\n      if (!cfg) throw new Error(\"Config not provided\");\n      const client = await Client.init(cfg.rpcUrl, {\n        overrideBundlerRpc: cfg.bundlerUrl,\n        entryPoint: cfg.entryPoint,\n      });\n      return client.sendUserOperation(builder, opts);\n    },\n    [config],\n  );\n\n  return { initBuilder, sendUserOp };\n};",
+    "docs": "https://docs.nerochain.io/en/developer-tools/user-op-sdk"
+  },
+  {
+    "topic": "wallet-hook",
+    "title": "Complete useWallet hook (connect, send, stake, balance)",
+    "description": "Production-ready React hook tying Web3Auth + paymaster builder together. Exposes {state, actions} for isConnected/scwAddress/balance plus connect/disconnect/send/stake/refetchBalance.",
+    "language": "typescript",
+    "code": "// src/hooks/useWallet.ts (core)\nimport { Web3Provider } from \"@ethersproject/providers\";\nimport { formatEther, parseEther } from \"@ethersproject/units\";\nimport { useWeb3Auth } from \"@web3auth/modal/react\";\nimport { ethers } from \"ethers\";\nimport { useCallback, useEffect, useState } from \"react\";\nimport { useBuilderWithPaymaster, type BuilderConfig } from \"@/hooks/useBuilderWithPaymaster\";\n\nexport const useWallet = (builderConfig: BuilderConfig) => {\n  const { web3Auth, isConnected, provider } = useWeb3Auth();\n  const [walletAddress, setWalletAddress] = useState<string | null>(null);  // EOA\n  const [scwAddress, setScwAddress] = useState<string | null>(null);        // SimpleAccount\n  const [ethersSigner, setEthersSigner] = useState<any>();\n  const [balance, setBalance] = useState(\"0.00\");\n  const [loading, setLoading] = useState(true);\n  const [authError, setAuthError] = useState<string | null>(null);\n\n  const { initBuilder, sendUserOp } = useBuilderWithPaymaster(ethersSigner, builderConfig);\n\n  const fetchBalance = useCallback(async (addr: string) => {\n    if (!provider) return;\n    const web3Provider = new Web3Provider(provider as any);\n    const wei = await web3Provider.getBalance(addr);\n    setBalance(Number.parseFloat(formatEther(wei)).toFixed(4));\n  }, [provider]);\n\n  useEffect(() => {\n    (async () => {\n      try {\n        if (!web3Auth || !provider) return;\n        const accounts = (await provider.request({ method: \"eth_accounts\" })) as string[];\n        if (!accounts?.length) return;\n        setWalletAddress(accounts[0]);\n        setEthersSigner(new Web3Provider(provider as any).getSigner());\n      } catch (e) {\n        setAuthError(e instanceof Error ? e.message : \"unknown\");\n      } finally {\n        setLoading(false);\n      }\n    })();\n  }, [web3Auth, provider]);\n\n  useEffect(() => {\n    if (!ethersSigner || scwAddress) return;\n    (async () => {\n      const builder = await initBuilder(true, undefined, 0);\n      const addr = builder?.proxy?.address;\n      if (addr) { setScwAddress(addr); fetchBalance(addr); }\n    })();\n  }, [ethersSigner, scwAddress, initBuilder, fetchBalance]);\n\n  const connect = useCallback(async () => {\n    if (!web3Auth) return;\n    await web3Auth.connect();\n  }, [web3Auth]);\n\n  const disconnect = useCallback(async () => {\n    if (!web3Auth) return;\n    await web3Auth.logout();\n    setWalletAddress(null); setScwAddress(null); setEthersSigner(undefined);\n  }, [web3Auth]);\n\n  const send = useCallback(async (to: string, amount: string) => {\n    if (!ethersSigner) throw new Error(\"No signer available\");\n    const builder = await initBuilder(true, undefined, 0);\n    if (!builder) throw new Error(\"Failed to init builder\");\n    builder.execute(to, parseEther(amount), \"0x\");\n    const result = await sendUserOp(builder);\n    const receipt = await result.wait();\n    if (scwAddress) fetchBalance(scwAddress);\n    return { userOpHash: result.userOpHash, transactionHash: receipt?.transactionHash ?? \"\" };\n  }, [ethersSigner, initBuilder, sendUserOp, scwAddress, fetchBalance]);\n\n  return {\n    state: { isConnected, walletAddress, scwAddress, balance, loading, authError, ethersSigner },\n    actions: { connect, disconnect, send, refetchBalance: () => scwAddress && fetchBalance(scwAddress) },\n  };\n};",
+    "docs": "https://docs.nerochain.io/en/developer-tools/aa-wallet-ui-usage"
+  },
+  {
+    "topic": "send-gasless-tx",
+    "title": "Send a gasless transaction (Type 0 sponsorship)",
+    "description": "End-to-end gasless native NERO transfer: build a UserOperation, let paymaster cover gas, submit to bundler, wait for receipt. Works in both server-side JS and the useWallet hook.",
+    "language": "typescript",
+    "code": "// With useWallet hook (React)\nconst { actions } = useWallet(WALLET_CONFIG);\nconst result = await actions.send(recipientAddress, \"0.1\");\nconsole.log(\"UserOp:\", result.userOpHash);\nconsole.log(\"Tx:\", result.transactionHash);\n\n// Without React (e.g., server-side script):\nimport { Client, Presets } from \"userop\";\nimport { parseEther } from \"@ethersproject/units\";\n\nconst builder = await Presets.Builder.SimpleAccount.init(signer, RPC_URL, {\n  overrideBundlerRpc: BUNDLER_URL,\n  entryPoint: \"0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\",\n  factory: \"0x9406Cc6185a346906296840746125a0E44976454\",\n});\nbuilder.setPaymasterOptions({\n  apikey: process.env.NERO_PAYMASTER_API_KEY,\n  rpc: PAYMASTER_URL,\n  type: 0,\n});\nbuilder.execute(recipient, parseEther(\"0.1\"), \"0x\");\n\nconst client = await Client.init(RPC_URL, {\n  overrideBundlerRpc: BUNDLER_URL,\n  entryPoint: \"0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\",\n});\nconst result = await client.sendUserOperation(builder);\nconst receipt = await result.wait();",
+    "docs": "https://docs.nerochain.io/en/developer-tools/paymaster-api/core-methods#pm_sponsor_userop"
+  },
+  {
+    "topic": "send-userop",
+    "title": "Send a UserOperation (low-level pattern)",
+    "description": "Lower-level UserOperation construction without the React hook. Useful for Node.js backends, CLIs, and bots.",
+    "language": "typescript",
+    "code": "import { Client, Presets } from \"userop\";\nimport { parseEther } from \"@ethersproject/units\";\nimport { ethers } from \"ethers\";\n\nconst provider = new ethers.providers.JsonRpcProvider(\"https://rpc-testnet.nerochain.io\");\nconst signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);\n\nconst builder = await Presets.Builder.SimpleAccount.init(signer, provider.connection.url, {\n  overrideBundlerRpc: \"https://bundler-testnet.nerochain.io\",\n  entryPoint: \"0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\",\n  factory: \"0x9406Cc6185a346906296840746125a0E44976454\",\n});\n\nbuilder.setPaymasterOptions({\n  apikey: process.env.NERO_PAYMASTER_API_KEY,\n  rpc: \"https://paymaster-testnet.nerochain.io\",\n  type: 0,\n});\n\nbuilder.execute(recipientAddress, parseEther(\"0.01\"), \"0x\");\n\nconst client = await Client.init(provider.connection.url, {\n  overrideBundlerRpc: \"https://bundler-testnet.nerochain.io\",\n});\n\nconst result = await client.sendUserOperation(builder);\nconsole.log(\"UserOp hash:\", result.userOpHash);\nconst receipt = await result.wait();\nconsole.log(\"Tx hash:\", receipt?.transactionHash);",
+    "docs": "https://docs.nerochain.io/en/tutorials/low-level/sending-ops"
+  },
+  {
+    "topic": "batch-transactions",
+    "title": "Batch multiple calls in one UserOperation",
+    "description": "Queue N executions on the same SimpleAccount builder before sending. The bundler settles them in one on-chain tx, saving gas and guaranteeing atomic ordering.",
+    "language": "typescript",
+    "code": "const batchTransfer = async (transfers: { to: string; amount: string }[]) => {\n  const builder = await initBuilder(true, undefined, 0);\n  if (!builder) throw new Error(\"Failed to init builder\");\n\n  for (const t of transfers) {\n    builder.execute(t.to, parseEther(t.amount), \"0x\");\n  }\n\n  const result = await sendUserOp(builder);\n  return await result.wait();\n};\n\n// Mix transfer + ERC-20 approve in one UserOp:\nconst builder = await initBuilder(true, undefined, 0);\nbuilder.execute(walletA, parseEther(\"0.5\"), \"0x\");\nbuilder.execute(\n  tokenAddress,\n  \"0\",\n  erc20.interface.encodeFunctionData(\"approve\", [spender, amountWei]),\n);\nconst result = await sendUserOp(builder);\nawait result.wait();",
+    "docs": "https://docs.nerochain.io/en/tutorials/low-level/sending-ops"
+  },
+  {
+    "topic": "erc20-transfer",
+    "title": "Gasless ERC-20 transfer",
+    "description": "Encode an ERC-20 transfer as calldata and route it through paymaster-sponsored UserOperations. Users don't need native NERO.",
+    "language": "typescript",
+    "code": "import { ethers } from \"ethers\";\n\nconst ERC20_ABI = [\n  \"function transfer(address to, uint256 amount) returns (bool)\",\n  \"function approve(address spender, uint256 amount) returns (bool)\",\n  \"function balanceOf(address account) view returns (uint256)\",\n];\n\nconst transferERC20 = async (\n  tokenAddress: string,\n  to: string,\n  amount: string,\n  decimals = 18,\n) => {\n  const builder = await initBuilder(true, undefined, 0);  // Type 0 = sponsored\n  if (!builder) throw new Error(\"Failed to init builder\");\n\n  const contract = new ethers.Contract(tokenAddress, ERC20_ABI);\n  const amountWei = ethers.parseUnits(amount, decimals);\n  const data = contract.interface.encodeFunctionData(\"transfer\", [to, amountWei]);\n\n  builder.execute(tokenAddress, \"0\", data);\n  const result = await sendUserOp(builder);\n  return await result.wait();\n};",
+    "docs": "https://docs.nerochain.io/en/tutorials/low-level/checking-sup-tokens"
+  },
+  {
+    "topic": "nft-mint",
+    "title": "Gasless NFT mint",
+    "description": "Mint an ERC-721 (or drop-style) NFT without the user ever touching native gas. Same pattern as ERC-20 transfer — encode call, wrap in UserOp, let paymaster settle.",
+    "language": "typescript",
+    "code": "const NFT_ABI = [\n  \"function mint(address to, uint256 tokenId) external\",\n  \"function safeMint(address to, string memory uri) external\",\n];\n\nconst mintNFT = async (nftAddress: string, to: string, tokenUri: string) => {\n  const builder = await initBuilder(true, undefined, 0);\n  if (!builder) throw new Error(\"Failed to init builder\");\n\n  const contract = new ethers.Contract(nftAddress, NFT_ABI);\n  const data = contract.interface.encodeFunctionData(\"safeMint\", [to, tokenUri]);\n\n  builder.execute(nftAddress, \"0\", data);\n  const result = await sendUserOp(builder);\n  return await result.wait();\n};",
+    "docs": "https://docs.nerochain.io/en/tutorials"
+  },
+  {
+    "topic": "staking",
+    "title": "Stake, unstake, claim rewards (native validator contract)",
+    "description": "Delegate NERO to a validator, exit the delegation, and claim rewards — all via the pre-compiled staking contract at 0x…f000. Calls go through the paymaster so delegators don't need gas NERO separate from their stake.",
+    "language": "typescript",
+    "code": "const STAKING_ADDRESS = \"0x000000000000000000000000000000000000f000\";\nconst VALIDATOR = \"0xcbA00A3d882497A54e4d3a0a03b7FE1d2495F295\";\n\nconst STAKING_ABI = [\n  \"function addDelegation(address _val) external payable\",\n  \"function exitDelegation(address _val) external\",\n  \"function delegatorClaimAny(address _val) external\",\n  \"function claimableRewards(address _val, address _delegator) external view returns (uint256)\",\n];\n\nconst stake = async (amount: string) => {\n  const builder = await initBuilder(true, undefined, 0);\n  const contract = new ethers.Contract(STAKING_ADDRESS, STAKING_ABI);\n  const amountWei = ethers.parseEther(amount).toString();\n  const data = contract.interface.encodeFunctionData(\"addDelegation\", [VALIDATOR]);\n  builder.execute(STAKING_ADDRESS, amountWei, data);\n  const result = await sendUserOp(builder);\n  return await result.wait();\n};\n\nconst unstake = async () => {\n  const builder = await initBuilder(true, undefined, 0);\n  const contract = new ethers.Contract(STAKING_ADDRESS, STAKING_ABI);\n  const data = contract.interface.encodeFunctionData(\"exitDelegation\", [VALIDATOR]);\n  builder.execute(STAKING_ADDRESS, \"0\", data);\n  return (await sendUserOp(builder)).wait();\n};\n\nconst claimRewards = async () => {\n  const builder = await initBuilder(true, undefined, 0);\n  const contract = new ethers.Contract(STAKING_ADDRESS, STAKING_ABI);\n  const data = contract.interface.encodeFunctionData(\"delegatorClaimAny\", [VALIDATOR]);\n  builder.execute(STAKING_ADDRESS, \"0\", data);\n  return (await sendUserOp(builder)).wait();\n};",
+    "docs": "https://docs.nerochain.io/en/node-validators"
+  },
+  {
+    "topic": "integrate-aa-wallet",
+    "title": "Drop-in AA Wallet UI provider",
+    "description": "Prebuilt account-abstraction UI from NERO's SDK. Handles social login, key management, and signing in a single provider component — pair with the provider stack from 'providers-setup'.",
+    "language": "typescript",
+    "code": "// npm install github:nerochain/aa-userop-sdk\nimport { AAWalletProvider, ConnectButton } from \"@nerochain/aa-userop-sdk\";\n\nexport default function App() {\n  return (\n    <AAWalletProvider\n      rpc=\"https://rpc-testnet.nerochain.io\"\n      entryPoint=\"0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\"\n      apiKey={process.env.NEXT_PUBLIC_NERO_API_KEY}\n    >\n      <ConnectButton />\n      {/* your app */}\n    </AAWalletProvider>\n  );\n}",
+    "docs": "https://docs.nerochain.io/en/tutorials/low-level/aa-wallet-integration"
+  },
+  {
+    "topic": "web3auth-login-methods",
+    "title": "Enable / disable Web3Auth social login methods",
+    "description": "Fine-tune which social providers show up in the Web3Auth modal. Disable methods you don't want to support — less choice = cleaner UX for mass adoption.",
+    "language": "typescript",
+    "code": "// Inside web3AuthContextConfig.web3AuthOptions.modalConfig:\nconnectors: {\n  [WALLET_CONNECTORS.AUTH]: {\n    label: \"Social Login\",\n    showOnModal: true,\n    loginMethods: {\n      google: { showOnModal: true },\n      twitter: { showOnModal: true },\n      facebook: { showOnModal: false },\n      discord: { showOnModal: false },\n      apple: { showOnModal: false },\n      github: { showOnModal: false },\n      email_passwordless: { showOnModal: false },\n      sms_passwordless: { showOnModal: false },\n    },\n  },\n  [WALLET_CONNECTORS.METAMASK]: { showOnModal: false },\n  [WALLET_CONNECTORS.WALLET_CONNECT_V2]: { showOnModal: false },\n},\n\n// For LINE mini apps / PWAs, set uxMode to \"redirect\" (popup may be blocked).\n// For Japanese users, set uiConfig.defaultLanguage: \"ja\".",
+    "docs": "https://docs.nerochain.io/en/developer-tools/aa-wallet-ui-usage"
+  },
+  {
+    "topic": "nextjs-ssr-setup",
+    "title": "Next.js App Router + Web3Auth SSR hydration",
+    "description": "Restore Web3Auth state from cookies during SSR so logged-in users don't see a connect button flash on page load. Requires ssr: true in Web3AuthProvider config.",
+    "language": "typescript",
+    "code": "// src/app/layout.tsx\nimport { cookieToWeb3AuthState } from \"@web3auth/modal\";\nimport { headers } from \"next/headers\";\nimport Provider from \"./providers\";\n\nexport default async function RootLayout({ children }: { children: React.ReactNode }) {\n  const headersList = await headers();\n  const web3authInitialState = cookieToWeb3AuthState(headersList.get(\"cookie\"));\n  return (\n    <html lang=\"en\">\n      <body>\n        <Provider web3authInitialState={web3authInitialState}>{children}</Provider>\n      </body>\n    </html>\n  );\n}\n\n// In providers.tsx, set:\n//   web3AuthOptions: { ssr: true, ... }\n// and pass web3authInitialState into <Web3AuthProvider initialState={...} />.",
+    "docs": "https://docs.nerochain.io/en/developer-tools/aa-wallet-ui-usage"
+  },
+  {
+    "topic": "fetch-balance",
+    "title": "Fetch native NERO balance of the SCW",
+    "description": "Use the Web3Auth-provided JSON-RPC provider to read the on-chain balance of the user's Smart Contract Wallet (not the EOA).",
+    "language": "typescript",
+    "code": "import { Web3Provider } from \"@ethersproject/providers\";\nimport { formatEther } from \"@ethersproject/units\";\n\nconst fetchBalance = async (scwAddress: string, web3authProvider: any) => {\n  const provider = new Web3Provider(web3authProvider);\n  const wei = await provider.getBalance(scwAddress);\n  return formatEther(wei);  // \"0.1234\"\n};",
+    "docs": "https://docs.nerochain.io/en/developer-tools/aa-wallet-ui-usage"
+  },
+  {
+    "topic": "fetch-price",
+    "title": "Fetch NERO native token price from neroscan.io",
+    "description": "Read current NERO market price via the neroscan API. Useful for USD-pegged UIs and ERC-20 gas-payment UX.",
+    "language": "typescript",
+    "code": "const fetchNEROPrice = async (): Promise<number> => {\n  const res = await fetch(\"https://api.neroscan.io/v1/chain/index/cards?chainId=NERO\", {\n    cache: \"no-store\",\n  });\n  if (!res.ok) throw new Error(`API ${res.status}`);\n  const json = await res.json();\n  const raw = String(json?.price ?? json?.data?.price ?? \"\").replace(/,/g, \"\");\n  return Number.parseFloat(raw);\n};",
+    "docs": "https://docs.nerochain.io/en/faq"
+  },
+  {
+    "topic": "check-supported-tokens",
+    "title": "List ERC-20 tokens accepted for gas (pm_supported_tokens)",
+    "description": "Call the Paymaster JSON-RPC to find which ERC-20 tokens can be used for gas (Type 1/2) and their current price ratios vs NERO.",
+    "language": "javascript",
+    "code": "const res = await fetch(\"https://paymaster-testnet.nerochain.io\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\", \"X-API-Key\": process.env.NERO_API_KEY },\n  body: JSON.stringify({\n    jsonrpc: \"2.0\",\n    id: 1,\n    method: \"pm_supported_tokens\",\n    params: [\n      {\n        sender: aaWalletAddress,\n        nonce: \"0x0\",\n        initCode: \"0x\",\n        callData: \"0x\",\n        callGasLimit: \"0x0\",\n        verificationGasLimit: \"0x0\",\n        preVerificationGas: \"0x0\",\n        maxFeePerGas: \"0x0\",\n        maxPriorityFeePerGas: \"0x0\",\n        paymasterAndData: \"0x\",\n        signature: \"0x\",\n      },\n      process.env.NERO_API_KEY,\n      \"0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\",\n    ],\n  }),\n});\nconst { result } = await res.json();\nconsole.log(\"freeGas:\", result.freeGas);\nconsole.log(\"tokens:\", result.tokens);",
+    "docs": "https://docs.nerochain.io/en/developer-tools/paymaster-api/core-methods#pm_supported_tokens"
+  },
+  {
+    "topic": "complete-wallet-component",
+    "title": "Complete React wallet page (connect + send + balance)",
+    "description": "Minimal full-stack React page using useWallet. Copy/paste into pages/wallet.tsx, wire the providers, and you have a working social-login AA wallet with gasless send.",
+    "language": "typescript",
+    "code": "\"use client\";\nimport { WALLET_CONFIG } from \"@/constants/wallet\";\nimport { useWallet } from \"@/hooks/useWallet\";\nimport { useState } from \"react\";\n\nexport default function WalletPage() {\n  const { state, actions } = useWallet(WALLET_CONFIG);\n  const [to, setTo] = useState(\"\");\n  const [amount, setAmount] = useState(\"\");\n  const [sending, setSending] = useState(false);\n\n  if (state.loading) return <div>Loading…</div>;\n  if (state.authError) return <div>Error: {state.authError}</div>;\n\n  if (!state.isConnected) {\n    return <button onClick={actions.connect}>Connect Wallet</button>;\n  }\n\n  const handleSend = async () => {\n    if (!to || !amount) return;\n    setSending(true);\n    try {\n      const { transactionHash } = await actions.send(to, amount);\n      alert(`Sent! Tx: ${transactionHash}`);\n      setTo(\"\"); setAmount(\"\");\n    } finally {\n      setSending(false);\n    }\n  };\n\n  return (\n    <main>\n      <div>Smart Contract Wallet: {state.scwAddress}</div>\n      <div>{state.balance} NERO</div>\n      <input placeholder=\"Recipient (0x…)\" value={to} onChange={(e) => setTo(e.target.value)} />\n      <input type=\"number\" placeholder=\"Amount\" value={amount} onChange={(e) => setAmount(e.target.value)} />\n      <button onClick={handleSend} disabled={sending || !to || !amount}>\n        {sending ? \"Sending…\" : \"Send (Gasless)\"}\n      </button>\n      <button onClick={actions.refetchBalance}>Refresh</button>\n      <button onClick={actions.disconnect}>Disconnect</button>\n    </main>\n  );\n}",
+    "docs": "https://docs.nerochain.io/en/developer-tools/aa-wallet-ui-usage"
+  },
+  {
+    "topic": "line-miniapp",
+    "title": "LINE mini app specifics (redirect uxMode, viewport, Japanese)",
+    "description": "Adjustments for LINE mini apps: force redirect mode for Web3Auth (popups are blocked inside LINE), set Japanese defaults, and pin viewport scaling for LIFF browsers.",
+    "language": "typescript",
+    "code": "// Web3Auth config for LINE / in-app browsers:\nweb3AuthOptions: {\n  ...,\n  uiConfig: {\n    mode: \"light\",\n    useLogoLoader: true,\n    defaultLanguage: \"ja\",       // Japanese by default\n    uxMode: \"redirect\",           // LINE blocks popups\n  },\n}\n\n// In pages/_document.tsx or app/layout.tsx <head>:\n<meta\n  name=\"viewport\"\n  content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover\"\n/>\n\n// Detect LINE in-app browser:\nconst isLine = /Line\\//i.test(navigator.userAgent);\nif (isLine) {\n  // optionally route straight to social-login redirect\n}",
+    "docs": "https://docs.nerochain.io/ja/developer-tools/aa-wallet-ui-usage"
+  },
+  {
+    "topic": "error-handling",
+    "title": "Common AA + paymaster errors and recovery",
+    "description": "Cheat-sheet mapping common runtime errors in the Web3Auth + userop + paymaster stack to their causes and the one-line fix.",
+    "language": "typescript",
+    "code": "// \"No signer available\"\n//   → web3Auth.connect() hasn't completed; guard with state.isConnected\n\n// \"Failed to initialize builder\"\n//   → check RPC_URL / BUNDLER_URL / EntryPoint address in env\n\n// \"Insufficient funds\"\n//   → SCW has no balance; fund it or switch to Type 0 (sponsored)\n\n// \"Paymaster error\" / HTTP 401 at paymaster\n//   → bad or rotated API key; regenerate at aa-platform.nerochain.io\n\n// -32501 (validatePaymasterUserOp rejected)\n//   → sponsorship quota exhausted or project-level token not approved\n\n// -32503 (out of time-range)\n//   → rebuild the UserOp and resend; do not reuse old nonces\n\n// -32504 (paymaster throttled)\n//   → HTTP 429-class; back off exponentially from 1s, max 3 retries\n\n// Best-effort retry wrapper:\nasync function withRetry<T>(fn: () => Promise<T>, n = 3): Promise<T> {\n  let delay = 1000;\n  for (let i = 0; i < n; i++) {\n    try { return await fn(); }\n    catch (e: any) {\n      const code = e?.code ?? e?.error?.code;\n      if (![\"-32503\", \"-32504\"].includes(String(code)) && code !== 429) throw e;\n      if (i === n - 1) throw e;\n      await new Promise((r) => setTimeout(r, delay + Math.random() * 500));\n      delay *= 2;\n    }\n  }\n  throw new Error(\"unreachable\");\n}",
+    "docs": "https://docs.nerochain.io/en/developer-tools/paymaster-api/error-handling"
+  },
+  {
     "topic": "deploy-contract-hardhat",
-    "title": "Deploy your first contract on NERO with Hardhat",
+    "title": "Deploy a contract to NERO testnet with Hardhat",
     "description": "Minimal Hardhat config for NERO testnet plus a deploy script. See the full walkthrough in the Cookbook.",
     "language": "javascript",
-    "code": "// hardhat.config.js\nrequire('@nomicfoundation/hardhat-toolbox');\n\nmodule.exports = {\n  solidity: '0.8.24',\n  networks: {\n    neroTestnet: {\n      url: 'https://rpc-testnet.nerochain.io',\n      accounts: [process.env.PRIVATE_KEY],\n    },\n  },\n};\n\n// scripts/deploy.js\nconst hre = require('hardhat');\n\nasync function main() {\n  const MyContract = await hre.ethers.getContractFactory('MyContract');\n  const contract = await MyContract.deploy();\n  await contract.waitForDeployment();\n  console.log('Deployed to:', await contract.getAddress());\n}\n\nmain().catch((err) => { console.error(err); process.exit(1); });\n\n// npx hardhat run scripts/deploy.js --network neroTestnet",
+    "code": "// hardhat.config.js\nrequire('@nomicfoundation/hardhat-toolbox');\n\nmodule.exports = {\n  solidity: '0.8.24',\n  networks: {\n    neroTestnet: {\n      url: 'https://rpc-testnet.nerochain.io',\n      chainId: 689,\n      accounts: [process.env.PRIVATE_KEY],\n    },\n  },\n};\n\n// scripts/deploy.js\nconst hre = require('hardhat');\nasync function main() {\n  const C = await hre.ethers.getContractFactory('MyContract');\n  const contract = await C.deploy();\n  await contract.waitForDeployment();\n  console.log('Deployed to:', await contract.getAddress());\n}\nmain().catch((err) => { console.error(err); process.exit(1); });\n\n// npx hardhat run scripts/deploy.js --network neroTestnet",
     "docs": "https://docs.nerochain.io/en/tutorials/first-contract/using-hardhat"
   },
   {
@@ -12,39 +164,7 @@
     "title": "Deploy from Remix to NERO testnet",
     "description": "Point Remix at NERO testnet via the Injected Provider flow using MetaMask.",
     "language": "text",
-    "code": "1. Open https://remix.ethereum.org and load your contract.\n2. Add NERO testnet to MetaMask:\n   - RPC URL: https://rpc-testnet.nerochain.io\n   - Chain ID: see docs.nerochain.io/en/tutorials/first-contract/verifyExplorer\n   - Currency: NERO\n3. In Remix → Deploy & Run → Environment: Injected Provider - MetaMask.\n4. Compile, Deploy, and confirm in MetaMask.\n5. Verify on the NERO block explorer per the tutorial.",
+    "code": "1. Open https://remix.ethereum.org and load your contract.\n2. Add NERO testnet to MetaMask:\n   - RPC URL: https://rpc-testnet.nerochain.io\n   - Chain ID: 689 (0x2B1)\n   - Currency: NERO\n   - Block explorer: https://testnet.neroscan.io\n3. In Remix → Deploy & Run → Environment: Injected Provider - MetaMask.\n4. Compile, Deploy, and confirm in MetaMask.\n5. Verify on the NERO block explorer per the tutorial.",
     "docs": "https://docs.nerochain.io/en/tutorials/first-contract/using-remix"
-  },
-  {
-    "topic": "send-gasless-tx",
-    "title": "Send a gasless transaction (Type 0 sponsorship)",
-    "description": "Call pm_sponsor_userop with type: 0 so the dApp (not the user) pays gas. Requires an AA Platform API key with a funded sponsorship balance.",
-    "language": "javascript",
-    "code": "const userOp = /* build your UserOperation via the UserOp SDK */;\nconst res = await fetch('https://paymaster-testnet.nerochain.io', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json', 'X-API-Key': process.env.NERO_API_KEY },\n  body: JSON.stringify({\n    jsonrpc: '2.0',\n    id: 1,\n    method: 'pm_sponsor_userop',\n    params: [\n      userOp,\n      process.env.NERO_API_KEY,\n      '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',\n      { type: 0 },\n    ],\n  }),\n});\nconst { result: signedUserOp } = await res.json();\n// Submit signedUserOp to the bundler — gas is covered by your AA Platform balance.",
-    "docs": "https://docs.nerochain.io/en/developer-tools/paymaster-api/core-methods#pm_sponsor_userop"
-  },
-  {
-    "topic": "integrate-aa-wallet",
-    "title": "Integrate the NERO AA Wallet UI",
-    "description": "Drop-in AA wallet UI with social login and MetaMask support. Install the SDK and mount the provider.",
-    "language": "javascript",
-    "code": "// npm install github:nerochain/aa-userop-sdk\nimport { AAWalletProvider, ConnectButton } from '@nerochain/aa-userop-sdk';\n\nexport default function App() {\n  return (\n    <AAWalletProvider\n      rpc=\"https://rpc-testnet.nerochain.io\"\n      entryPoint=\"0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\"\n      apiKey={process.env.NEXT_PUBLIC_NERO_API_KEY}\n    >\n      <ConnectButton />\n      {/* your app */}\n    </AAWalletProvider>\n  );\n}",
-    "docs": "https://docs.nerochain.io/en/tutorials/low-level/aa-wallet-integration"
-  },
-  {
-    "topic": "send-userop",
-    "title": "Send a UserOperation",
-    "description": "Build, sign, and submit a UserOperation to the NERO bundler.",
-    "language": "javascript",
-    "code": "import { buildUserOp, sendUserOp } from '@nerochain/aa-userop-sdk';\n\nconst userOp = await buildUserOp({\n  sender: aaWalletAddress,\n  callData,\n  entryPoint: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',\n});\n\nconst receipt = await sendUserOp(userOp, {\n  bundlerUrl: 'https://bundler-testnet.nerochain.io',\n  paymaster: { type: 0 },\n});\nconsole.log('UserOp hash:', receipt.userOpHash);",
-    "docs": "https://docs.nerochain.io/en/tutorials/low-level/sending-ops"
-  },
-  {
-    "topic": "check-supported-tokens",
-    "title": "List tokens accepted for gas (pm_supported_tokens)",
-    "description": "Query the Paymaster for the ERC-20 tokens accepted as gas and their current price ratios.",
-    "language": "javascript",
-    "code": "const res = await fetch('https://paymaster-testnet.nerochain.io', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json', 'X-API-Key': process.env.NERO_API_KEY },\n  body: JSON.stringify({\n    jsonrpc: '2.0',\n    id: 1,\n    method: 'pm_supported_tokens',\n    params: [\n      { sender: aaWalletAddress, nonce: '0x0', initCode: '0x', callData: '0x', callGasLimit: '0x0', verificationGasLimit: '0x0', preVerificationGas: '0x0', maxFeePerGas: '0x0', maxPriorityFeePerGas: '0x0', paymasterAndData: '0x', signature: '0x' },\n      process.env.NERO_API_KEY,\n      '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',\n    ],\n  }),\n});\nconst { result } = await res.json();\nconsole.log('freeGas:', result.freeGas);\nconsole.log('tokens:', result.tokens);",
-    "docs": "https://docs.nerochain.io/en/developer-tools/paymaster-api/core-methods#pm_supported_tokens"
   }
 ]

@@ -86,6 +86,37 @@
           "locale": { "type": "string", "enum": ["en", "ja"], "default": "en" }
         }
       }
+    },
+    {
+      "id": "get_integration_config",
+      "name": "get_integration_config",
+      "description": "Return structured reference configuration for integrating NERO Chain into web apps: network parameters, pre-deployed contract addresses, paymaster payment types, required/optional environment variables, Web3Auth setup, and security rules.",
+      "whenToUse": "Agent needs to produce a .env file, validate a user's config, wire up Web3Auth + userop, or answer questions about chain IDs, RPC endpoints, EntryPoint address, SimpleAccountFactory, staking contract, etc. Returns JSON, not markdown — no parsing required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "enum": ["all", "networks", "testnet", "mainnet", "contracts", "paymaster-types", "env-vars", "web3auth", "security"],
+            "default": "all"
+          },
+          "network": {
+            "type": "string",
+            "enum": ["testnet", "mainnet"],
+            "description": "When topic=env-vars, render values for this network."
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": { "topic": "testnet" },
+          "output": "{ chainIdHex: '0x2B1', rpcUrl: 'https://rpc-testnet.nerochain.io', … }"
+        },
+        {
+          "input": { "topic": "env-vars", "network": "mainnet" },
+          "output": "{ exampleValues: { NEXT_PUBLIC_CHAIN_ID: '0x699', … }, variables: { required: […], optional: […] } }"
+        }
+      ]
     }
   ]
 }

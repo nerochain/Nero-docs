@@ -16,6 +16,7 @@ import { listSectionsTool } from './tools/list-sections.js';
 import { getApiMethodTool } from './tools/get-api-method.js';
 import { getCodeExampleTool } from './tools/get-code-example.js';
 import { getFaqTool } from './tools/get-faq.js';
+import { getIntegrationConfigTool } from './tools/get-integration-config.js';
 import { listDocsResources, readDocsResource } from './resources/docs-resource.js';
 import { isUiUri, listUiResources, readUiResource } from './resources/ui-resource.js';
 
@@ -26,6 +27,7 @@ const TOOLS = [
   getApiMethodTool,
   getCodeExampleTool,
   getFaqTool,
+  getIntegrationConfigTool,
 ];
 
 export function createServer(): Server {

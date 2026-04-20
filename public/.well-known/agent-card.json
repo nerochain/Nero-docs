@@ -56,6 +56,11 @@
       "id": "get_faq",
       "name": "Get NERO FAQ",
       "description": "Return entries from the NERO Chain FAQ, optionally filtered by topic."
+    },
+    {
+      "id": "get_integration_config",
+      "name": "Get NERO integration config",
+      "description": "Return structured reference data for integrating NERO Chain: network parameters (chain IDs, RPC/bundler/paymaster URLs), contract addresses (EntryPoint, SimpleAccountFactory, staking), paymaster payment types, environment variables, Web3Auth setup rules, and security constraints."
     }
   ],
   "authentication": {

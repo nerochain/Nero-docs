@@ -91,6 +91,23 @@
           "locale": { "type": "string", "enum": ["en", "ja"] }
         }
       }
+    },
+    {
+      "name": "get_integration_config",
+      "description": "Return structured reference configuration for integrating NERO Chain into web apps: network parameters, contract addresses, paymaster payment types, required env vars, Web3Auth setup, and security rules. JSON, not prose.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "enum": ["all", "networks", "testnet", "mainnet", "contracts", "paymaster-types", "env-vars", "web3auth", "security"]
+          },
+          "network": {
+            "type": "string",
+            "enum": ["testnet", "mainnet"]
+          }
+        }
+      }
     }
   ],
   "resources": {

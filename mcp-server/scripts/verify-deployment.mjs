@@ -66,13 +66,14 @@ async function probe(label) {
     'get_api_method',
     'get_code_example',
     'get_faq',
+    'get_integration_config',
     'get_page',
     'list_sections',
     'search_docs',
   ];
   record(
-    'tools/list (6 tools registered)',
-    toolNames.length === 6 && expectedTools.every((n) => toolNames.includes(n)),
+    'tools/list (7 tools registered)',
+    toolNames.length === 7 && expectedTools.every((n) => toolNames.includes(n)),
     toolNames.join(', '),
     toolNames,
   );
@@ -80,8 +81,8 @@ async function probe(label) {
   const withUiMeta = tools.filter((t) => t._meta?.ui?.resourceUri);
   record(
     'tools have MCP Apps _meta.ui.resourceUri',
-    withUiMeta.length === 6,
-    `${withUiMeta.length}/6 tools carry UI metadata`,
+    withUiMeta.length === 7,
+    `${withUiMeta.length}/7 tools carry UI metadata`,
     withUiMeta.map((t) => ({ name: t.name, uri: t._meta.ui.resourceUri })),
   );
 
@@ -243,6 +244,119 @@ async function probe(label) {
     faqJaText.length > 500 && faqHasJa,
     `${faqJaText.length} chars; Japanese: ${faqHasJa}`,
     { url: faqJa.structuredContent?.url, locale: faqJa.structuredContent?.locale },
+  );
+
+  // --- Integration config / code-example new topics ---
+  const configTestnet = await client.callTool({
+    name: 'get_integration_config',
+    arguments: { topic: 'testnet' },
+  });
+  const configTestnetStruct = configTestnet.structuredContent ?? {};
+  record(
+    'get_integration_config(topic=testnet)',
+    configTestnetStruct.chainIdHex === '0x2B1' && configTestnetStruct.rpcUrl?.includes('testnet'),
+    `chainIdHex=${configTestnetStruct.chainIdHex} rpc=${configTestnetStruct.rpcUrl}`,
+    configTestnetStruct,
+  );
+
+  const configMainnet = await client.callTool({
+    name: 'get_integration_config',
+    arguments: { topic: 'mainnet' },
+  });
+  const configMainnetStruct = configMainnet.structuredContent ?? {};
+  record(
+    'get_integration_config(topic=mainnet)',
+    configMainnetStruct.chainIdHex === '0x699' && configMainnetStruct.web3authNetwork === 'SAPPHIRE_MAINNET',
+    `chainIdHex=${configMainnetStruct.chainIdHex} web3auth=${configMainnetStruct.web3authNetwork}`,
+    configMainnetStruct,
+  );
+
+  const configContracts = await client.callTool({
+    name: 'get_integration_config',
+    arguments: { topic: 'contracts' },
+  });
+  const contractsStruct = configContracts.structuredContent ?? {};
+  record(
+    'get_integration_config(topic=contracts) returns EntryPoint + SimpleAccountFactory',
+    contractsStruct.entryPoint?.address === '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789' &&
+      contractsStruct.accountFactory?.address === '0x9406Cc6185a346906296840746125a0E44976454',
+    `entryPoint=${contractsStruct.entryPoint?.address}`,
+    contractsStruct,
+  );
+
+  const configEnv = await client.callTool({
+    name: 'get_integration_config',
+    arguments: { topic: 'env-vars', network: 'testnet' },
+  });
+  const envStruct = configEnv.structuredContent ?? {};
+  record(
+    'get_integration_config(topic=env-vars, network=testnet) has populated values',
+    envStruct.exampleValues?.NEXT_PUBLIC_CHAIN_ID === '0x2B1' &&
+      envStruct.variables?.required?.length >= 8,
+    `example NEXT_PUBLIC_CHAIN_ID=${envStruct.exampleValues?.NEXT_PUBLIC_CHAIN_ID}; ${envStruct.variables?.required?.length} required vars`,
+    { exampleKeys: Object.keys(envStruct.exampleValues ?? {}) },
+  );
+
+  const configAll = await client.callTool({
+    name: 'get_integration_config',
+    arguments: { topic: 'all' },
+  });
+  const allStruct = configAll.structuredContent ?? {};
+  const allHasAllSections =
+    allStruct.networks && allStruct.contracts && allStruct.paymasterTypes && allStruct.envVars && allStruct.web3auth && allStruct.security;
+  record(
+    'get_integration_config(topic=all) returns full reference',
+    !!allHasAllSections,
+    `keys: ${Object.keys(allStruct).join(', ')}`,
+    { keys: Object.keys(allStruct) },
+  );
+
+  const quickstart = await client.callTool({
+    name: 'get_code_example',
+    arguments: { topic: 'quickstart' },
+  });
+  const quickstartText = quickstart.content?.[0]?.text ?? '';
+  record(
+    'get_code_example(topic=quickstart)',
+    quickstartText.includes('NEXT_PUBLIC_PAYMASTER_API') && quickstartText.includes('userop'),
+    `${quickstartText.length} chars; mentions paymaster + userop SDK`,
+    { preview: quickstartText.slice(0, 140) },
+  );
+
+  const staking = await client.callTool({
+    name: 'get_code_example',
+    arguments: { topic: 'staking' },
+  });
+  const stakingText = staking.content?.[0]?.text ?? '';
+  record(
+    'get_code_example(topic=staking)',
+    stakingText.includes('addDelegation') && stakingText.includes('0x000000000000000000000000000000000000f000'),
+    `${stakingText.length} chars; mentions staking contract + delegation`,
+    { preview: stakingText.slice(0, 140) },
+  );
+
+  const erc20 = await client.callTool({
+    name: 'get_code_example',
+    arguments: { topic: 'erc20-transfer' },
+  });
+  const erc20Text = erc20.content?.[0]?.text ?? '';
+  record(
+    'get_code_example(topic=erc20-transfer)',
+    erc20Text.includes('transfer') && erc20Text.includes('ERC20'),
+    `${erc20Text.length} chars`,
+    { preview: erc20Text.slice(0, 120) },
+  );
+
+  const lineMini = await client.callTool({
+    name: 'get_code_example',
+    arguments: { topic: 'line-miniapp' },
+  });
+  const lineText = lineMini.content?.[0]?.text ?? '';
+  record(
+    'get_code_example(topic=line-miniapp) covers LINE specifics',
+    lineText.includes('redirect') && lineText.toLowerCase().includes('line'),
+    `${lineText.length} chars; mentions redirect + LINE`,
+    { preview: lineText.slice(0, 140) },
   );
 
   await client.close();

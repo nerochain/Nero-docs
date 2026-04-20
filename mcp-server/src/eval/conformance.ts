@@ -24,6 +24,7 @@ async function main() {
     'get_api_method',
     'get_code_example',
     'get_faq',
+    'get_integration_config',
   ];
   const names = tools.tools.map((t) => t.name).sort();
   if (names.length !== expected.length || !expected.every((n) => names.includes(n))) {
@@ -57,6 +58,28 @@ async function main() {
     throw new Error('get_api_method failed');
   }
   console.log('✅ get_api_method(pm_sponsor_userop) → ok');
+
+  const integrationConfig = await client.callTool({
+    name: 'get_integration_config',
+    arguments: { topic: 'testnet' },
+  });
+  if (integrationConfig.isError) {
+    throw new Error('get_integration_config failed');
+  }
+  const structured = integrationConfig.structuredContent as { chainIdHex?: string };
+  if (structured?.chainIdHex !== '0x2B1') {
+    throw new Error(`expected testnet chainIdHex 0x2B1, got ${structured?.chainIdHex}`);
+  }
+  console.log('✅ get_integration_config(testnet) → chainIdHex=0x2B1');
+
+  const quickstart = await client.callTool({
+    name: 'get_code_example',
+    arguments: { topic: 'quickstart' },
+  });
+  if (quickstart.isError) {
+    throw new Error('get_code_example(quickstart) failed');
+  }
+  console.log('✅ get_code_example(quickstart) → ok');
 
   const resources = await client.listResources();
   if (resources.resources.length < 50) {

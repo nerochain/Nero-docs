@@ -12,8 +12,9 @@ Exposes the NERO docs corpus to AI agents through MCP, with six tools and per-pa
 | `get_page` | Fetch full markdown for a page by URL path. |
 | `list_sections` | Return the navigation tree. |
 | `get_api_method` | Paymaster JSON-RPC method signature (`pm_supported_tokens`, `pm_sponsor_userop`, `pm_entrypoints`). |
-| `get_code_example` | Curated runnable snippets for common integration tasks. |
+| `get_code_example` | Curated runnable snippets covering 21 integration topics: quickstart, providers-setup, wallet-hook, builder-with-paymaster-hook, send-gasless-tx, send-userop, batch-transactions, erc20-transfer, nft-mint, staking, integrate-aa-wallet, web3auth-login-methods, nextjs-ssr-setup, fetch-balance, fetch-price, check-supported-tokens, complete-wallet-component, line-miniapp, error-handling, deploy-contract-hardhat, deploy-contract-remix. |
 | `get_faq` | FAQ entries, optionally filtered by topic. |
+| `get_integration_config` | Structured reference data (JSON) for NERO integration: network params, contract addresses, paymaster types, env vars, Web3Auth setup, security rules. |
 
 ## Resources
 

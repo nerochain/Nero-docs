@@ -18,10 +18,34 @@ function loadExamples(): Example[] {
   return cached;
 }
 
+const TOPICS = [
+  'quickstart',
+  'providers-setup',
+  'builder-with-paymaster-hook',
+  'wallet-hook',
+  'send-gasless-tx',
+  'send-userop',
+  'batch-transactions',
+  'erc20-transfer',
+  'nft-mint',
+  'staking',
+  'integrate-aa-wallet',
+  'web3auth-login-methods',
+  'nextjs-ssr-setup',
+  'fetch-balance',
+  'fetch-price',
+  'check-supported-tokens',
+  'complete-wallet-component',
+  'line-miniapp',
+  'error-handling',
+  'deploy-contract-hardhat',
+  'deploy-contract-remix',
+] as const;
+
 export const getCodeExampleTool = {
   name: 'get_code_example',
   description:
-    'Return curated code snippets for common NERO integration tasks (deploy contract via Hardhat or Remix, send gasless transaction, integrate AA wallet UI, send a UserOperation, check supported tokens).',
+    'Return curated, production-ready code snippets for NERO Chain integration tasks. Covers: initial install/quickstart, Web3Auth + Wagmi + React Query provider stack, the useWallet and useBuilderWithPaymaster React hooks, gasless native transfers, UserOperation construction, batch transactions, ERC-20 transfers, NFT minting, native staking, Web3Auth login-method tuning, Next.js SSR hydration, balance/price fetching, LINE mini app tweaks, error handling, and contract deploys via Hardhat or Remix.',
   _meta: {
     ui: { resourceUri: 'ui://nero-docs/page-preview' },
   },
@@ -30,14 +54,8 @@ export const getCodeExampleTool = {
     properties: {
       topic: {
         type: 'string',
-        enum: [
-          'deploy-contract-hardhat',
-          'deploy-contract-remix',
-          'send-gasless-tx',
-          'integrate-aa-wallet',
-          'send-userop',
-          'check-supported-tokens',
-        ],
+        enum: [...TOPICS],
+        description: 'One of the curated integration topics.',
       },
     },
     required: ['topic'],
