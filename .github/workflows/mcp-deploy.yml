@@ -1,0 +1,120 @@
+name: deploy-mcp-server
+
+# Deploys the NERO Docs MCP server (mcp-server/) to Google Cloud Run.
+# Enable by adding these repo secrets:
+#   GCP_PROJECT_ID  — e.g. "app-site-mainnet-dea7"
+#   GCP_REGION      — e.g. "us-central1"
+#   GCP_SA_KEY      — full JSON of a service account key with run.admin +
+#                     artifactregistry.writer + iam.serviceAccountUser.
+# Until secrets are present, the job is skipped.
+#
+# Swap GCP_SA_KEY for Workload Identity Federation for stronger auth — see
+# mcp-server/DEPLOYMENT.md "Option B".
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mcp-server/**"
+      - "scripts/build-agent-artifacts.mjs"
+      - "scripts/lib/**"
+      - "pages/**"
+      - ".github/workflows/mcp-deploy.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: mcp-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    if: ${{ vars.MCP_DEPLOY_ENABLED == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    env:
+      SERVICE_NAME: nero-docs-mcp
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.11.1"
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack prepare yarn@3.8.3 --activate
+          yarn install --immutable
+
+      - name: Build docs + MCP index
+        run: |
+          yarn build
+          yarn workspace @nerochain/docs-mcp build
+
+      - name: Run MCP conformance test
+        run: yarn workspace @nerochain/docs-mcp test:conformance
+
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker for gcr.io
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build and push image
+        working-directory: mcp-server
+        env:
+          IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+        run: |
+          gcloud builds submit --tag "$IMAGE"
+          echo "image=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy to Cloud Run
+        env:
+          IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+        run: |
+          gcloud run deploy "$SERVICE_NAME" \
+            --image="$IMAGE" \
+            --region="${{ secrets.GCP_REGION }}" \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --cpu=1 \
+            --concurrency=80 \
+            --timeout=30 \
+            --min-instances=0 \
+            --max-instances=10 \
+            --set-env-vars="MCP_TRANSPORT=http,PORT=8080,DOCS_ORIGIN=https://docs.nerochain.io"
+
+      - name: Post-deploy smoke test
+        run: |
+          URL=$(gcloud run services describe "$SERVICE_NAME" \
+            --region="${{ secrets.GCP_REGION }}" \
+            --format='value(status.url)')
+          echo "Service URL: $URL"
+          curl -sf "$URL/health" | tee /dev/stderr | grep -q '"status":"ok"'
+          curl -sf -X POST "$URL/mcp" \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","clientInfo":{"name":"ci-probe","version":"1"},"capabilities":{}}}' \
+            | grep -q '"result"'
+          echo "✅ MCP server is healthy at $URL"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## MCP deploy" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Service: $SERVICE_NAME" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/$SERVICE_NAME:$IMAGE_TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Next: verify custom domain mapping at https://docs-mcp.nerochain.io" >> "$GITHUB_STEP_SUMMARY"
