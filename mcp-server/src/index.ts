@@ -96,19 +96,79 @@ async function runHttp() {
     res.json({ status: 'ok', server: SERVER_INFO });
   });
 
+  type Session = {
+    transport: StreamableHTTPServerTransport;
+    server: Server;
+    lastSeen: number;
+  };
+  const sessions = new Map<string, Session>();
+  const SESSION_TTL_MS = 10 * 60 * 1000;
+
+  function touch(id: string) {
+    const s = sessions.get(id);
+    if (s) s.lastSeen = Date.now();
+  }
+
+  setInterval(() => {
+    const now = Date.now();
+    for (const [id, s] of sessions) {
+      if (now - s.lastSeen > SESSION_TTL_MS) {
+        s.transport.close().catch(() => {});
+        s.server.close().catch(() => {});
+        sessions.delete(id);
+      }
+    }
+  }, 60_000).unref();
+
+  function isInitializeRequest(body: unknown): boolean {
+    if (!body || typeof body !== 'object') return false;
+    const b = body as { method?: string };
+    return b.method === 'initialize';
+  }
+
   app.all('/mcp', async (req, res) => {
     try {
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => randomUUID(),
-        enableJsonResponse: true,
-      });
-      const server = createServer();
-      res.on('close', () => {
-        transport.close().catch(() => {});
-        server.close().catch(() => {});
-      });
-      await server.connect(transport);
-      await transport.handleRequest(req, res, req.body);
+      const sessionIdHeader = req.header('mcp-session-id');
+      let session: Session | undefined;
+
+      if (sessionIdHeader && sessions.has(sessionIdHeader)) {
+        session = sessions.get(sessionIdHeader);
+        touch(sessionIdHeader);
+      } else if (!sessionIdHeader && isInitializeRequest(req.body)) {
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: () => randomUUID(),
+          enableJsonResponse: true,
+          onsessioninitialized: (newId: string) => {
+            sessions.set(newId, { transport, server, lastSeen: Date.now() });
+          },
+        });
+        const server = createServer();
+        transport.onclose = () => {
+          if (transport.sessionId) sessions.delete(transport.sessionId);
+        };
+        await server.connect(transport);
+        session = { transport, server, lastSeen: Date.now() };
+      } else {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32000,
+            message: 'Bad Request: Server not initialized',
+          },
+          id: null,
+        });
+        return;
+      }
+
+      if (!session) {
+        res.status(500).json({
+          jsonrpc: '2.0',
+          error: { code: -32603, message: 'Session resolution failed' },
+          id: null,
+        });
+        return;
+      }
+      await session.transport.handleRequest(req, res, req.body);
     } catch (err) {
       console.error('[nero-docs-mcp] request failed:', err);
       if (!res.headersSent) {
