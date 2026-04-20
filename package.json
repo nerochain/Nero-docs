@@ -1,5 +1,6 @@
 {
   "name": "nero-docs",
+  "private": true,
   "packageManager": "yarn@3.8.3",
   "workspaces": [
     "mcp-server"
