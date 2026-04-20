@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'nextra/hooks';
+import {
+  ClaudeIcon,
+  CopyIcon,
+  CursorIcon,
+  MarkdownIcon,
+  MCPIcon,
+  OpenAIIcon,
+  VSCodeIcon,
+} from './BrandIcons';
 
 const ORIGIN = 'https://docs.nerochain.io';
 const MCP_URL = 'https://docs-mcp.nerochain.io';
@@ -95,7 +104,7 @@ const ExternalArrow = () => (
 );
 
 type MenuItemProps = {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   hint: string;
   external?: boolean;
@@ -109,9 +118,9 @@ function MenuItem({ icon, label, hint, external, onClick, href, copiedState }: M
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '1.6rem 1fr auto',
+        gridTemplateColumns: '1.4rem 1fr auto',
         alignItems: 'start',
-        gap: '0.65rem',
+        gap: '0.7rem',
         padding: '0.55rem 0.75rem',
         borderRadius: 6,
         cursor: 'pointer',
@@ -130,10 +139,12 @@ function MenuItem({ icon, label, hint, external, onClick, href, copiedState }: M
       <span
         aria-hidden="true"
         style={{
-          fontSize: '1rem',
-          lineHeight: 1.3,
-          opacity: 0.85,
-          textAlign: 'center',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '1.4rem',
+          height: '1.15rem',
+          opacity: 0.9,
         }}
       >
         {icon}
@@ -316,15 +327,15 @@ export default function AskButton() {
       `codex mcp add ${MCP_NAME} --transport http --url ${MCP_URL}`,
     );
 
-  const copyIcon = '📋';
-  const mdIcon = 'M↗';
-  const chatGPTIcon = '◎';
-  const claudeIcon = '✦';
-  const linkIcon = '🔗';
-  const vscodeIcon = '⌨';
-  const cursorIcon = '➤';
-  const claudeCodeIcon = '✸';
-  const codexIcon = '⚙';
+  const copyIcon = <CopyIcon />;
+  const mdIcon = <MarkdownIcon />;
+  const chatGPTIcon = <OpenAIIcon />;
+  const claudeIcon = <ClaudeIcon />;
+  const linkIcon = <MCPIcon />;
+  const vscodeIcon = <VSCodeIcon />;
+  const cursorIcon = <CursorIcon />;
+  const claudeCodeIcon = <ClaudeIcon />;
+  const codexIcon = <OpenAIIcon />;
 
   return (
     <div
