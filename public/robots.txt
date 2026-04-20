@@ -1,0 +1,67 @@
+# NERO Chain Documentation — robots.txt
+# https://docs.nerochain.io
+
+# Tier-1 AI crawlers: full access.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+# Default: allow all well-known and AI-facing artifacts.
+User-agent: *
+Allow: /
+Disallow:
+
+Sitemap: https://docs.nerochain.io/sitemap.xml
+
+# AI-agent resources
+# llms.txt:      https://docs.nerochain.io/llms.txt
+# llms-full.txt: https://docs.nerochain.io/llms-full.txt
+# MCP server:    https://docs-mcp.nerochain.io
+# AI hub:        https://docs.nerochain.io/en/ai-resources

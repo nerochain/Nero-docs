@@ -1,0 +1,70 @@
+{
+  "name": "nero-chain-docs",
+  "displayName": "NERO Chain Documentation",
+  "description": "Agent-facing documentation for NERO Chain (Layer-1 blockchain, native account abstraction, paymaster gas sponsorship). Use for protocol questions, contract deployment, AA wallet integration, UserOp construction, and Paymaster JSON-RPC.",
+  "version": "1.0.0",
+  "url": "https://docs.nerochain.io",
+  "documentationUrl": "https://docs.nerochain.io/en/ai-resources",
+  "provider": {
+    "name": "NERO Chain",
+    "url": "https://nerochain.io",
+    "contact": "contact@nerochain.io"
+  },
+  "capabilities": {
+    "search": true,
+    "retrieve": true,
+    "streaming": false,
+    "extensions": ["mcp", "openapi", "llms-txt"]
+  },
+  "endpoints": {
+    "mcp": {
+      "transport": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    },
+    "openapi": "https://docs.nerochain.io/specs/paymaster-openapi.yaml",
+    "llmsTxt": "https://docs.nerochain.io/llms.txt",
+    "llmsFullTxt": "https://docs.nerochain.io/llms-full.txt",
+    "siteIndex": "https://docs.nerochain.io/site-index.json"
+  },
+  "skills": [
+    {
+      "id": "search_docs",
+      "name": "Search NERO Chain docs",
+      "description": "Full-text search across all NERO Chain documentation pages (EN + JA)."
+    },
+    {
+      "id": "get_page",
+      "name": "Get a NERO docs page",
+      "description": "Fetch the full markdown content of a specific NERO docs page by URL path."
+    },
+    {
+      "id": "list_sections",
+      "name": "List NERO docs sections",
+      "description": "Get the full navigation tree of NERO Chain documentation."
+    },
+    {
+      "id": "get_api_method",
+      "name": "Get Paymaster API method",
+      "description": "Return the JSON-RPC signature, parameters, and examples for a Paymaster API method (e.g. pm_supported_tokens, pm_sponsor_userop, pm_entrypoints)."
+    },
+    {
+      "id": "get_code_example",
+      "name": "Get NERO code example",
+      "description": "Return curated code snippets for common integration tasks (deploy contract, send gasless tx, integrate AA wallet)."
+    },
+    {
+      "id": "get_faq",
+      "name": "Get NERO FAQ",
+      "description": "Return entries from the NERO Chain FAQ, optionally filtered by topic."
+    }
+  ],
+  "authentication": {
+    "type": "none",
+    "note": "Docs are public and unauthenticated. The Paymaster JSON-RPC API at aa-platform.nerochain.io requires an API key obtained via the AA Platform dashboard."
+  },
+  "pricing": {
+    "model": "free",
+    "note": "NERO Chain docs access is free. See https://docs.nerochain.io/pricing.md for the gas/paymaster economic model."
+  },
+  "tags": ["blockchain", "ethereum", "account-abstraction", "erc-4337", "paymaster", "layer-1", "web3", "developer-docs"]
+}

@@ -1,0 +1,51 @@
+name: external-validation
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  external:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.11.1"
+      - name: Enable corepack
+        run: corepack enable && corepack prepare yarn@3.8.3 --activate
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Run external validation
+        run: yarn validate:external
+        continue-on-error: true
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-validation-report
+          path: reports/external-latest.json
+      - name: Open tracking issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = 'External validation failed. See the `external-validation-report` artifact for details.';
+            try {
+              const report = JSON.parse(fs.readFileSync('reports/external-latest.json', 'utf8'));
+              const failing = report.checks.filter(c => !c.ok);
+              body = `External validation failed at ${report.timestamp}.\n\n` +
+                `**${report.fail} failing / ${report.pass} passing**\n\n` +
+                failing.map(c => `- ❌ \`${c.name}\`${c.detail ? ` — ${c.detail}` : ''}`).join('\n');
+            } catch {}
+            await github.rest.issues.create({
+              ...context.repo,
+              title: `agent-ready: external validation failed (${new Date().toISOString().slice(0,10)})`,
+              labels: ['agent-readiness'],
+              body,
+            });

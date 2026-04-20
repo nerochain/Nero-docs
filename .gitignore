@@ -55,6 +55,10 @@ next-env.d.ts
 .eslintcache
 .firebase
 
+# agent-ready reports (generated)
+/reports/*.json
+!/reports/.gitkeep
+
 # logs
 logs
 *.log

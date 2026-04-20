@@ -10,5 +10,6 @@ export default {
   'tutorials': "Cookbook",
   'node-validators': "Node Validators",
   faq: "FAQ",
-  supports: "Support"
+  supports: "Support",
+  'ai-resources': "AI Resources"
 }

@@ -1,0 +1,36 @@
+name: agent-ready
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: agent-ready-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.11.1"
+      - name: Enable corepack
+        run: corepack enable && corepack prepare yarn@3.8.3 --activate
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Build site + artifacts
+        run: yarn build
+      - name: Lint Paymaster OpenAPI spec
+        run: yarn lint:openapi
+      - name: Validate agent-ready artifacts
+        run: yarn validate:agent-ready
+      - name: Build MCP server and conformance index
+        run: |
+          yarn --cwd mcp-server install --immutable
+          yarn --cwd mcp-server build
+      - name: MCP conformance smoke test
+        run: yarn --cwd mcp-server test:conformance

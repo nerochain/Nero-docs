@@ -1,0 +1,50 @@
+[
+  {
+    "topic": "deploy-contract-hardhat",
+    "title": "Deploy your first contract on NERO with Hardhat",
+    "description": "Minimal Hardhat config for NERO testnet plus a deploy script. See the full walkthrough in the Cookbook.",
+    "language": "javascript",
+    "code": "// hardhat.config.js\nrequire('@nomicfoundation/hardhat-toolbox');\n\nmodule.exports = {\n  solidity: '0.8.24',\n  networks: {\n    neroTestnet: {\n      url: 'https://rpc-testnet.nerochain.io',\n      accounts: [process.env.PRIVATE_KEY],\n    },\n  },\n};\n\n// scripts/deploy.js\nconst hre = require('hardhat');\n\nasync function main() {\n  const MyContract = await hre.ethers.getContractFactory('MyContract');\n  const contract = await MyContract.deploy();\n  await contract.waitForDeployment();\n  console.log('Deployed to:', await contract.getAddress());\n}\n\nmain().catch((err) => { console.error(err); process.exit(1); });\n\n// npx hardhat run scripts/deploy.js --network neroTestnet",
+    "docs": "https://docs.nerochain.io/en/tutorials/first-contract/using-hardhat"
+  },
+  {
+    "topic": "deploy-contract-remix",
+    "title": "Deploy from Remix to NERO testnet",
+    "description": "Point Remix at NERO testnet via the Injected Provider flow using MetaMask.",
+    "language": "text",
+    "code": "1. Open https://remix.ethereum.org and load your contract.\n2. Add NERO testnet to MetaMask:\n   - RPC URL: https://rpc-testnet.nerochain.io\n   - Chain ID: see docs.nerochain.io/en/tutorials/first-contract/verifyExplorer\n   - Currency: NERO\n3. In Remix → Deploy & Run → Environment: Injected Provider - MetaMask.\n4. Compile, Deploy, and confirm in MetaMask.\n5. Verify on the NERO block explorer per the tutorial.",
+    "docs": "https://docs.nerochain.io/en/tutorials/first-contract/using-remix"
+  },
+  {
+    "topic": "send-gasless-tx",
+    "title": "Send a gasless transaction (Type 0 sponsorship)",
+    "description": "Call pm_sponsor_userop with type: 0 so the dApp (not the user) pays gas. Requires an AA Platform API key with a funded sponsorship balance.",
+    "language": "javascript",
+    "code": "const userOp = /* build your UserOperation via the UserOp SDK */;\nconst res = await fetch('https://paymaster-testnet.nerochain.io', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json', 'X-API-Key': process.env.NERO_API_KEY },\n  body: JSON.stringify({\n    jsonrpc: '2.0',\n    id: 1,\n    method: 'pm_sponsor_userop',\n    params: [\n      userOp,\n      process.env.NERO_API_KEY,\n      '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',\n      { type: 0 },\n    ],\n  }),\n});\nconst { result: signedUserOp } = await res.json();\n// Submit signedUserOp to the bundler — gas is covered by your AA Platform balance.",
+    "docs": "https://docs.nerochain.io/en/developer-tools/paymaster-api/core-methods#pm_sponsor_userop"
+  },
+  {
+    "topic": "integrate-aa-wallet",
+    "title": "Integrate the NERO AA Wallet UI",
+    "description": "Drop-in AA wallet UI with social login and MetaMask support. Install the SDK and mount the provider.",
+    "language": "javascript",
+    "code": "// npm install github:nerochain/aa-userop-sdk\nimport { AAWalletProvider, ConnectButton } from '@nerochain/aa-userop-sdk';\n\nexport default function App() {\n  return (\n    <AAWalletProvider\n      rpc=\"https://rpc-testnet.nerochain.io\"\n      entryPoint=\"0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789\"\n      apiKey={process.env.NEXT_PUBLIC_NERO_API_KEY}\n    >\n      <ConnectButton />\n      {/* your app */}\n    </AAWalletProvider>\n  );\n}",
+    "docs": "https://docs.nerochain.io/en/tutorials/low-level/aa-wallet-integration"
+  },
+  {
+    "topic": "send-userop",
+    "title": "Send a UserOperation",
+    "description": "Build, sign, and submit a UserOperation to the NERO bundler.",
+    "language": "javascript",
+    "code": "import { buildUserOp, sendUserOp } from '@nerochain/aa-userop-sdk';\n\nconst userOp = await buildUserOp({\n  sender: aaWalletAddress,\n  callData,\n  entryPoint: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',\n});\n\nconst receipt = await sendUserOp(userOp, {\n  bundlerUrl: 'https://bundler-testnet.nerochain.io',\n  paymaster: { type: 0 },\n});\nconsole.log('UserOp hash:', receipt.userOpHash);",
+    "docs": "https://docs.nerochain.io/en/tutorials/low-level/sending-ops"
+  },
+  {
+    "topic": "check-supported-tokens",
+    "title": "List tokens accepted for gas (pm_supported_tokens)",
+    "description": "Query the Paymaster for the ERC-20 tokens accepted as gas and their current price ratios.",
+    "language": "javascript",
+    "code": "const res = await fetch('https://paymaster-testnet.nerochain.io', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json', 'X-API-Key': process.env.NERO_API_KEY },\n  body: JSON.stringify({\n    jsonrpc: '2.0',\n    id: 1,\n    method: 'pm_supported_tokens',\n    params: [\n      { sender: aaWalletAddress, nonce: '0x0', initCode: '0x', callData: '0x', callGasLimit: '0x0', verificationGasLimit: '0x0', preVerificationGas: '0x0', maxFeePerGas: '0x0', maxPriorityFeePerGas: '0x0', paymasterAndData: '0x', signature: '0x' },\n      process.env.NERO_API_KEY,\n      '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',\n    ],\n  }),\n});\nconst { result } = await res.json();\nconsole.log('freeGas:', result.freeGas);\nconsole.log('tokens:', result.tokens);",
+    "docs": "https://docs.nerochain.io/en/developer-tools/paymaster-api/core-methods#pm_supported_tokens"
+  }
+]

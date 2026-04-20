@@ -1,0 +1,11 @@
+# NERO Chain Documentation
+
+> Canonical discovery copy of llms.txt. The authoritative source is at https://docs.nerochain.io/llms.txt — both URLs serve the same content.
+
+See https://docs.nerochain.io/llms.txt for the indexed list of pages and https://docs.nerochain.io/llms-full.txt for the full corpus.
+
+## AI resources
+
+- [MCP server](https://docs-mcp.nerochain.io)
+- [OpenAPI (Paymaster JSON-RPC)](https://docs.nerochain.io/specs/paymaster-openapi.yaml)
+- [AI resources hub](https://docs.nerochain.io/en/ai-resources)

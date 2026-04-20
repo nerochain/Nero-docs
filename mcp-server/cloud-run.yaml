@@ -1,0 +1,41 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: nero-docs-mcp
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+        run.googleapis.com/cpu-throttling: "true"
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 30
+      containers:
+        - image: gcr.io/PROJECT_ID/nero-docs-mcp:latest
+          ports:
+            - name: http1
+              containerPort: 8080
+          env:
+            - name: MCP_TRANSPORT
+              value: http
+            - name: PORT
+              value: "8080"
+            - name: DOCS_ORIGIN
+              value: https://docs.nerochain.io
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            failureThreshold: 5
+            periodSeconds: 5
+  traffic:
+    - percent: 100
+      latestRevision: true

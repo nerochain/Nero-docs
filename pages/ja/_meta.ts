@@ -10,5 +10,6 @@ export default {
   'tutorials': 'クックブック',
   'node-validators': 'ノード・バリデーター',
   faq: 'よくある質問',
-  supports: 'サポート'
+  supports: 'サポート',
+  'ai-resources': 'AI リソース'
 }

@@ -1,0 +1,30 @@
+{
+  "name": "NERO Chain Documentation",
+  "homepage": "https://docs.nerochain.io",
+  "locales": ["en", "ja"],
+  "sections": [
+    { "id": "getting-started", "label": { "en": "Getting Started", "ja": "はじめに" }, "url": "https://docs.nerochain.io/en/getting-started" },
+    { "id": "core-concepts", "label": { "en": "White Paper", "ja": "ホワイトペーパー" }, "url": "https://docs.nerochain.io/en/core-concepts" },
+    { "id": "developer-tools", "label": { "en": "Developer Tools", "ja": "開発者ツール" }, "url": "https://docs.nerochain.io/en/developer-tools" },
+    { "id": "tutorials", "label": { "en": "Cookbook", "ja": "クックブック" }, "url": "https://docs.nerochain.io/en/tutorials" },
+    { "id": "node-validators", "label": { "en": "Node Validators", "ja": "ノードバリデータ" }, "url": "https://docs.nerochain.io/en/node-validators" }
+  ],
+  "artifacts": {
+    "llmsTxt": "https://docs.nerochain.io/llms.txt",
+    "llmsFullTxt": "https://docs.nerochain.io/llms-full.txt",
+    "llmsFullJsonl": "https://docs.nerochain.io/llms-full.jsonl",
+    "siteIndexJson": "https://docs.nerochain.io/site-index.json",
+    "sitemapXml": "https://docs.nerochain.io/sitemap.xml",
+    "paymasterOpenApiYaml": "https://docs.nerochain.io/specs/paymaster-openapi.yaml",
+    "paymasterOpenApiJson": "https://docs.nerochain.io/specs/paymaster-openapi.json"
+  },
+  "endpoints": {
+    "mcp": "https://docs-mcp.nerochain.io",
+    "aaPlatform": "https://aa-platform.nerochain.io"
+  },
+  "support": {
+    "discord": "https://discord.com/invite/nerochainofficial",
+    "github": "https://github.com/nerochain",
+    "website": "https://nerochain.io"
+  }
+}

@@ -22,6 +22,7 @@ export default withNextra({
     unoptimized: true,
   },
   trailingSlash: false,
+  pageExtensions: ["mdx", "tsx", "ts"],
 });
 
 // If you have other Next.js configurations, you can pass them as the parameter:

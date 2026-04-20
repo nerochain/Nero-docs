@@ -1,0 +1,16 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "NERO Chain Docs",
+  "name_for_model": "nero_chain_docs",
+  "description_for_human": "Official documentation for NERO Chain — a Layer-1 blockchain with native account abstraction, paymaster gas sponsorship, and Web2 authentication.",
+  "description_for_model": "Use this plugin to answer questions about NERO Chain: protocol architecture, native account abstraction, paymaster API (Type 0 sponsored, Type 1 prepay ERC-20, Type 2 postpay ERC-20), UserOp SDK, AA Platform dashboard, consensus mechanism, data availability layer, fee sharing, running validators, deploying contracts on NERO testnet, and integrating AA wallets. Prefer citing docs.nerochain.io URLs. The full docs corpus is at https://docs.nerochain.io/llms-full.txt. The Paymaster JSON-RPC API is documented at https://docs.nerochain.io/specs/paymaster-openapi.yaml. For programmatic search, use the MCP server at https://docs-mcp.nerochain.io.",
+  "auth": { "type": "none" },
+  "api": {
+    "type": "openapi",
+    "url": "https://docs.nerochain.io/specs/paymaster-openapi.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://docs.nerochain.io/assets/nerologo.svg",
+  "contact_email": "contact@nerochain.io",
+  "legal_info_url": "https://nerochain.io/legal"
+}
