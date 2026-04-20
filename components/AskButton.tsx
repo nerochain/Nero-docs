@@ -10,8 +10,10 @@ import {
   VSCodeIcon,
 } from './BrandIcons';
 
-const ORIGIN = 'https://docs.nerochain.io';
-const MCP_URL = 'https://docs-mcp.nerochain.io';
+const CANONICAL_ORIGIN = 'https://docs.nerochain.io';
+const MCP_URL =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_MCP_URL) ||
+  'https://docs-mcp.nerochain.io';
 const MCP_NAME = 'nero-docs';
 
 type Locale = 'en' | 'ja';
@@ -206,20 +208,24 @@ export default function AskButton() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [origin, setOrigin] = useState<string>(CANONICAL_ORIGIN);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location?.origin) {
+      setOrigin(window.location.origin);
+    }
+  }, []);
 
   const locale: Locale =
     router.locale === 'ja' || router.asPath?.startsWith('/ja') ? 'ja' : 'en';
   const t = I18N[locale];
 
-  const { canonicalUrl, mdUrl } = useMemo(() => {
+  const mdUrl = useMemo(() => {
     const rawPath = (router.asPath ?? '/').split('?')[0].split('#')[0];
     const path = rawPath.replace(/\/$/, '') || `/${locale}`;
-    return {
-      canonicalUrl: `${ORIGIN}${path}`,
-      mdUrl: `${ORIGIN}${path}.md`,
-    };
-  }, [router.asPath, locale]);
+    return `${origin}${path}.md`;
+  }, [router.asPath, locale, origin]);
 
   useEffect(() => {
     if (!open) return;
