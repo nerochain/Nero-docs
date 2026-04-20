@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
-  "buildCommand": "corepack enable && corepack prepare yarn@3.8.3 --activate && yarn build",
-  "installCommand": "corepack enable && corepack prepare yarn@3.8.3 --activate && yarn install",
+  "buildCommand": "yarn build",
+  "installCommand": "yarn install",
   "outputDirectory": "out",
   "headers": [
     {
