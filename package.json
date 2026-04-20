@@ -22,7 +22,7 @@
     "firebase": "^11.6.0",
     "glob": "^11.0.1",
     "gray-matter": "^4.0.3",
-    "next": "^15.0.4",
+    "next": "^15.5.0",
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",
     "openai": "latest",
