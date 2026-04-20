@@ -163,6 +163,88 @@ async function probe(label) {
     { isError: bad.isError, message: bad.content?.[0]?.text },
   );
 
+  // --- Japanese locale probes ---
+  const searchJaEn = await client.callTool({
+    name: 'search_docs',
+    arguments: { query: 'ペイマスター', locale: 'ja', limit: 5 },
+  });
+  const jaHits = searchJaEn.structuredContent?.total ?? 0;
+  const jaHitsAllJa = (searchJaEn.structuredContent?.results ?? []).every(
+    (r) => r.locale === 'ja',
+  );
+  record(
+    'search_docs("ペイマスター", locale=ja) returns JA hits',
+    jaHits > 0 && jaHitsAllJa,
+    `${jaHits} hits, all locale=ja: ${jaHitsAllJa}`,
+    searchJaEn.structuredContent?.results?.slice(0, 3),
+  );
+
+  const searchJaTokenQuery = await client.callTool({
+    name: 'search_docs',
+    arguments: { query: 'トークン 支払い', locale: 'ja', limit: 5 },
+  });
+  const jaTokenHits = searchJaTokenQuery.structuredContent?.total ?? 0;
+  record(
+    'search_docs("トークン 支払い", locale=ja) returns JA hits',
+    jaTokenHits > 0,
+    `${jaTokenHits} hits`,
+    searchJaTokenQuery.structuredContent?.results?.slice(0, 2),
+  );
+
+  const jaPage = await client.callTool({
+    name: 'get_page',
+    arguments: { path: '/ja/developer-tools/paymaster-api/core-methods' },
+  });
+  const jaMarkdown = jaPage.structuredContent?.markdown ?? '';
+  const hasJaChars = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(jaMarkdown);
+  record(
+    'get_page(/ja/developer-tools/paymaster-api/core-methods)',
+    jaMarkdown.length > 500 && hasJaChars,
+    `${jaMarkdown.length} chars, contains Japanese characters: ${hasJaChars}`,
+    { url: jaPage.structuredContent?.url, locale: jaPage.structuredContent?.locale },
+  );
+
+  const sectionsJa = await client.callTool({
+    name: 'list_sections',
+    arguments: { locale: 'ja' },
+  });
+  const jaTree = sectionsJa.structuredContent?.tree ?? [];
+  const jaHasJapaneseLabels = jaTree.some(
+    (s) => s.label && /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(s.label),
+  );
+  const jaPageCount = jaTree.reduce((n, s) => n + (s.pages?.length ?? 0), 0);
+  record(
+    'list_sections(locale=ja) returns JA-labeled tree',
+    jaTree.length >= 5 && jaHasJapaneseLabels && jaPageCount >= 50,
+    `${jaTree.length} sections, ${jaPageCount} pages, JA labels: ${jaHasJapaneseLabels}`,
+    jaTree.map((s) => ({ section: s.section, label: s.label, pages: s.pages?.length })),
+  );
+
+  const jaDocResource = await client.readResource({
+    uri: 'docs:///ja/getting-started/introduction',
+  });
+  const jaResourceText = jaDocResource.contents?.[0]?.text ?? '';
+  const jaResourceHasJa = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(jaResourceText);
+  record(
+    'resources/read docs:///ja/getting-started/introduction',
+    jaResourceText.length > 500 && jaResourceHasJa,
+    `${jaResourceText.length} chars; Japanese: ${jaResourceHasJa}`,
+    { mimeType: jaDocResource.contents?.[0]?.mimeType },
+  );
+
+  const faqJa = await client.callTool({
+    name: 'get_faq',
+    arguments: { locale: 'ja' },
+  });
+  const faqJaText = faqJa.content?.[0]?.text ?? '';
+  const faqHasJa = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(faqJaText);
+  record(
+    'get_faq(locale=ja) returns Japanese FAQ',
+    faqJaText.length > 500 && faqHasJa,
+    `${faqJaText.length} chars; Japanese: ${faqHasJa}`,
+    { url: faqJa.structuredContent?.url, locale: faqJa.structuredContent?.locale },
+  );
+
   await client.close();
 }
 

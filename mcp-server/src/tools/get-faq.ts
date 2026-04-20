@@ -19,7 +19,9 @@ export const getFaqTool = {
   async handler(args: { topic?: string; locale?: 'en' | 'ja' }) {
     const locale = args.locale ?? 'en';
     const corpus = loadCorpus();
-    const faqPage = corpus.find((p) => p.locale === locale && p.url === `/${locale}/faq`);
+    const toPath = (u: string) => u.replace(CANONICAL_ORIGIN, '') || '/';
+    const expectedPath = `/${locale}/faq`;
+    const faqPage = corpus.find((p) => p.locale === locale && toPath(p.url) === expectedPath);
     if (!faqPage) {
       return {
         isError: true,
@@ -33,15 +35,18 @@ export const getFaqTool = {
       const matching = sections.filter((s) => s.toLowerCase().includes(needle));
       body = matching.length ? matching.join('\n\n') : body;
     }
+    const absoluteUrl = faqPage.url.startsWith('http')
+      ? faqPage.url
+      : `${CANONICAL_ORIGIN}${faqPage.url}`;
     return {
       content: [
         {
           type: 'text' as const,
-          text: `Source: ${CANONICAL_ORIGIN}${faqPage.url}\n\n${body}`,
+          text: `Source: ${absoluteUrl}\n\n${body}`,
         },
       ],
       structuredContent: {
-        url: `${CANONICAL_ORIGIN}${faqPage.url}`,
+        url: absoluteUrl,
         locale,
         topic: args.topic ?? null,
         markdown: body,
