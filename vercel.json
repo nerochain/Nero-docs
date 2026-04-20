@@ -6,6 +6,36 @@
   "buildCommand": "yarn build",
   "installCommand": "yarn install",
   "outputDirectory": "out",
+  "redirects": [
+    { "source": "/agent", "destination": "/agent.html", "statusCode": 301 }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "query", "key": "mode", "value": "agent" }],
+      "destination": "/agent.html"
+    },
+    {
+      "source": "/en",
+      "has": [{ "type": "query", "key": "mode", "value": "agent" }],
+      "destination": "/agent.html"
+    },
+    {
+      "source": "/ja",
+      "has": [{ "type": "query", "key": "mode", "value": "agent" }],
+      "destination": "/agent.html"
+    },
+    {
+      "source": "/en/:path*",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "destination": "/en/:path*.md"
+    },
+    {
+      "source": "/ja/:path*",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "destination": "/ja/:path*.md"
+    }
+  ],
   "headers": [
     {
       "source": "/llms(.*).txt",
@@ -79,14 +109,63 @@
       ]
     },
     {
-      "source": "/sitemap.xml",
+      "source": "/openapi\\.yaml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/yaml; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/openapi\\.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/api/openapi\\.yaml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/yaml; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/api/openapi\\.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/sitemap\\.xml",
       "headers": [
         { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
         { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
     },
     {
-      "source": "/site-index.json",
+      "source": "/schema-map\\.xml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/404\\.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/agent\\.html",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/site-index\\.json",
       "headers": [
         { "key": "Content-Type", "value": "application/json; charset=utf-8" },
         { "key": "Access-Control-Allow-Origin", "value": "*" }
@@ -97,7 +176,7 @@
       "headers": [
         {
           "key": "Link",
-          "value": "</llms.txt>; rel=\"describedby\"; type=\"text/plain\", </sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </specs/paymaster-openapi.yaml>; rel=\"service-desc\"; type=\"application/yaml\""
+          "value": "</llms.txt>; rel=\"describedby\"; type=\"text/plain\", </sitemap.xml>; rel=\"sitemap\"; type=\"application/xml\", </openapi.yaml>; rel=\"service-desc\"; type=\"application/yaml\""
         }
       ]
     }

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NERO Chain — Agent View</title>
+  <meta name="description" content="Structured, machine-readable view of NERO Chain documentation for AI agents. API endpoints, authentication, tools, capabilities, and links in one compact page.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://docs.nerochain.io/agent.html">
+  <link rel="describedby" href="https://docs.nerochain.io/llms.txt" type="text/plain">
+  <link rel="service-desc" href="https://docs.nerochain.io/openapi.yaml" type="application/yaml">
+  <link rel="sitemap" href="https://docs.nerochain.io/sitemap.xml" type="application/xml">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "NERO Chain — Agent View",
+    "description": "Machine-readable summary of NERO Chain product surface for AI agents.",
+    "url": "https://docs.nerochain.io/agent.html",
+    "author": { "@type": "Organization", "name": "NERO Chain" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "NERO Chain",
+      "url": "https://nerochain.io",
+      "logo": "https://docs.nerochain.io/assets/nerologo.svg"
+    }
+  }
+  </script>
+  <style>
+    body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; max-width: 880px; margin: 2rem auto; padding: 0 1.5rem 4rem; line-height: 1.55; }
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.1rem; margin-top: 2rem; padding-top: 0.5rem; border-top: 1px solid #ddd; }
+    table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+    th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid #eee; font-size: 0.88rem; vertical-align: top; }
+    code { background: #f4f4f4; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.88rem; }
+    pre { background: #f4f4f4; padding: 0.8rem; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+  <h1>NERO Chain — Agent View</h1>
+  <p><strong>Product:</strong> NERO Chain · <strong>Category:</strong> Layer-1 blockchain with native account abstraction, paymaster gas sponsorship, and Web2-style authentication.</p>
+  <p><strong>Homepage:</strong> <a href="https://docs.nerochain.io">https://docs.nerochain.io</a> · <strong>Marketing site:</strong> <a href="https://nerochain.io">https://nerochain.io</a></p>
+
+  <h2>Capabilities</h2>
+  <ul>
+    <li>Native ERC-4337 account abstraction (no bundler-specific tricks).</li>
+    <li>Paymaster gas sponsorship with three payment types (sponsored / prepay ERC-20 / postpay ERC-20).</li>
+    <li>Web2-style auth: social login, password recovery, MetaMask.</li>
+    <li>Public JSON-RPC API (Paymaster) with OpenAPI 3.1 spec.</li>
+    <li>MCP server for documentation retrieval.</li>
+  </ul>
+
+  <h2>Endpoints</h2>
+  <table>
+    <thead><tr><th>Service</th><th>URL</th><th>Auth</th></tr></thead>
+    <tbody>
+      <tr><td>Testnet RPC</td><td><code>https://rpc-testnet.nerochain.io</code></td><td>none</td></tr>
+      <tr><td>Mainnet RPC</td><td><code>https://rpc-mainnet.nerochain.io</code></td><td>none</td></tr>
+      <tr><td>Paymaster (testnet)</td><td><code>https://paymaster-testnet.nerochain.io</code></td><td>X-API-Key</td></tr>
+      <tr><td>Paymaster (mainnet)</td><td><code>https://paymaster-mainnet.nerochain.io</code></td><td>X-API-Key</td></tr>
+      <tr><td>AA Platform dashboard</td><td><a href="https://aa-platform.nerochain.io">aa-platform.nerochain.io</a></td><td>account</td></tr>
+      <tr><td>Documentation MCP</td><td><a href="https://docs-mcp.nerochain.io">docs-mcp.nerochain.io</a></td><td>none</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Authentication</h2>
+  <p>Long-lived API key sent as <code>X-API-Key</code> header. Keys are issued via the <a href="https://aa-platform.nerochain.io">AA Platform</a>. Read the <a href="/en/agent-auth">Agent Auth Guide</a> for the full machine-first flow.</p>
+  <p>OAuth 2.0 is not currently used. Discovery metadata: <a href="/.well-known/oauth-protected-resource">/.well-known/oauth-protected-resource</a>.</p>
+
+  <h2>Paymaster JSON-RPC methods</h2>
+  <table>
+    <thead><tr><th>Method</th><th>Use</th><th>Docs</th></tr></thead>
+    <tbody>
+      <tr><td><code>pm_supported_tokens</code></td><td>List ERC-20 tokens accepted for gas + current prices.</td><td><a href="/en/developer-tools/paymaster-api/core-methods#pm_supported_tokens">doc</a></td></tr>
+      <tr><td><code>pm_sponsor_userop</code></td><td>Sign a UserOperation (Type 0 / 1 / 2).</td><td><a href="/en/developer-tools/paymaster-api/core-methods#pm_sponsor_userop">doc</a></td></tr>
+      <tr><td><code>pm_entrypoints</code></td><td>List supported EntryPoint addresses.</td><td><a href="/en/developer-tools/paymaster-api/core-methods#pm_entrypoints">doc</a></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Key protocol facts</h2>
+  <ul>
+    <li><strong>Native token:</strong> NERO</li>
+    <li><strong>EntryPoint:</strong> <code>0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789</code></li>
+    <li><strong>Payment types:</strong> 0 (sponsored) / 1 (prepay ERC-20) / 2 (postpay ERC-20)</li>
+  </ul>
+
+  <h2>Machine-readable resources</h2>
+  <table>
+    <thead><tr><th>Path</th><th>Content</th><th>Format</th></tr></thead>
+    <tbody>
+      <tr><td><a href="/llms.txt">/llms.txt</a></td><td>curated docs index</td><td>text/plain</td></tr>
+      <tr><td><a href="/llms-full.txt">/llms-full.txt</a></td><td>full corpus</td><td>text/plain</td></tr>
+      <tr><td><a href="/llms-full.jsonl">/llms-full.jsonl</a></td><td>per-page JSON</td><td>application/jsonl</td></tr>
+      <tr><td><a href="/site-index.json">/site-index.json</a></td><td>page metadata</td><td>application/json</td></tr>
+      <tr><td><a href="/openapi.yaml">/openapi.yaml</a></td><td>Paymaster OpenAPI 3.1</td><td>application/yaml</td></tr>
+      <tr><td><a href="/sitemap.xml">/sitemap.xml</a></td><td>sitemap</td><td>application/xml</td></tr>
+      <tr><td><a href="/schema-map.xml">/schema-map.xml</a></td><td>NLWeb schema feed map</td><td>application/xml</td></tr>
+      <tr><td><a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a></td><td>MCP server card</td><td>application/json</td></tr>
+      <tr><td><a href="/.well-known/ai-plugin.json">/.well-known/ai-plugin.json</a></td><td>OpenAI plugin manifest</td><td>application/json</td></tr>
+      <tr><td><a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a></td><td>A2A agent card</td><td>application/json</td></tr>
+    </tbody>
+  </table>
+
+  <h2>MCP install snippets</h2>
+  <pre>claude mcp add --transport http nero-docs https://docs-mcp.nerochain.io</pre>
+  <pre>{
+  "mcpServers": {
+    "nero-docs": { "type": "http", "url": "https://docs-mcp.nerochain.io" }
+  }
+}</pre>
+  <p>Full set of install snippets (Cursor, VS Code, ChatGPT, Codex CLI): <a href="/en/ai-resources">/en/ai-resources</a>.</p>
+
+  <h2>Pricing</h2>
+  <p>Access to docs + MCP is free. Gas on NERO is paid in NERO. Paymaster sponsorship is self-serve via AA Platform. Full economic model: <a href="/pricing.md">/pricing.md</a>.</p>
+
+  <p style="margin-top:3rem;font-size:0.82rem;opacity:0.6">This is the machine-friendly view. Humans may prefer <a href="/en">the English docs</a> or <a href="/ja">日本語ドキュメント</a>.</p>
+</body>
+</html>

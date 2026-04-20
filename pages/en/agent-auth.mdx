@@ -1,0 +1,105 @@
+import PageFeedback from '../../components/PageFeedback'
+
+
+# Agent Authentication Guide
+
+A concise, programmatic-first guide to authenticating AI agents against the NERO Paymaster JSON-RPC API. If you're coming from the OpenAPI spec at [/openapi.yaml](https://docs.nerochain.io/openapi.yaml), this page gives you the end-to-end human steps plus code.
+
+## TL;DR
+
+- **Auth method:** long-lived API key sent as `X-API-Key` header
+- **Issuer:** [AA Platform dashboard](https://aa-platform.nerochain.io)
+- **Scopes:** `paymaster:read` (read tokens + sponsorship state), `paymaster:sponsor` (sign UserOperations)
+- **Sandbox:** NERO testnet is free; faucet linked in the [FAQ](/en/faq)
+- **OAuth 2.0:** not currently used; key rotation via the AA Platform UI
+- **Discovery:** [`/.well-known/oauth-protected-resource`](/.well-known/oauth-protected-resource) (RFC 9728)
+
+## Step 1 — Obtain an API key
+
+1. Create an account at [aa-platform.nerochain.io](https://aa-platform.nerochain.io).
+2. Create a project scoped to NERO testnet (or mainnet).
+3. Generate an API key. Copy it once — the dashboard shows it only at creation.
+4. Fund the sponsorship balance if you plan to use Type 0 (free gas).
+
+If you are building an autonomous agent that cannot complete the dashboard flow, contact the NERO team via [Discord](https://discord.com/invite/nerochainofficial) for a programmatic onboarding path.
+
+## Step 2 — Store the key safely
+
+Keep the API key server-side. Never embed it in client-side JavaScript, mobile app bundles, or public repos.
+
+```bash
+# .env (never commit)
+NERO_API_KEY=pk_live_xxxxxxxxxxxxxxxxxxxxxxx
+```
+
+## Step 3 — Send authenticated requests
+
+All Paymaster JSON-RPC methods accept the API key in one of two places:
+
+**Preferred — HTTP header:**
+
+```bash
+curl -X POST https://paymaster-testnet.nerochain.io \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NERO_API_KEY" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "pm_supported_tokens",
+    "params": [
+      {"sender":"0xAABbCc00112233445566778899AaBbCcDdEeFf00","nonce":"0x0","initCode":"0x","callData":"0x","callGasLimit":"0x0","verificationGasLimit":"0x0","preVerificationGas":"0x0","maxFeePerGas":"0x0","maxPriorityFeePerGas":"0x0","paymasterAndData":"0x","signature":"0x"},
+      "'"$NERO_API_KEY"'",
+      "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+    ]
+  }'
+```
+
+**Legacy — second JSON-RPC parameter** (supported for backwards compatibility with SDK clients that don't let you set headers):
+
+```json
+{"params": [userOperation, "$NERO_API_KEY", "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"]}
+```
+
+## Step 4 — Handle rate limits + errors
+
+All errors are returned as structured JSON-RPC 2.0 error responses:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": { "code": -32602, "message": "Invalid UserOperation struct/fields." }
+}
+```
+
+| Code | Meaning | Retry? |
+|---|---|---|
+| `-32521` | Transaction reverted during execution | no (fix callData) |
+| `-32602` | Invalid UserOperation struct/fields | no (fix the payload) |
+| `-32500` | Rejected by EntryPoint `simulateValidation` | no |
+| `-32501` | Rejected by paymaster `validatePaymasterUserOp` | no (check sponsorship balance / scope) |
+| `-32503` | Out of time-range | yes (rebuild and resend) |
+| `-32504` | Paymaster throttled/banned | yes with exponential backoff |
+
+Per-project rate limits are configured in the AA Platform dashboard (daily gas cap, transaction count, gas-price ceiling). Agents should:
+
+- Respect HTTP 429 responses with exponential backoff starting at 1s
+- Cache `pm_supported_tokens` results for at least 60s
+- Retry `-32503` errors up to 3 times with a fresh UserOp build
+- Do not retry `-32501` errors — they indicate a configuration problem
+
+## Step 5 — Rotate keys
+
+Rotate keys any time via the AA Platform UI. Old keys are invalidated immediately. If you suspect key exposure, rotate + audit spend via the dashboard's usage view.
+
+## Machine-readable references
+
+- [Paymaster OpenAPI 3.1 spec](https://docs.nerochain.io/openapi.yaml)
+- [`/.well-known/oauth-protected-resource`](https://docs.nerochain.io/.well-known/oauth-protected-resource)
+- [`/.well-known/ai-plugin.json`](https://docs.nerochain.io/.well-known/ai-plugin.json)
+- [`/.well-known/agent-card.json`](https://docs.nerochain.io/.well-known/agent-card.json)
+- [MCP server](https://docs-mcp.nerochain.io)
+
+
+
+<PageFeedback path="/en/agent-auth" />

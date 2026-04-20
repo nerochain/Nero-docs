@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "nero-chain-docs",
+  "displayName": "NERO Chain Documentation",
+  "description": "Search and retrieve NERO Chain documentation: protocol architecture, native account abstraction, paymaster JSON-RPC API (Type 0 sponsored, Type 1 prepay ERC-20, Type 2 postpay ERC-20), UserOp SDK, AA Platform, validator setup, and integration tutorials.",
+  "version": "1.0.0",
+  "serverUrl": "https://docs-mcp.nerochain.io",
+  "transport": {
+    "type": "http",
+    "url": "https://docs-mcp.nerochain.io/mcp"
+  },
+  "protocolVersion": "2025-06-18",
+  "authentication": { "type": "none" },
+  "tools": [
+    {
+      "name": "search_docs",
+      "description": "Full-text search across NERO Chain docs (EN + JA). Returns ranked hits with URL, title, section, summary.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "locale": { "type": "string", "enum": ["en", "ja"] },
+          "section": { "type": "string" },
+          "limit": { "type": "integer" }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "get_page",
+      "description": "Fetch full markdown of a specific NERO docs page by URL path.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" },
+          "locale": { "type": "string", "enum": ["en", "ja"] }
+        },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "list_sections",
+      "description": "Return NERO docs navigation tree.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "locale": { "type": "string", "enum": ["en", "ja"] } }
+      }
+    },
+    {
+      "name": "get_api_method",
+      "description": "Return JSON-RPC signature for a Paymaster method (pm_supported_tokens, pm_sponsor_userop, pm_entrypoints).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": ["pm_supported_tokens", "pm_sponsor_userop", "pm_entrypoints"]
+          }
+        },
+        "required": ["method"]
+      }
+    },
+    {
+      "name": "get_code_example",
+      "description": "Return curated NERO integration snippets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "enum": [
+              "deploy-contract-hardhat",
+              "deploy-contract-remix",
+              "send-gasless-tx",
+              "integrate-aa-wallet",
+              "send-userop",
+              "check-supported-tokens"
+            ]
+          }
+        },
+        "required": ["topic"]
+      }
+    },
+    {
+      "name": "get_faq",
+      "description": "Return NERO Chain FAQ entries, optionally filtered by topic.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": { "type": "string" },
+          "locale": { "type": "string", "enum": ["en", "ja"] }
+        }
+      }
+    }
+  ],
+  "resources": {
+    "uriPrefix": "docs://",
+    "mimeType": "text/markdown",
+    "listable": true
+  },
+  "ui": {
+    "embedResourceUri": "ui://nero-docs/embed"
+  },
+  "provider": {
+    "name": "NERO Chain",
+    "url": "https://nerochain.io",
+    "documentationUrl": "https://docs.nerochain.io/en/ai-resources",
+    "contact": "contact@nerochain.io"
+  },
+  "tags": [
+    "blockchain",
+    "ethereum",
+    "account-abstraction",
+    "erc-4337",
+    "paymaster",
+    "layer-1",
+    "web3",
+    "developer-docs"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "error": {
+    "code": 404,
+    "type": "not_found",
+    "message": "The requested resource was not found on docs.nerochain.io.",
+    "resolution": [
+      "Check the URL for typos.",
+      "Browse the sitemap at /sitemap.xml or the curated index at /llms.txt.",
+      "Search via the MCP server at https://docs-mcp.nerochain.io (tool: search_docs).",
+      "Or visit https://docs.nerochain.io/en/ai-resources for the full list of machine-readable entry points."
+    ]
+  },
+  "links": {
+    "home": "https://docs.nerochain.io",
+    "llmsTxt": "https://docs.nerochain.io/llms.txt",
+    "sitemap": "https://docs.nerochain.io/sitemap.xml",
+    "aiResources": "https://docs.nerochain.io/en/ai-resources",
+    "mcp": "https://docs-mcp.nerochain.io"
+  }
+}

@@ -48,6 +48,9 @@ export const getApiMethodTool = {
   name: 'get_api_method',
   description:
     'Return the JSON-RPC signature, parameters, and docs link for a Paymaster API method (pm_supported_tokens, pm_sponsor_userop, pm_entrypoints).',
+  _meta: {
+    ui: { resourceUri: 'ui://nero-docs/api-method' },
+  },
   inputSchema: {
     type: 'object',
     properties: {

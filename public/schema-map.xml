@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemamap xmlns="https://nlweb.ai/schemas/schemamap/v1">
+  <feed>
+    <url>https://docs.nerochain.io/llms-full.jsonl</url>
+    <type>application/jsonl</type>
+    <title>NERO Docs — full corpus as JSONL</title>
+    <description>One JSON object per documentation page with url, locale, section, title, summary, headings, tokens, markdown. Suitable for embedding pipelines.</description>
+  </feed>
+  <feed>
+    <url>https://docs.nerochain.io/site-index.json</url>
+    <type>application/json</type>
+    <title>NERO Docs — site index</title>
+    <description>Lightweight page metadata (URL, title, headings, summary, token count).</description>
+  </feed>
+  <feed>
+    <url>https://docs.nerochain.io/llms-full.txt</url>
+    <type>text/plain</type>
+    <title>NERO Docs — full markdown corpus</title>
+    <description>All documentation pages concatenated as plain markdown.</description>
+  </feed>
+  <feed>
+    <url>https://docs.nerochain.io/specs/paymaster-openapi.yaml</url>
+    <type>application/yaml</type>
+    <title>NERO Paymaster JSON-RPC API (OpenAPI 3.1)</title>
+    <description>Machine-readable API specification for the Paymaster JSON-RPC service.</description>
+  </feed>
+</schemamap>

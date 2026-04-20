@@ -4,6 +4,9 @@ export const searchDocsTool = {
   name: 'search_docs',
   description:
     'Full-text search across NERO Chain documentation pages (EN + JA). Returns ranked hits with URL, title, section, summary, and a short snippet.',
+  _meta: {
+    ui: { resourceUri: 'ui://nero-docs/search-results' },
+  },
   inputSchema: {
     type: 'object',
     properties: {

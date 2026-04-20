@@ -330,17 +330,50 @@ For dApp developers and node operators, NERO's fee-sharing model lets contracts 
 
 async function copyPaymasterOpenApi() {
   const src = path.join(SPEC_DIR, 'paymaster-openapi.yaml');
-  const destYaml = path.join(OUT_DIR, 'specs', 'paymaster-openapi.yaml');
-  const destJson = path.join(OUT_DIR, 'specs', 'paymaster-openapi.json');
   try {
     const yaml = await fs.readFile(src, 'utf8');
-    await writeFileEnsured(destYaml, yaml);
     const { load } = await import('js-yaml');
-    await writeFileEnsured(destJson, JSON.stringify(load(yaml), null, 2) + '\n');
-    console.log(`✅ copied Paymaster OpenAPI spec to out/specs/`);
+    const json = JSON.stringify(load(yaml), null, 2) + '\n';
+    await writeFileEnsured(path.join(OUT_DIR, 'specs', 'paymaster-openapi.yaml'), yaml);
+    await writeFileEnsured(path.join(OUT_DIR, 'specs', 'paymaster-openapi.json'), json);
+    await writeFileEnsured(path.join(OUT_DIR, 'openapi.yaml'), yaml);
+    await writeFileEnsured(path.join(OUT_DIR, 'openapi.json'), json);
+    await writeFileEnsured(path.join(OUT_DIR, 'api', 'openapi.yaml'), yaml);
+    await writeFileEnsured(path.join(OUT_DIR, 'api', 'openapi.json'), json);
+    console.log(`✅ published OpenAPI spec at /specs/, /openapi.*, /api/openapi.*`);
   } catch (err) {
     console.warn(`⚠️  could not copy Paymaster OpenAPI: ${err.message}`);
   }
+}
+
+async function emitLlmsAliases(byLocale) {
+  const enPages = byLocale.en;
+  const rootIndex = buildLlmsTxt('en', enPages);
+  const aliases = ['docs/llms.txt', 'api/llms.txt', 'developers/llms.txt'];
+  for (const rel of aliases) {
+    await writeFileEnsured(path.join(OUT_DIR, rel), rootIndex);
+  }
+  console.log(`✅ published llms.txt aliases at ${aliases.map((a) => '/' + a).join(', ')}`);
+}
+
+async function emitPerPageMarkdown(pages) {
+  let count = 0;
+  for (const p of pages) {
+    const { body } = extractTitleAndBody(p.raw);
+    const md = extractPlainMarkdown(p.raw);
+    const markdown =
+      `# ${p.title}\n\n` +
+      `Source: ${p.canonicalUrl}\n` +
+      `Section: ${sectionLabel(p.locale, p.section)}\n` +
+      `Locale: ${p.locale}\n\n` +
+      (body?.trim() || md.trim()) +
+      '\n';
+    const urlPath = p.url.replace(/^\//, '');
+    const targetBase = urlPath || `${p.locale}/index`;
+    await writeFileEnsured(path.join(OUT_DIR, `${targetBase}.md`), markdown);
+    count++;
+  }
+  console.log(`✅ emitted ${count} per-page markdown siblings for content negotiation`);
 }
 
 async function main() {
@@ -379,6 +412,8 @@ async function main() {
   await writeFileEnsured(path.join(OUT_DIR, 'pricing.md'), buildPricingMarkdown());
 
   await copyPaymasterOpenApi();
+  await emitLlmsAliases(byLocale);
+  await emitPerPageMarkdown(pages);
 
   console.log('🧬 injecting JSON-LD + per-page metadata…');
   try {

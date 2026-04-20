@@ -22,6 +22,9 @@ export const getCodeExampleTool = {
   name: 'get_code_example',
   description:
     'Return curated code snippets for common NERO integration tasks (deploy contract via Hardhat or Remix, send gasless transaction, integrate AA wallet UI, send a UserOperation, check supported tokens).',
+  _meta: {
+    ui: { resourceUri: 'ui://nero-docs/page-preview' },
+  },
   inputSchema: {
     type: 'object',
     properties: {

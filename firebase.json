@@ -71,9 +71,58 @@
         ]
       },
       {
+        "source": "/openapi.yaml",
+        "headers": [
+          { "key": "Content-Type", "value": "application/yaml; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "/openapi.json",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "/api/openapi.yaml",
+        "headers": [
+          { "key": "Content-Type", "value": "application/yaml; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "/api/openapi.json",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
         "source": "/sitemap.xml",
         "headers": [
           { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "/schema-map.xml",
+        "headers": [
+          { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "/404.json",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "/agent.html",
+        "headers": [
+          { "key": "Content-Type", "value": "text/html; charset=utf-8" },
           { "key": "Access-Control-Allow-Origin", "value": "*" }
         ]
       },
@@ -99,6 +148,9 @@
           }
         ]
       }
+    ],
+    "redirects": [
+      { "source": "/agent", "destination": "/agent.html", "type": 301 }
     ],
     "rewrites": [
       {

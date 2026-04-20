@@ -5,6 +5,9 @@ export const getFaqTool = {
   name: 'get_faq',
   description:
     'Return the NERO Chain FAQ entries, optionally filtered by topic. Pulls from the /faq page in the docs corpus.',
+  _meta: {
+    ui: { resourceUri: 'ui://nero-docs/page-preview' },
+  },
   inputSchema: {
     type: 'object',
     properties: {

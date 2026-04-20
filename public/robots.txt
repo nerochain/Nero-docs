@@ -1,10 +1,14 @@
 # NERO Chain Documentation — robots.txt
 # https://docs.nerochain.io
+#
+# Content signals per the Cloudflare/IETF "Content-Signal" proposal:
+# we welcome AI search and AI input/grounding, but do NOT consent to
+# our content being used for LLM training.
 
-# Tier-1 AI crawlers: full access.
-User-agent: GPTBot
-Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 
+
+# --- Tier 1: AI search + grounding agents (allow everything) ---
 User-agent: ChatGPT-User
 Allow: /
 
@@ -20,19 +24,19 @@ Allow: /
 User-agent: anthropic-ai
 Allow: /
 
-User-agent: Google-Extended
-Allow: /
-
-User-agent: GoogleOther
-Allow: /
-
 User-agent: PerplexityBot
 Allow: /
 
 User-agent: Perplexity-User
 Allow: /
 
-User-agent: CCBot
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: DuckAssistBot
 Allow: /
 
 User-agent: Applebot-Extended
@@ -44,24 +48,58 @@ Allow: /
 User-agent: Meta-ExternalFetcher
 Allow: /
 
-User-agent: Bytespider
-Allow: /
-
-User-agent: DuckAssistBot
-Allow: /
-
 User-agent: Amazonbot
 Allow: /
 
-# Default: allow all well-known and AI-facing artifacts.
+
+# --- Tier 2: training-only crawlers (block) ---
+# We publish a ready-made corpus at /llms-full.txt and encourage respectful
+# use there; we do not consent to bulk training scrapes.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ByteSpider
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Kangaroo
+Disallow: /
+
+User-agent: PanguBot
+Disallow: /
+
+
+# --- Everyone else: allow (search engines, etc.) ---
 User-agent: *
 Allow: /
 Disallow:
 
 Sitemap: https://docs.nerochain.io/sitemap.xml
+schemamap: https://docs.nerochain.io/schema-map.xml
 
 # AI-agent resources
 # llms.txt:      https://docs.nerochain.io/llms.txt
 # llms-full.txt: https://docs.nerochain.io/llms-full.txt
+# OpenAPI:       https://docs.nerochain.io/openapi.yaml
 # MCP server:    https://docs-mcp.nerochain.io
 # AI hub:        https://docs.nerochain.io/en/ai-resources

@@ -11,5 +11,6 @@ export default {
   'node-validators': 'ノード・バリデーター',
   faq: 'よくある質問',
   supports: 'サポート',
-  'ai-resources': 'AI リソース'
+  'ai-resources': 'AI リソース',
+  'agent-auth': 'エージェント認証'
 }

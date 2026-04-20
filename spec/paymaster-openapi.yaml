@@ -9,7 +9,7 @@ info:
     of ERC-4337 and cooperates with the EntryPoint contract deployed at
     `0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789` on NERO Chain.
 
-    Three payment types are supported:
+    ## Payment types
 
     - **Type 0 — Sponsored**: developer pays gas from their AA Platform balance.
     - **Type 1 — Prepay ERC-20**: user pays in an ERC-20 token up-front, with a
@@ -17,9 +17,34 @@ info:
     - **Type 2 — Postpay ERC-20**: user pays in an ERC-20 token for the exact
       gas consumed, settled after execution.
 
-    Authentication is via a long-lived API key issued through the
+    ## Authentication
+
+    Long-lived API key sent as `X-API-Key` header. Keys are issued through the
     [AA Platform dashboard](https://aa-platform.nerochain.io). Never ship the
-    API key in client-side code.
+    API key in client-side code. See the
+    [Agent Auth Guide](https://docs.nerochain.io/en/agent-auth) for the full
+    programmatic flow.
+
+    ## Rate limits
+
+    Per-project limits are configured in the AA Platform dashboard:
+
+    | Limit | Default |
+    |---|---|
+    | Daily gas cap | project sponsorship balance |
+    | Transactions per minute per sender | 30 |
+    | Concurrent in-flight UserOps | 50 |
+    | `maxFeePerGas` ceiling | network-derived |
+
+    Exceeded limits return JSON-RPC error code `-32504` (throttled). Clients
+    should back off exponentially, starting at 1 second.
+
+    ## Dispatch
+
+    All methods share one HTTP endpoint: `POST /`. For OpenAPI clarity, this
+    spec lists one operation per method (dispatched by the `method` field of
+    the request body). The separate `/rpc/pm_…` paths are documentation
+    aliases; the real endpoint is the server root.
   termsOfService: https://nerochain.io/legal
   contact:
     name: NERO Chain
@@ -39,52 +64,127 @@ servers:
 tags:
   - name: paymaster
     description: Paymaster JSON-RPC methods
+security:
+  - apiKeyAuth: []
 paths:
   /:
     post:
-      operationId: jsonRpcCall
+      operationId: jsonRpcDispatch
       tags: [paymaster]
-      summary: Call any Paymaster JSON-RPC method.
+      summary: JSON-RPC dispatch endpoint (any supported method)
       description: |
-        All Paymaster methods are invoked over a single JSON-RPC 2.0 endpoint.
-        The `method` property of the request body selects the operation:
-
-        - `pm_supported_tokens` — list ERC-20 tokens accepted for gas, with prices.
-        - `pm_sponsor_userop` — sign a UserOperation with the Paymaster.
-        - `pm_entrypoints` — return supported EntryPoint addresses.
-      security:
-        - apiKeyAuth: []
+        Physical endpoint. Send a JSON-RPC 2.0 request with `method` set to one
+        of `pm_supported_tokens`, `pm_sponsor_userop`, `pm_entrypoints`. See
+        the per-method operations below for detailed parameter/response shapes.
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/JsonRpcRequest"
-            examples:
-              supportedTokens:
-                $ref: "#/components/examples/SupportedTokensRequest"
-              sponsorFree:
-                $ref: "#/components/examples/SponsorFreeRequest"
-              sponsorType1:
-                $ref: "#/components/examples/SponsorType1Request"
-              entrypoints:
-                $ref: "#/components/examples/EntrypointsRequest"
+            schema: { $ref: "#/components/schemas/JsonRpcRequest" }
       responses:
         "200":
-          description: JSON-RPC response (either result or error).
+          description: JSON-RPC success or error.
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/JsonRpcResponse"
-              examples:
-                supportedTokens:
-                  $ref: "#/components/examples/SupportedTokensResponse"
-                sponsorFree:
-                  $ref: "#/components/examples/SponsorResponse"
-                entrypoints:
-                  $ref: "#/components/examples/EntrypointsResponse"
-                errorInvalidParams:
-                  $ref: "#/components/examples/ErrorInvalidParams"
+              schema: { $ref: "#/components/schemas/JsonRpcResponse" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "4XX": { $ref: "#/components/responses/BadRequest" }
+        "5XX": { $ref: "#/components/responses/ServerError" }
+  /rpc/pm_supported_tokens:
+    post:
+      operationId: pmSupportedTokens
+      tags: [paymaster]
+      summary: List ERC-20 tokens accepted for gas (pm_supported_tokens)
+      description: |
+        Retrieves the list of ERC-20 tokens supported by the Paymaster for gas
+        payments along with current price ratios relative to the native NERO
+        token. Also reports whether developer-sponsored gas (Type 0) is
+        currently enabled.
+
+        **Documentation alias** — the real endpoint is `POST /` with
+        `"method": "pm_supported_tokens"`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SupportedTokensRequest" }
+            example:
+              $ref: "#/components/examples/SupportedTokensRequest/value"
+      responses:
+        "200":
+          description: Supported tokens.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SupportedTokensResponse" }
+              example:
+                $ref: "#/components/examples/SupportedTokensResponse/value"
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "4XX": { $ref: "#/components/responses/BadRequest" }
+        "5XX": { $ref: "#/components/responses/ServerError" }
+  /rpc/pm_sponsor_userop:
+    post:
+      operationId: pmSponsorUserOp
+      tags: [paymaster]
+      summary: Sign a UserOperation with the Paymaster (pm_sponsor_userop)
+      description: |
+        Signs a UserOperation with the Paymaster, adding the `paymasterAndData`
+        field required for sponsored or token-paid transactions.
+
+        The `context` object selects the payment type: `{"type": 0}` for
+        developer-sponsored (free) gas, `{"type": 1, "token": "0x…"}` for
+        prepay-in-ERC-20 with automatic refund, `{"type": 2, "token": "0x…"}`
+        for postpay-in-ERC-20 settled after execution.
+
+        **Documentation alias** — the real endpoint is `POST /` with
+        `"method": "pm_sponsor_userop"`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SponsorUserOpRequest" }
+            example:
+              $ref: "#/components/examples/SponsorFreeRequest/value"
+      responses:
+        "200":
+          description: Signed UserOperation with paymasterAndData populated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SponsorUserOpResponse" }
+              example:
+                $ref: "#/components/examples/SponsorResponse/value"
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "4XX": { $ref: "#/components/responses/BadRequest" }
+        "5XX": { $ref: "#/components/responses/ServerError" }
+  /rpc/pm_entrypoints:
+    post:
+      operationId: pmEntrypoints
+      tags: [paymaster]
+      summary: List supported EntryPoint contract addresses (pm_entrypoints)
+      description: |
+        Returns the EntryPoint contract addresses currently supported by this
+        Paymaster. For NERO mainnet and testnet this is
+        `0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789`.
+
+        **Documentation alias** — the real endpoint is `POST /` with
+        `"method": "pm_entrypoints"`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EntrypointsRequest" }
+            example:
+              $ref: "#/components/examples/EntrypointsRequest/value"
+      responses:
+        "200":
+          description: List of EntryPoint addresses.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntrypointsResponse" }
+              example:
+                $ref: "#/components/examples/EntrypointsResponse/value"
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "4XX": { $ref: "#/components/responses/BadRequest" }
+        "5XX": { $ref: "#/components/responses/ServerError" }
 components:
   securitySchemes:
     apiKeyAuth:
@@ -136,6 +236,7 @@ components:
     SponsorContext:
       type: object
       required: [type]
+      description: Payment selector passed as the fourth parameter to pm_sponsor_userop.
       properties:
         type:
           type: integer
@@ -147,110 +248,47 @@ components:
         token:
           $ref: "#/components/schemas/Address"
           description: ERC-20 token address. Required for `type=1` and `type=2`.
-      examples:
-        - { type: 0 }
-        - { type: 1, token: "0xD5a6dcff7AC339A03f6964c315575bF65c3c6cF6" }
     JsonRpcRequest:
-      oneOf:
-        - $ref: "#/components/schemas/SupportedTokensRequest"
-        - $ref: "#/components/schemas/SponsorUserOpRequest"
-        - $ref: "#/components/schemas/EntrypointsRequest"
-      discriminator:
-        propertyName: method
-        mapping:
-          pm_supported_tokens: "#/components/schemas/SupportedTokensRequest"
-          pm_sponsor_userop: "#/components/schemas/SponsorUserOpRequest"
-          pm_entrypoints: "#/components/schemas/EntrypointsRequest"
-    JsonRpcRequestBase:
+      type: object
+      required: [jsonrpc, id, method, params]
+      description: Generic JSON-RPC 2.0 request envelope dispatched by method name.
+      properties:
+        jsonrpc: { type: string, const: "2.0" }
+        id:
+          description: Client-chosen request identifier echoed back in the response.
+          oneOf: [{ type: integer }, { type: string }]
+        method:
+          type: string
+          enum: [pm_supported_tokens, pm_sponsor_userop, pm_entrypoints]
+        params:
+          type: array
+          items: {}
+          description: Positional parameters. Shape depends on method; see per-method schemas.
+    SupportedTokensRequest:
       type: object
       required: [jsonrpc, id, method, params]
       properties:
         jsonrpc: { type: string, const: "2.0" }
-        id: { oneOf: [{ type: integer }, { type: string }] }
-    SupportedTokensRequest:
-      allOf:
-        - $ref: "#/components/schemas/JsonRpcRequestBase"
-        - type: object
-          properties:
-            method: { type: string, const: pm_supported_tokens }
-            params:
-              type: array
-              items: {}
-              minItems: 3
-              maxItems: 3
-              prefixItems:
-                - $ref: "#/components/schemas/UserOperation"
-                - { type: string, description: API key from AA Platform }
-                - { $ref: "#/components/schemas/Address", description: EntryPoint address }
-    SponsorUserOpRequest:
-      allOf:
-        - $ref: "#/components/schemas/JsonRpcRequestBase"
-        - type: object
-          properties:
-            method: { type: string, const: pm_sponsor_userop }
-            params:
-              type: array
-              items: {}
-              minItems: 4
-              maxItems: 4
-              prefixItems:
-                - $ref: "#/components/schemas/UserOperation"
-                - { type: string, description: API key from AA Platform }
-                - { $ref: "#/components/schemas/Address", description: EntryPoint address }
-                - $ref: "#/components/schemas/SponsorContext"
-    EntrypointsRequest:
-      allOf:
-        - $ref: "#/components/schemas/JsonRpcRequestBase"
-        - type: object
-          properties:
-            method: { type: string, const: pm_entrypoints }
-            params:
-              type: array
-              items: { type: string }
-              description: "[\"entryPoint\"] or empty."
-    JsonRpcResponse:
-      oneOf:
-        - $ref: "#/components/schemas/JsonRpcResult"
-        - $ref: "#/components/schemas/JsonRpcError"
-    JsonRpcResult:
-      type: object
-      required: [jsonrpc, id, result]
-      properties:
-        jsonrpc: { type: string, const: "2.0" }
-        id: { oneOf: [{ type: integer }, { type: string }] }
-        result: {}
-    JsonRpcError:
-      type: object
-      required: [jsonrpc, id, error]
-      properties:
-        jsonrpc: { type: string, const: "2.0" }
-        id: { oneOf: [{ type: integer }, { type: string }, { type: "null" }] }
-        error:
-          type: object
-          required: [code, message]
-          properties:
-            code:
-              type: integer
-              description: |
-                Standard JSON-RPC error codes and Paymaster-specific codes.
-                Paymaster codes observed in practice:
-                - -32521: Transaction reverted (or will revert).
-                - -32602: Invalid UserOperation struct/fields.
-                - -32500: Rejected by EntryPoint's simulateValidation.
-                - -32501: Rejected by paymaster's validatePaymasterUserOp.
-                - -32502: Rejected due to opcode validation.
-                - -32503: UserOperation out of time-range.
-                - -32504: Paymaster throttled/banned.
-                - -32505: Paymaster stake/unstake-delay too low.
-                - -32506: Unsupported signature aggregator.
-                - -32507: Invalid signature check.
-            message: { type: string }
-            data: {}
+        id:
+          oneOf: [{ type: integer }, { type: string }]
+        method: { type: string, const: pm_supported_tokens }
+        params:
+          type: array
+          items: {}
+          minItems: 3
+          maxItems: 3
+          description: "[UserOperation, apiKey, entryPoint]"
+          prefixItems:
+            - $ref: "#/components/schemas/UserOperation"
+            - { type: string, description: API key from AA Platform }
+            - { $ref: "#/components/schemas/Address", description: EntryPoint address }
     SupportedTokensResult:
       type: object
       required: [freeGas, native, tokens]
       properties:
-        freeGas: { type: boolean, description: Whether Type 0 sponsorship is currently enabled. }
+        freeGas:
+          type: boolean
+          description: Whether Type 0 sponsorship is currently enabled for this project.
         native:
           type: object
           required: [gas, price, decimals, symbol]
@@ -265,11 +303,153 @@ components:
             type: object
             required: [type, token, symbol, decimals, price]
             properties:
-              type: { type: string, enum: [system, custom] }
+              type:
+                type: string
+                enum: [system, custom]
               token: { $ref: "#/components/schemas/Address" }
               symbol: { type: string }
               decimals: { type: integer }
               price: { type: number }
+    SupportedTokensResponse:
+      type: object
+      required: [jsonrpc, id]
+      properties:
+        jsonrpc: { type: string, const: "2.0" }
+        id:
+          oneOf: [{ type: integer }, { type: string }]
+        result: { $ref: "#/components/schemas/SupportedTokensResult" }
+        error: { $ref: "#/components/schemas/JsonRpcErrorObject" }
+    SponsorUserOpRequest:
+      type: object
+      required: [jsonrpc, id, method, params]
+      properties:
+        jsonrpc: { type: string, const: "2.0" }
+        id:
+          oneOf: [{ type: integer }, { type: string }]
+        method: { type: string, const: pm_sponsor_userop }
+        params:
+          type: array
+          items: {}
+          minItems: 4
+          maxItems: 4
+          description: "[UserOperation, apiKey, entryPoint, context]"
+          prefixItems:
+            - $ref: "#/components/schemas/UserOperation"
+            - { type: string, description: API key from AA Platform }
+            - { $ref: "#/components/schemas/Address", description: EntryPoint address }
+            - $ref: "#/components/schemas/SponsorContext"
+    SponsorUserOpResponse:
+      type: object
+      required: [jsonrpc, id]
+      properties:
+        jsonrpc: { type: string, const: "2.0" }
+        id:
+          oneOf: [{ type: integer }, { type: string }]
+        result: { $ref: "#/components/schemas/UserOperation" }
+        error: { $ref: "#/components/schemas/JsonRpcErrorObject" }
+    EntrypointsRequest:
+      type: object
+      required: [jsonrpc, id, method]
+      properties:
+        jsonrpc: { type: string, const: "2.0" }
+        id:
+          oneOf: [{ type: integer }, { type: string }]
+        method: { type: string, const: pm_entrypoints }
+        params:
+          type: array
+          items: { type: string }
+          description: Empty array or `["entryPoint"]`.
+    EntrypointsResponse:
+      type: object
+      required: [jsonrpc, id]
+      properties:
+        jsonrpc: { type: string, const: "2.0" }
+        id:
+          oneOf: [{ type: integer }, { type: string }]
+        result:
+          type: array
+          items: { $ref: "#/components/schemas/Address" }
+        error: { $ref: "#/components/schemas/JsonRpcErrorObject" }
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc, id]
+      properties:
+        jsonrpc: { type: string, const: "2.0" }
+        id:
+          oneOf: [{ type: integer }, { type: string }, { type: "null" }]
+        result: {}
+        error: { $ref: "#/components/schemas/JsonRpcErrorObject" }
+    JsonRpcErrorObject:
+      type: object
+      required: [code, message]
+      description: Standard JSON-RPC 2.0 error object with Paymaster-specific codes.
+      properties:
+        code:
+          type: integer
+          description: |
+            Paymaster JSON-RPC error codes:
+            - -32521: Transaction reverted (or will revert) during execution.
+            - -32602: Invalid UserOperation struct/fields.
+            - -32500: Rejected by EntryPoint simulateValidation.
+            - -32501: Rejected by paymaster validatePaymasterUserOp.
+            - -32502: Rejected due to opcode validation.
+            - -32503: UserOperation out of time-range.
+            - -32504: Paymaster throttled/banned (rate limit).
+            - -32505: Paymaster stake/unstake-delay too low.
+            - -32506: Unsupported signature aggregator.
+            - -32507: Invalid signature check.
+        message: { type: string }
+        data: { description: Implementation-specific diagnostic payload. }
+    HttpError:
+      type: object
+      description: Structured error returned for non-2xx HTTP responses.
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: integer }
+            type: { type: string }
+            message: { type: string }
+            resolution:
+              type: array
+              items: { type: string }
+              description: Ordered list of suggested remediation steps.
+  responses:
+    RateLimited:
+      description: Rate limit exceeded. Back off exponentially starting at 1 second. Also returned as JSON-RPC code -32504.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/HttpError" }
+          example:
+            error:
+              code: 429
+              type: rate_limited
+              message: Paymaster throttled. Retry with exponential backoff.
+              resolution: ["wait 1s", "retry with jittered backoff up to 3 times", "check AA Platform dashboard for daily cap"]
+    BadRequest:
+      description: Invalid request (malformed JSON-RPC envelope, invalid params, or missing API key).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/HttpError" }
+          example:
+            error:
+              code: 400
+              type: invalid_request
+              message: Missing X-API-Key header.
+              resolution: ["include X-API-Key header or pass apiKey as the second JSON-RPC param", "rotate key via AA Platform if expired"]
+    ServerError:
+      description: Upstream failure.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/HttpError" }
+          example:
+            error:
+              code: 500
+              type: server_error
+              message: Internal paymaster failure.
+              resolution: ["retry with exponential backoff", "check https://docs.nerochain.io/en/status"]
   examples:
     SupportedTokensRequest:
       summary: List supported gas tokens for a sender.
@@ -335,27 +515,6 @@ components:
           - "YOUR_API_KEY"
           - "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
           - { type: 0 }
-    SponsorType1Request:
-      summary: Sponsor a UserOp (Type 1 — prepay ERC-20).
-      value:
-        jsonrpc: "2.0"
-        id: 1
-        method: pm_sponsor_userop
-        params:
-          - sender: "0xAABbCc00112233445566778899AaBbCcDdEeFf00"
-            nonce: "0x0"
-            initCode: "0x"
-            callData: "0xb61d27f6"
-            callGasLimit: "0x88b8"
-            verificationGasLimit: "0x33450"
-            preVerificationGas: "0xc350"
-            maxFeePerGas: "0x9502f900"
-            maxPriorityFeePerGas: "0x9502f900"
-            paymasterAndData: "0x"
-            signature: "0xdeadbeef"
-          - "YOUR_API_KEY"
-          - "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
-          - { type: 1, token: "0xD5a6dcff7AC339A03f6964c315575bF65c3c6cF6" }
     SponsorResponse:
       summary: Signed UserOperation with paymasterAndData populated.
       value:
@@ -365,14 +524,14 @@ components:
           sender: "0xAABbCc00112233445566778899AaBbCcDdEeFf00"
           nonce: "0x0"
           initCode: "0x"
-          callData: "0xCallData"
+          callData: "0xb61d27f6"
           callGasLimit: "0x88b8"
           verificationGasLimit: "0x33450"
           preVerificationGas: "0xc350"
           maxFeePerGas: "0x9502f900"
           maxPriorityFeePerGas: "0x9502f900"
-          paymasterAndData: "0xPaymasterAddressEncodedDataPaymasterSignature"
-          signature: "0xUserSignature"
+          paymasterAndData: "0xcafebabecafebabecafebabecafebabecafebabe"
+          signature: "0xdeadbeef"
     EntrypointsRequest:
       summary: List supported EntryPoint addresses.
       value:
@@ -386,11 +545,3 @@ components:
         jsonrpc: "2.0"
         id: 1
         result: ["0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"]
-    ErrorInvalidParams:
-      summary: JSON-RPC error response (invalid params).
-      value:
-        jsonrpc: "2.0"
-        id: 1
-        error:
-          code: -32602
-          message: "Invalid UserOperation struct/fields."

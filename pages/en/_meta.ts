@@ -11,5 +11,7 @@ export default {
   'node-validators': "Node Validators",
   faq: "FAQ",
   supports: "Support",
-  'ai-resources': "AI Resources"
+  'ai-resources': "AI Resources",
+  'agent-auth': "Agent Auth",
+  status: "Status"
 }

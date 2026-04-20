@@ -13,6 +13,9 @@ export const getPageTool = {
   name: 'get_page',
   description:
     'Fetch the full markdown content of a specific NERO docs page. Accepts either a URL path (e.g. /en/developer-tools/paymaster-api/core-methods) or a full canonical URL.',
+  _meta: {
+    ui: { resourceUri: 'ui://nero-docs/page-preview' },
+  },
   inputSchema: {
     type: 'object',
     properties: {

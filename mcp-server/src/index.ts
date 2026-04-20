@@ -17,6 +17,7 @@ import { getApiMethodTool } from './tools/get-api-method.js';
 import { getCodeExampleTool } from './tools/get-code-example.js';
 import { getFaqTool } from './tools/get-faq.js';
 import { listDocsResources, readDocsResource } from './resources/docs-resource.js';
+import { isUiUri, listUiResources, readUiResource } from './resources/ui-resource.js';
 
 const TOOLS = [
   searchDocsTool,
@@ -40,6 +41,7 @@ export function createServer(): Server {
       name: t.name,
       description: t.description,
       inputSchema: t.inputSchema,
+      ...((t as { _meta?: unknown })._meta ? { _meta: (t as { _meta: unknown })._meta } : {}),
     })),
   }));
 
@@ -63,13 +65,14 @@ export function createServer(): Server {
   });
 
   server.setRequestHandler(ListResourcesRequestSchema, async () => ({
-    resources: listDocsResources(),
+    resources: [...listUiResources(), ...listDocsResources()],
   }));
 
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-    const result = readDocsResource(request.params.uri);
+    const uri = request.params.uri;
+    const result = isUiUri(uri) ? readUiResource(uri) : readDocsResource(uri);
     if (!result) {
-      throw new Error(`Resource not found: ${request.params.uri}`);
+      throw new Error(`Resource not found: ${uri}`);
     }
     return result;
   });

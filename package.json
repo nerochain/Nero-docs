@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "dev": "next",
-    "build": "next build && node scripts/build-agent-artifacts.mjs",
+    "build": "node scripts/clean-pages.mjs && next build && node scripts/build-agent-artifacts.mjs",
     "build:site": "next build",
     "build:artifacts": "node scripts/build-agent-artifacts.mjs",
     "start": "next start",

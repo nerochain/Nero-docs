@@ -22,6 +22,9 @@ export const listSectionsTool = {
   name: 'list_sections',
   description:
     'Return the navigation tree of NERO Chain docs, grouped by top-level section. Includes titles, URLs, and brief summaries.',
+  _meta: {
+    ui: { resourceUri: 'ui://nero-docs/embed' },
+  },
   inputSchema: {
     type: 'object',
     properties: {
