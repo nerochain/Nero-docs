@@ -29,8 +29,6 @@ jobs:
       - name: Validate agent-ready artifacts
         run: yarn validate:agent-ready
       - name: Build MCP server and conformance index
-        run: |
-          yarn --cwd mcp-server install --immutable
-          yarn --cwd mcp-server build
+        run: yarn workspace @nerochain/docs-mcp build
       - name: MCP conformance smoke test
-        run: yarn --cwd mcp-server test:conformance
+        run: yarn workspace @nerochain/docs-mcp test:conformance
