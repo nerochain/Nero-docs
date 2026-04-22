@@ -34,3 +34,15 @@ When you create a PR from a feature/* branch, the following will happen automati
 ### Notes
 - Preview environment deployment takes a few minutes
 - Preview URLs become invalid when the PR is merged or closed
+
+## For AI agents
+
+The site publishes machine-readable documentation at:
+
+- `llms.txt` — curated markdown index ([link](https://docs.nerochain.io/llms.txt))
+- `llms-full.txt` — full docs corpus ([link](https://docs.nerochain.io/llms-full.txt))
+- `site-index.json` — page metadata ([link](https://docs.nerochain.io/site-index.json))
+- Paymaster OpenAPI 3.1 spec ([link](https://docs.nerochain.io/specs/paymaster-openapi.yaml))
+- MCP server at `https://docs-mcp.nerochain.io`
+
+Install snippets for Claude Code, Claude Desktop, Cursor, VS Code, ChatGPT, and Codex CLI are on the [AI resources hub](https://docs.nerochain.io/en/ai-resources).

@@ -1,0 +1,59 @@
+import PageFeedback from '../../components/PageFeedback'
+
+
+# Status
+
+Operational status for NERO Chain public services.
+
+## Services
+
+| Service | Endpoint | Expected uptime |
+|---|---|---|
+| Testnet RPC | `https://rpc-testnet.nerochain.io` | 99.9% |
+| Mainnet RPC | `https://rpc-mainnet.nerochain.io` | 99.95% |
+| Paymaster API (testnet) | `https://paymaster-testnet.nerochain.io` | 99.5% |
+| Paymaster API (mainnet) | `https://paymaster-mainnet.nerochain.io` | 99.9% |
+| AA Platform dashboard | `https://aa-platform.nerochain.io` | 99.5% |
+| Documentation | `https://docs.nerochain.io` | 99.9% |
+| Documentation MCP | `https://docs-mcp.nerochain.io` | 99.5% |
+
+## Real-time incident feed
+
+NERO operates incident communication via:
+
+- **Discord** — [#status](https://discord.com/invite/nerochainofficial) channel
+- **X / Twitter** — [@NeroChain](https://x.com/NeroChain)
+- **GitHub** — [nerochain org](https://github.com/nerochain) for scheduled maintenance issues
+
+A dedicated status.nerochain.io page with programmatic feed (JSON + RSS) is planned. Until it ships, agents should monitor the Discord channel or poll the health endpoints below.
+
+## Health probes (machine-readable)
+
+| Endpoint | What it returns |
+|---|---|
+| `GET /health` on each service | `{"status":"ok","service":"...","version":"..."}` with HTTP 200 when healthy |
+| `GET https://docs-mcp.nerochain.io/health` | MCP server liveness |
+| Paymaster JSON-RPC `pm_entrypoints` | Returns supported EntryPoint addresses |
+
+Agents should treat any non-2xx response or a response body missing `"status":"ok"` as a degraded state and apply exponential backoff before retrying.
+
+## Rate limits
+
+Rate limits are per-project on the Paymaster API:
+
+| Limit | Default | Configurable in AA Platform |
+|---|---|---|
+| Daily gas cap | set by project balance | yes |
+| Transactions per minute per sender | 30 | yes |
+| Concurrent in-flight UserOps per project | 50 | yes |
+| Max `maxFeePerGas` per UserOp | network-derived | yes |
+
+Exceeded limits return JSON-RPC error code `-32504` (throttled). Back off and retry.
+
+## SLA
+
+NERO Chain does not publish a contractual SLA for the testnet. Mainnet SLA terms, if any, are negotiated with enterprise customers via [contact@nerochain.io](mailto:contact@nerochain.io).
+
+
+
+<PageFeedback path="/en/status" />

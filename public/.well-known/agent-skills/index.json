@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "NERO Chain Docs Skills",
+  "description": "Skill catalog for agents interacting with NERO Chain documentation. Each skill maps to an MCP tool at https://docs-mcp.nerochain.io and to documented behavior in https://docs.nerochain.io.",
+  "skills": [
+    {
+      "id": "search_docs",
+      "name": "search_docs",
+      "description": "Full-text search across NERO Chain documentation pages.",
+      "whenToUse": "User asks about any NERO Chain concept, API, tool, or tutorial and you need to locate the authoritative source.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string", "description": "Search query in English or Japanese." },
+          "locale": { "type": "string", "enum": ["en", "ja"], "default": "en" },
+          "section": { "type": "string", "enum": ["getting-started", "core-concepts", "developer-tools", "tutorials", "node-validators"] },
+          "limit": { "type": "integer", "default": 8, "minimum": 1, "maximum": 25 }
+        },
+        "required": ["query"]
+      },
+      "examples": [
+        { "input": { "query": "paymaster sponsored gas" }, "output": "Top hits from /en/developer-tools/paymaster-api/ and /en/getting-started/nero-dapp-architecture." }
+      ]
+    },
+    {
+      "id": "get_page",
+      "name": "get_page",
+      "description": "Fetch the full markdown content of a specific NERO docs page.",
+      "whenToUse": "You know the exact URL path (e.g., from search_docs results) and need the full content for citation or summarization.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string", "description": "URL path like /en/developer-tools/paymaster-api/core-methods." },
+          "locale": { "type": "string", "enum": ["en", "ja"] }
+        },
+        "required": ["path"]
+      }
+    },
+    {
+      "id": "list_sections",
+      "name": "list_sections",
+      "description": "Return the navigation tree of NERO Chain docs.",
+      "whenToUse": "When you need to understand the taxonomy of the docs or enumerate available sections.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": { "type": "string", "enum": ["en", "ja"], "default": "en" }
+        }
+      }
+    },
+    {
+      "id": "get_api_method",
+      "name": "get_api_method",
+      "description": "Return the JSON-RPC signature, parameters, and examples for a Paymaster API method.",
+      "whenToUse": "User asks how to call a specific Paymaster method or wants request/response shapes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "method": { "type": "string", "enum": ["pm_supported_tokens", "pm_sponsor_userop", "pm_entrypoints"] }
+        },
+        "required": ["method"]
+      }
+    },
+    {
+      "id": "get_code_example",
+      "name": "get_code_example",
+      "description": "Return curated code snippets for common integration tasks.",
+      "whenToUse": "User wants runnable example code for a task like deploying their first contract, sending a gasless transaction, or integrating the AA wallet UI.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": { "type": "string", "enum": ["deploy-contract-hardhat", "deploy-contract-remix", "send-gasless-tx", "integrate-aa-wallet", "send-userop", "check-supported-tokens"] }
+        },
+        "required": ["topic"]
+      }
+    },
+    {
+      "id": "get_faq",
+      "name": "get_faq",
+      "description": "Return entries from the NERO Chain FAQ, optionally filtered by topic.",
+      "whenToUse": "User asks a question that likely has a canonical FAQ answer (e.g., testnet faucet, supported wallets, block explorer).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": { "type": "string" },
+          "locale": { "type": "string", "enum": ["en", "ja"], "default": "en" }
+        }
+      }
+    },
+    {
+      "id": "get_integration_config",
+      "name": "get_integration_config",
+      "description": "Return structured reference configuration for integrating NERO Chain into web apps: network parameters, pre-deployed contract addresses, paymaster payment types, required/optional environment variables, Web3Auth setup, and security rules.",
+      "whenToUse": "Agent needs to produce a .env file, validate a user's config, wire up Web3Auth + userop, or answer questions about chain IDs, RPC endpoints, EntryPoint address, SimpleAccountFactory, staking contract, etc. Returns JSON, not markdown — no parsing required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "enum": ["all", "networks", "testnet", "mainnet", "contracts", "paymaster-types", "env-vars", "web3auth", "security"],
+            "default": "all"
+          },
+          "network": {
+            "type": "string",
+            "enum": ["testnet", "mainnet"],
+            "description": "When topic=env-vars, render values for this network."
+          }
+        }
+      },
+      "examples": [
+        {
+          "input": { "topic": "testnet" },
+          "output": "{ chainIdHex: '0x2B1', rpcUrl: 'https://rpc-testnet.nerochain.io', … }"
+        },
+        {
+          "input": { "topic": "env-vars", "network": "mainnet" },
+          "output": "{ exampleValues: { NEXT_PUBLIC_CHAIN_ID: '0x699', … }, variables: { required: […], optional: […] } }"
+        }
+      ]
+    }
+  ]
+}

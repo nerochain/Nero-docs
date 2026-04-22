@@ -1,0 +1,98 @@
+version: 1
+description: |
+  Seed task set for measuring whether coding agents can use NERO Chain docs
+  effectively. Each task is run in two modes (cold = no MCP, mcp = MCP
+  connected) and graded by the rubric in ./rubric.md.
+tasks:
+  - id: intro
+    prompt: >-
+      What is NERO Chain and what makes it different from Ethereum L2s?
+      Cite a docs.nerochain.io URL.
+    mustCite:
+      - docs.nerochain.io
+    mustMention:
+      - layer
+      - account abstraction
+    forbidden:
+      - L2 rollup
+      - optimistic rollup
+
+  - id: hardhat-deploy
+    prompt: >-
+      Write a Hardhat script that deploys an ERC-20 contract to NERO testnet.
+      Include the hardhat.config.js entry, the deploy command, and the
+      environment variable(s) I need to set.
+    mustCite:
+      - docs.nerochain.io
+    mustMention:
+      - hardhat.config
+      - neroTestnet
+      - PRIVATE_KEY
+
+  - id: gasless-tx
+    prompt: >-
+      Walk me through sending a gasless transaction on NERO using the
+      Paymaster API. Include the exact JSON-RPC call.
+    mustMention:
+      - pm_sponsor_userop
+      - type
+      - 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+    forbidden:
+      - pm_sponsor_userOperation
+      - eth_sponsorUserOp
+
+  - id: payment-types
+    prompt: >-
+      Explain Paymaster payment types 0, 1, and 2 on NERO. When would you use
+      each?
+    mustMention:
+      - sponsored
+      - prepay
+      - postpay
+      - ERC20
+
+  - id: supported-tokens
+    prompt: >-
+      Generate a curl request to pm_supported_tokens for sender
+      0x1111111111111111111111111111111111111111. Parse and explain the
+      expected response.
+    mustMention:
+      - pm_supported_tokens
+      - X-API-Key
+      - freeGas
+
+  - id: entrypoint-address
+    prompt: "What's the EntryPoint contract address on NERO?"
+    mustMention:
+      - "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"
+    forbidden:
+      - "0x0576a174D229E3cFA37253523E645A78A0C91B57"
+
+  - id: consensus
+    prompt: >-
+      How does NERO's consensus differ from Ethereum's Gasper (LMD-GHOST +
+      Casper FFG)?
+    mustCite:
+      - docs.nerochain.io
+    mustMention:
+      - consensus
+
+  - id: validator-setup
+    prompt: >-
+      Walk me through setting up a NERO validator node. List every command in
+      order.
+    mustCite:
+      - docs.nerochain.io/en/node-validators
+
+  - id: aa23
+    prompt: >-
+      My UserOp is reverting with AA23. Diagnose and fix.
+    mustMention:
+      - verification
+      - signature
+
+  - id: fee-sharing
+    prompt: >-
+      How do I claim fee-sharing revenue as a dApp builder on NERO?
+    mustCite:
+      - docs.nerochain.io/en/core-concepts/fee-sharing

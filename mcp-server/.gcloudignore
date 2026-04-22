@@ -1,0 +1,11 @@
+# .gcloudignore for Cloud Build uploads. Unlike .gitignore, this file is
+# NOT inherited — we list everything the build context should exclude.
+# Crucially, data/corpus.json and data/search-index.json ARE included here
+# (they're excluded from git to keep diffs clean, but must be in the image).
+
+node_modules/
+dist/
+*.log
+
+# Local verification artifacts
+reports/

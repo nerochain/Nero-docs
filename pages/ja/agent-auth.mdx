@@ -1,0 +1,88 @@
+import PageFeedback from '../../components/PageFeedback'
+
+
+# エージェント認証ガイド
+
+NERO Paymaster JSON-RPC API に対して AI エージェントを認証する、プログラマブル優先のガイドです。OpenAPI スペック [/openapi.yaml](https://docs.nerochain.io/openapi.yaml) から来た方向けに、人間の手順とコードを組み合わせて説明します。
+
+## 要点
+
+- **認証方式:** `X-API-Key` ヘッダーで送信する長期 API キー
+- **発行者:** [AA Platform ダッシュボード](https://aa-platform.nerochain.io)
+- **スコープ:** `paymaster:read`(トークンとスポンサー状態の読み取り)、`paymaster:sponsor`(UserOperation の署名)
+- **サンドボックス:** NERO テストネットは無料([FAQ](/ja/faq) の蛇口リンク参照)
+- **OAuth 2.0:** 現在使用していません。キーのローテーションは AA Platform UI から
+- **ディスカバリ:** [`/.well-known/oauth-protected-resource`](/.well-known/oauth-protected-resource)(RFC 9728)
+
+## ステップ 1 — API キーを取得する
+
+1. [aa-platform.nerochain.io](https://aa-platform.nerochain.io) でアカウントを作成します。
+2. NERO テストネット(または メインネット)にスコープされたプロジェクトを作成します。
+3. API キーを生成します。作成時にのみ表示されるため、必ずコピーしてください。
+4. Type 0(無料ガス)を使用する場合は、スポンサー残高を入金します。
+
+ダッシュボード経由のフローを完了できない自律エージェントを構築している場合、プログラマブルなオンボーディングパスについて [Discord](https://discord.com/invite/nerochainofficial) で NERO チームにお問い合わせください。
+
+## ステップ 2 — キーを安全に保管する
+
+API キーはサーバーサイドで保管します。クライアントサイドの JavaScript、モバイルアプリのバンドル、公開リポジトリに決して埋め込まないでください。
+
+```bash
+# .env (コミット禁止)
+NERO_API_KEY=pk_live_xxxxxxxxxxxxxxxxxxxxxxx
+```
+
+## ステップ 3 — 認証済みリクエストを送信する
+
+すべての Paymaster JSON-RPC メソッドは、以下の 2 つの方法のいずれかで API キーを受け付けます。
+
+**推奨 — HTTP ヘッダー:**
+
+```bash
+curl -X POST https://paymaster-testnet.nerochain.io \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NERO_API_KEY" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"pm_supported_tokens","params":[{"sender":"0xAABbCc00112233445566778899AaBbCcDdEeFf00","nonce":"0x0","initCode":"0x","callData":"0x","callGasLimit":"0x0","verificationGasLimit":"0x0","preVerificationGas":"0x0","maxFeePerGas":"0x0","maxPriorityFeePerGas":"0x0","paymasterAndData":"0x","signature":"0x"},"'"$NERO_API_KEY"'","0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"]}'
+```
+
+**レガシー — 第 2 JSON-RPC パラメータ**(ヘッダーを設定できない SDK クライアント向け):
+
+```json
+{"params": [userOperation, "$NERO_API_KEY", "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"]}
+```
+
+## ステップ 4 — レート制限とエラーを処理する
+
+すべてのエラーは構造化された JSON-RPC 2.0 エラーレスポンスとして返されます。
+
+| コード | 意味 | 再試行? |
+|---|---|---|
+| `-32521` | 実行中にトランザクションが revert | 不可(callData を修正) |
+| `-32602` | 無効な UserOperation 構造体/フィールド | 不可(ペイロードを修正) |
+| `-32500` | EntryPoint の `simulateValidation` で拒否 | 不可 |
+| `-32501` | Paymaster の `validatePaymasterUserOp` で拒否 | 不可(スポンサー残高/スコープを確認) |
+| `-32503` | 時間範囲外 | 可(再構築して再送) |
+| `-32504` | Paymaster がスロットル/BAN | 可(指数バックオフ) |
+
+プロジェクト単位のレート制限は AA Platform ダッシュボードで設定します(日次ガス上限、トランザクション数、ガス価格上限)。エージェントは:
+
+- HTTP 429 レスポンスを尊重し、1 秒から指数バックオフ
+- `pm_supported_tokens` の結果を最低 60 秒キャッシュ
+- `-32503` エラーは最大 3 回、新しい UserOp でリトライ
+- `-32501` エラーはリトライしない(設定の問題)
+
+## ステップ 5 — キーをローテーションする
+
+AA Platform UI からいつでもキーをローテーションできます。古いキーは即座に無効になります。キーの漏洩が疑われる場合は、ローテーションしたうえでダッシュボードの使用量ビューで支出を監査してください。
+
+## 機械可読参照
+
+- [Paymaster OpenAPI 3.1 スペック](https://docs.nerochain.io/openapi.yaml)
+- [`/.well-known/oauth-protected-resource`](https://docs.nerochain.io/.well-known/oauth-protected-resource)
+- [`/.well-known/ai-plugin.json`](https://docs.nerochain.io/.well-known/ai-plugin.json)
+- [`/.well-known/agent-card.json`](https://docs.nerochain.io/.well-known/agent-card.json)
+- [MCP サーバー](https://docs-mcp.nerochain.io)
+
+
+
+<PageFeedback path="/ja/agent-auth" />

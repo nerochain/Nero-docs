@@ -1,0 +1,134 @@
+import CopyableSnippet from '../../components/CopyableSnippet'
+import PageFeedback from '../../components/PageFeedback'
+
+
+# AI Resources
+
+NERO Chain documentation is published in machine-readable form for AI agents, retrieval systems, and LLM-powered developer tools. Connect a coding agent to the NERO Docs MCP server or download the bundles directly.
+
+All resources listed here are purely informational. They carry no embedded system prompts, no personas, and no tracking.
+
+## Connect via MCP
+
+The NERO Docs MCP server exposes the full documentation over [Model Context Protocol](https://modelcontextprotocol.io). Point your coding agent at it and ask natural-language questions — it will retrieve the relevant pages and API methods.
+
+**Endpoint:** `https://docs-mcp.nerochain.io`
+
+### Claude Code (CLI)
+
+<CopyableSnippet label="Claude Code — add HTTP MCP server" language="bash">
+{`claude mcp add --transport http nero-docs https://docs-mcp.nerochain.io`}
+</CopyableSnippet>
+
+### Claude Desktop
+
+<CopyableSnippet label="claude_desktop_config.json" language="json">
+{`{
+  "mcpServers": {
+    "nero-docs": {
+      "type": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    }
+  }
+}`}
+</CopyableSnippet>
+
+### Cursor
+
+<CopyableSnippet label=".cursor/mcp.json" language="json">
+{`{
+  "mcpServers": {
+    "nero-docs": {
+      "transport": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    }
+  }
+}`}
+</CopyableSnippet>
+
+### VS Code (GitHub Copilot Chat)
+
+<CopyableSnippet label=".vscode/mcp.json" language="json">
+{`{
+  "servers": {
+    "nero-docs": {
+      "type": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    }
+  }
+}`}
+</CopyableSnippet>
+
+### ChatGPT / OpenAI Apps SDK
+
+<CopyableSnippet label="HTTP connector" language="json">
+{`{
+  "name": "nero-docs",
+  "type": "mcp",
+  "server_url": "https://docs-mcp.nerochain.io"
+}`}
+</CopyableSnippet>
+
+### Codex CLI
+
+<CopyableSnippet label="Codex CLI — add HTTP MCP server" language="bash">
+{`codex mcp add nero-docs --transport http --url https://docs-mcp.nerochain.io`}
+</CopyableSnippet>
+
+## Download bundles
+
+Prefer files to a connection? Every bundle is served with a correct `Content-Type` and CORS enabled.
+
+### Full site
+
+| File | Content | ~ Tokens |
+|---|---|---|
+| [`/llms.txt`](https://docs.nerochain.io/llms.txt) | Curated markdown index of every page. Follows the [llmstxt.org](https://llmstxt.org) format. | ~6K |
+| [`/llms-full.txt`](https://docs.nerochain.io/llms-full.txt) | Full English corpus as plain markdown, one page per section. | ~120K |
+| [`/llms-full-ja.txt`](https://docs.nerochain.io/llms-full-ja.txt) | Full Japanese corpus as plain markdown. | ~120K |
+| [`/llms-full.jsonl`](https://docs.nerochain.io/llms-full.jsonl) | One JSON object per page: `{url, locale, section, title, summary, markdown, tokens}`. Easy to stream into embedding pipelines. | ~120K |
+| [`/site-index.json`](https://docs.nerochain.io/site-index.json) | Lightweight metadata: URLs, titles, headings, summaries, token estimates. | ~25K |
+| [`/sitemap.xml`](https://docs.nerochain.io/sitemap.xml) | Standard sitemap with `hreflang` pairs for EN/JA. | — |
+
+### Section bundles
+
+Each section is also available as its own llms.txt:
+
+| Section | English | Japanese |
+|---|---|---|
+| Getting Started | [EN](https://docs.nerochain.io/en/getting-started/llms.txt) | [JA](https://docs.nerochain.io/ja/getting-started/llms.txt) |
+| White Paper (Core Concepts) | [EN](https://docs.nerochain.io/en/core-concepts/llms.txt) | [JA](https://docs.nerochain.io/ja/core-concepts/llms.txt) |
+| Developer Tools | [EN](https://docs.nerochain.io/en/developer-tools/llms.txt) | [JA](https://docs.nerochain.io/ja/developer-tools/llms.txt) |
+| Cookbook (Tutorials) | [EN](https://docs.nerochain.io/en/tutorials/llms.txt) | [JA](https://docs.nerochain.io/ja/tutorials/llms.txt) |
+| Node Validators | [EN](https://docs.nerochain.io/en/node-validators/llms.txt) | [JA](https://docs.nerochain.io/ja/node-validators/llms.txt) |
+
+## OpenAPI & schemas
+
+The Paymaster JSON-RPC API is published as an OpenAPI 3.1 spec:
+
+- [`/specs/paymaster-openapi.yaml`](https://docs.nerochain.io/specs/paymaster-openapi.yaml)
+- [`/specs/paymaster-openapi.json`](https://docs.nerochain.io/specs/paymaster-openapi.json)
+
+Additional discovery surface:
+
+- [`/.well-known/ai-plugin.json`](https://docs.nerochain.io/.well-known/ai-plugin.json) — OpenAI plugin manifest
+- [`/.well-known/agent-card.json`](https://docs.nerochain.io/.well-known/agent-card.json) — A2A agent card
+- [`/.well-known/agent-skills/index.json`](https://docs.nerochain.io/.well-known/agent-skills/index.json) — skill catalog
+- [`/.well-known/api-catalog`](https://docs.nerochain.io/.well-known/api-catalog) — RFC 9727 linkset
+- [`/.well-known/nero-docs.json`](https://docs.nerochain.io/.well-known/nero-docs.json) — structured nav + artifact index
+
+## Open in ChatGPT / Claude
+
+Start a new conversation pre-loaded with the NERO docs corpus:
+
+- [Open in ChatGPT](https://chat.openai.com/?q=Summarize+https%3A%2F%2Fdocs.nerochain.io%2Fllms-full.txt+and+help+me+build+on+NERO+Chain)
+- [Open in Claude](https://claude.ai/new?q=Please%20load%20https%3A%2F%2Fdocs.nerochain.io%2Fllms-full.txt%20and%20help%20me%20build%20on%20NERO%20Chain)
+
+## Transparency
+
+- No embedded system prompt or persona.
+- No tracking cookies or analytics on these artifacts (`Access-Control-Allow-Origin: *`).
+- Content is regenerated deterministically from the MDX source on every build, so what you read matches what ships to humans.
+- Source of truth: [github.com/nerochain/Nero-docs](https://github.com/nerochain/Nero-docs).
+
+<PageFeedback path="/en/ai-resources" />

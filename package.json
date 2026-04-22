@@ -1,10 +1,20 @@
 {
   "name": "nero-docs",
+  "private": true,
   "packageManager": "yarn@3.8.3",
+  "workspaces": [
+    "mcp-server"
+  ],
   "scripts": {
     "dev": "next",
-    "build": "next build",
-    "start": "next start"
+    "build": "node scripts/clean-pages.mjs && next build && node scripts/build-agent-artifacts.mjs",
+    "build:site": "next build",
+    "build:artifacts": "node scripts/build-agent-artifacts.mjs",
+    "start": "next start",
+    "validate:agent-ready": "node scripts/validate-agent-artifacts.mjs",
+    "validate:external": "node scripts/external-validation.mjs",
+    "lint:openapi": "spectral lint spec/paymaster-openapi.yaml --ruleset .spectral.yaml",
+    "eval:tasks": "node scripts/eval/run-agent-tasks.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
@@ -12,7 +22,7 @@
     "firebase": "^11.6.0",
     "glob": "^11.0.1",
     "gray-matter": "^4.0.3",
-    "next": "^15.0.4",
+    "next": "^15.5.0",
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",
     "openai": "latest",
@@ -22,8 +32,13 @@
     "remark-math": "^6.0.0"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.40.0",
+    "@stoplight/spectral-cli": "^6.11.1",
     "@types/node": "22.10.1",
     "@types/react": "19.0.0",
+    "fast-xml-parser": "^4.5.0",
+    "js-yaml": "^4.1.0",
+    "node-html-parser": "^7.0.1",
     "typescript": "5.7.2"
   },
   "engines": {

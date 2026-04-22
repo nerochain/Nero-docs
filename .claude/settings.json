@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_note": "Suggested project-scoped Claude Code settings. The MCP entry below is commented out — uncomment once docs-mcp.nerochain.io is live.",
+  "_suggestedMcpServers": {
+    "nero-docs": {
+      "type": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    }
+  }
+}

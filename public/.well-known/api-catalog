@@ -1,0 +1,57 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://docs.nerochain.io",
+      "item": [
+        {
+          "href": "https://docs.nerochain.io/specs/paymaster-openapi.yaml",
+          "rel": "service-desc",
+          "type": "application/yaml",
+          "title": "NERO Paymaster JSON-RPC API (OpenAPI 3.1, YAML)"
+        },
+        {
+          "href": "https://docs.nerochain.io/specs/paymaster-openapi.json",
+          "rel": "service-desc",
+          "type": "application/json",
+          "title": "NERO Paymaster JSON-RPC API (OpenAPI 3.1, JSON)"
+        },
+        {
+          "href": "https://docs-mcp.nerochain.io",
+          "rel": "service",
+          "type": "application/mcp",
+          "title": "NERO Docs MCP server (HTTP streamable)"
+        },
+        {
+          "href": "https://docs.nerochain.io/llms.txt",
+          "rel": "describedby",
+          "type": "text/plain",
+          "title": "NERO Docs — llms.txt index"
+        },
+        {
+          "href": "https://docs.nerochain.io/llms-full.txt",
+          "rel": "alternate",
+          "type": "text/plain",
+          "title": "NERO Docs — full corpus"
+        },
+        {
+          "href": "https://docs.nerochain.io/site-index.json",
+          "rel": "alternate",
+          "type": "application/json",
+          "title": "NERO Docs — JSON site index"
+        },
+        {
+          "href": "https://docs.nerochain.io/sitemap.xml",
+          "rel": "sitemap",
+          "type": "application/xml",
+          "title": "Sitemap"
+        },
+        {
+          "href": "https://docs.nerochain.io/en/ai-resources",
+          "rel": "help",
+          "type": "text/html",
+          "title": "AI resources hub"
+        }
+      ]
+    }
+  ]
+}

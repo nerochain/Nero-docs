@@ -2,6 +2,7 @@ import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
 import MessageBanner from "./components/MessageBanner";
 import SidebarResources from "./components/SidebarResources";
+import AskButton from "./components/AskButton";
 
 const themeConfig: DocsThemeConfig = {
   logo: (
@@ -65,7 +66,16 @@ const themeConfig: DocsThemeConfig = {
   // Add custom components to the right sidebar
   toc: {
     extraContent: <SidebarResources />
-  }
+  },
+
+  // Wrap main content with the "Ask" button so every docs page surfaces
+  // copy-page-as-markdown, open-in-ChatGPT/Claude, and MCP install actions.
+  main: ({ children }) => (
+    <>
+      <AskButton />
+      {children}
+    </>
+  )
 };
 
 export default themeConfig;

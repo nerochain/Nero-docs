@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "nero-chain-docs",
+  "description": "NERO Chain documentation exposed over Model Context Protocol.",
+  "transport": "http",
+  "serverUrl": "https://docs-mcp.nerochain.io",
+  "mcpEndpoint": "https://docs-mcp.nerochain.io/mcp",
+  "serverCard": "https://docs.nerochain.io/.well-known/mcp/server-card.json",
+  "tools": [
+    "search_docs",
+    "get_page",
+    "list_sections",
+    "get_api_method",
+    "get_code_example",
+    "get_faq",
+    "get_integration_config"
+  ],
+  "resources": {
+    "prefix": "docs://",
+    "mimeType": "text/markdown",
+    "count": 140
+  },
+  "documentation": "https://docs.nerochain.io/en/ai-resources",
+  "provider": {
+    "name": "NERO Chain",
+    "url": "https://nerochain.io",
+    "contact": "contact@nerochain.io"
+  }
+}

@@ -1,0 +1,5 @@
+node_modules/
+dist/
+data/search-index.json
+data/corpus.json
+*.log

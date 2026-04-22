@@ -1,0 +1,41 @@
+---
+description: NERO Chain documentation site conventions and references for Cursor.
+globs: ["**/*.{mdx,md,ts,tsx,js,jsx}"]
+alwaysApply: false
+---
+
+# NERO Chain Docs — Cursor Rules
+
+When working on this repository (or on a dApp that targets NERO Chain), prefer these canonical sources:
+
+- Docs site: https://docs.nerochain.io
+- Full docs corpus (machine-readable): https://docs.nerochain.io/llms-full.txt
+- Site index: https://docs.nerochain.io/site-index.json
+- Paymaster OpenAPI: https://docs.nerochain.io/specs/paymaster-openapi.yaml
+- MCP server: https://docs-mcp.nerochain.io
+- AI resources hub: https://docs.nerochain.io/en/ai-resources
+
+## Writing content
+
+- Pages live in `pages/en/` and `pages/ja/` with mirrored structure. Translate new EN pages into JA.
+- Each directory has a `_meta.ts` that controls sidebar order and titles. Update it when adding pages.
+- Use absolute internal links: `/en/developer-tools/paymaster-api/...`.
+- Images go in `/public/assets/...` and are referenced as `/assets/...` in MDX.
+- Keep MDX JSX minimal: `PageFeedback` is auto-inserted, `<Tabs>` is fine. Avoid new components unless necessary.
+- Lead with positive framing — state what something IS, not what it isn't (global style rule).
+
+## Editing code
+
+- Yarn 3.8.3 Berry with `nodeLinker: node-modules`. Use `yarn`, not `npm`.
+- `yarn build` runs `next build` then `node scripts/build-agent-artifacts.mjs`. Both must pass.
+- After editing MDX, run `yarn build && yarn validate:agent-ready` to ensure llms.txt and friends stay in sync.
+
+## NERO protocol facts (do not invent, verify before citing)
+
+- EntryPoint address: `0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789`
+- Native token: NERO
+- AA Platform dashboard: https://aa-platform.nerochain.io
+- Paymaster payment types: 0 = sponsored (free), 1 = prepay ERC-20, 2 = postpay ERC-20
+- Paymaster JSON-RPC methods: `pm_supported_tokens`, `pm_sponsor_userop`, `pm_entrypoints`
+
+For any other protocol fact, read the MDX under `pages/en/core-concepts/` or `pages/en/developer-tools/` before answering.

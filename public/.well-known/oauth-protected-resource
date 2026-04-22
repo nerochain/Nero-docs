@@ -1,0 +1,10 @@
+{
+  "resource": "https://aa-platform.nerochain.io",
+  "authorization_servers": ["https://aa-platform.nerochain.io"],
+  "scopes_supported": ["paymaster:read", "paymaster:sponsor"],
+  "bearer_methods_supported": ["header"],
+  "resource_documentation": "https://docs.nerochain.io/en/developer-tools/aa-platform",
+  "resource_name": "NERO AA Platform",
+  "resource_policy_uri": "https://nerochain.io/legal",
+  "authentication_note": "The NERO Paymaster JSON-RPC API currently issues long-lived API keys via the AA Platform dashboard rather than OAuth tokens. This document exists so agents can discover the protected-resource relationship per RFC 9728."
+}

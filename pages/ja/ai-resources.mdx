@@ -1,0 +1,134 @@
+import CopyableSnippet from '../../components/CopyableSnippet'
+import PageFeedback from '../../components/PageFeedback'
+
+
+# AI リソース
+
+NERO Chain のドキュメントは、AI エージェント、検索システム、LLM 搭載の開発ツール向けに機械可読な形式で公開されています。NERO Docs MCP サーバーにコーディングエージェントを接続するか、バンドルを直接ダウンロードしてご利用ください。
+
+ここで提供されるすべてのリソースは純粋に情報提供を目的としたものであり、システムプロンプト、ペルソナ、トラッキングは埋め込まれていません。
+
+## MCP で接続する
+
+NERO Docs MCP サーバーは、[Model Context Protocol](https://modelcontextprotocol.io) を通じてドキュメント全体を公開しています。コーディングエージェントからこのエンドポイントに接続すると、自然言語で質問するだけで関連ページや API メソッドを取得できます。
+
+**エンドポイント:** `https://docs-mcp.nerochain.io`
+
+### Claude Code (CLI)
+
+<CopyableSnippet label="Claude Code — HTTP MCP サーバーを追加" language="bash">
+{`claude mcp add --transport http nero-docs https://docs-mcp.nerochain.io`}
+</CopyableSnippet>
+
+### Claude Desktop
+
+<CopyableSnippet label="claude_desktop_config.json" language="json">
+{`{
+  "mcpServers": {
+    "nero-docs": {
+      "type": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    }
+  }
+}`}
+</CopyableSnippet>
+
+### Cursor
+
+<CopyableSnippet label=".cursor/mcp.json" language="json">
+{`{
+  "mcpServers": {
+    "nero-docs": {
+      "transport": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    }
+  }
+}`}
+</CopyableSnippet>
+
+### VS Code (GitHub Copilot Chat)
+
+<CopyableSnippet label=".vscode/mcp.json" language="json">
+{`{
+  "servers": {
+    "nero-docs": {
+      "type": "http",
+      "url": "https://docs-mcp.nerochain.io"
+    }
+  }
+}`}
+</CopyableSnippet>
+
+### ChatGPT / OpenAI Apps SDK
+
+<CopyableSnippet label="HTTP コネクタ" language="json">
+{`{
+  "name": "nero-docs",
+  "type": "mcp",
+  "server_url": "https://docs-mcp.nerochain.io"
+}`}
+</CopyableSnippet>
+
+### Codex CLI
+
+<CopyableSnippet label="Codex CLI — HTTP MCP サーバーを追加" language="bash">
+{`codex mcp add nero-docs --transport http --url https://docs-mcp.nerochain.io`}
+</CopyableSnippet>
+
+## バンドルのダウンロード
+
+接続ではなくファイルでご利用になりますか？ すべてのバンドルは正しい `Content-Type` と CORS 対応で配信されています。
+
+### サイト全体
+
+| ファイル | 内容 | トークン目安 |
+|---|---|---|
+| [`/llms.txt`](https://docs.nerochain.io/llms.txt) | 全ページのキュレーション済みマークダウン索引（[llmstxt.org](https://llmstxt.org) 準拠）。 | 約 6K |
+| [`/llms-full-ja.txt`](https://docs.nerochain.io/llms-full-ja.txt) | 日本語版フルコーパス（プレーンマークダウン）。 | 約 120K |
+| [`/llms-full.txt`](https://docs.nerochain.io/llms-full.txt) | 英語版フルコーパス。 | 約 120K |
+| [`/llms-full.jsonl`](https://docs.nerochain.io/llms-full.jsonl) | 1 行 1 ページの JSON。埋め込みパイプラインでそのままストリーミング可能。 | 約 120K |
+| [`/site-index.json`](https://docs.nerochain.io/site-index.json) | URL・タイトル・見出し・要約・トークン数などのメタデータ。 | 約 25K |
+| [`/sitemap.xml`](https://docs.nerochain.io/sitemap.xml) | 標準的なサイトマップ（EN/JA の `hreflang` ペア付き）。 | — |
+
+### セクションバンドル
+
+各セクションの個別 llms.txt もご利用いただけます:
+
+| セクション | 英語 | 日本語 |
+|---|---|---|
+| はじめに | [EN](https://docs.nerochain.io/en/getting-started/llms.txt) | [JA](https://docs.nerochain.io/ja/getting-started/llms.txt) |
+| ホワイトペーパー | [EN](https://docs.nerochain.io/en/core-concepts/llms.txt) | [JA](https://docs.nerochain.io/ja/core-concepts/llms.txt) |
+| 開発者ツール | [EN](https://docs.nerochain.io/en/developer-tools/llms.txt) | [JA](https://docs.nerochain.io/ja/developer-tools/llms.txt) |
+| クックブック | [EN](https://docs.nerochain.io/en/tutorials/llms.txt) | [JA](https://docs.nerochain.io/ja/tutorials/llms.txt) |
+| ノードバリデータ | [EN](https://docs.nerochain.io/en/node-validators/llms.txt) | [JA](https://docs.nerochain.io/ja/node-validators/llms.txt) |
+
+## OpenAPI とスキーマ
+
+Paymaster JSON-RPC API は OpenAPI 3.1 スペックとして公開されています:
+
+- [`/specs/paymaster-openapi.yaml`](https://docs.nerochain.io/specs/paymaster-openapi.yaml)
+- [`/specs/paymaster-openapi.json`](https://docs.nerochain.io/specs/paymaster-openapi.json)
+
+その他の検出用リソース:
+
+- [`/.well-known/ai-plugin.json`](https://docs.nerochain.io/.well-known/ai-plugin.json) — OpenAI プラグインマニフェスト
+- [`/.well-known/agent-card.json`](https://docs.nerochain.io/.well-known/agent-card.json) — A2A エージェントカード
+- [`/.well-known/agent-skills/index.json`](https://docs.nerochain.io/.well-known/agent-skills/index.json) — スキルカタログ
+- [`/.well-known/api-catalog`](https://docs.nerochain.io/.well-known/api-catalog) — RFC 9727 リンクセット
+- [`/.well-known/nero-docs.json`](https://docs.nerochain.io/.well-known/nero-docs.json) — ナビゲーションとアーティファクトの索引
+
+## ChatGPT / Claude で開く
+
+NERO ドキュメントコーパスを事前読み込みした新しい会話を開始:
+
+- [ChatGPT で開く](https://chat.openai.com/?q=Summarize+https%3A%2F%2Fdocs.nerochain.io%2Fllms-full.txt+and+help+me+build+on+NERO+Chain)
+- [Claude で開く](https://claude.ai/new?q=Please%20load%20https%3A%2F%2Fdocs.nerochain.io%2Fllms-full.txt%20and%20help%20me%20build%20on%20NERO%20Chain)
+
+## 透明性
+
+- システムプロンプトやペルソナは埋め込まれていません。
+- これらのアーティファクトにはトラッキングクッキーやアナリティクスはありません（`Access-Control-Allow-Origin: *`）。
+- コンテンツはビルドごとに MDX ソースから決定論的に再生成されるため、人間が読む内容と完全に一致します。
+- ソースオブトゥルース: [github.com/nerochain/Nero-docs](https://github.com/nerochain/Nero-docs)
+
+<PageFeedback path="/ja/ai-resources" />

@@ -1,0 +1,4 @@
+{
+  "keys": [],
+  "note": "Placeholder JWK Set for RFC 9421 HTTP Message Signatures. Populate with Ed25519 public keys issued by the NERO ops team. Private keys must remain in an offline vault."
+}

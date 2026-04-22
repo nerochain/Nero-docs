@@ -1,0 +1,16 @@
+extends:
+  - spectral:oas
+rules:
+  operation-operationId: error
+  operation-description: error
+  operation-tag-defined: error
+  info-contact: error
+  info-description: error
+  info-license: warn
+  oas3-api-servers: error
+  oas3-examples-value-or-externalValue: warn
+  oas3-schema: error
+  no-$ref-siblings: off
+  operation-tags: warn
+  oas3-unused-component: off
+  oas3-valid-media-example: warn
