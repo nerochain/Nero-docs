@@ -49,6 +49,11 @@
       "source": "/ja/:path+",
       "has": [{ "type": "header", "key": "accept", "value": "text/markdown" }],
       "destination": "/ja/:path+.md"
+    },
+    {
+      "source": "/api/:path+",
+      "missing": [{ "type": "header", "key": "accept", "value": "text/html" }],
+      "destination": "/404.json"
     }
   ],
   "headers": [

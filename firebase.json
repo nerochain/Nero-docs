@@ -154,6 +154,10 @@
     ],
     "rewrites": [
       {
+        "source": "/api/**",
+        "destination": "/404.json"
+      },
+      {
         "source": "/ja/**",
         "destination": "/ja/index.html"
       },
