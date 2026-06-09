@@ -20,7 +20,8 @@ const themeConfig: DocsThemeConfig = {
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>NERO Chain Docs</title>
+      <title>NERO Docs | Developer Guides, SDKs &amp; Resources</title>
+      <meta name="description" content="Explore NERO documentation, SDKs, APIs, account abstraction tools, smart contract guides, and developer resources for building applications on NERO Chain." />
     </>
   ),
   banner: {
